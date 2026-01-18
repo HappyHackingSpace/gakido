@@ -1,0 +1,42 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.0
+    hooks:
+      - id: pyupgrade
+        args: ["--py311-plus"]
+
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        entry: make ruff
+        language: system
+        pass_filenames: false
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.22.8
+    hooks:
+      - id: typos
+        exclude: '^gakido/.*\.(c|h)$'
+
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty
+        entry: make ty
+        language: system
+        pass_filenames: false
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.2.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]

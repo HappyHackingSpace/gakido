@@ -1,0 +1,80 @@
+site_name: Gakido
+site_description: AI-powered CV analysis and career evaluation platform
+site_author: Happy Hacking Space
+site_url: https://happyhackingspace.github.io/Gakido
+
+repo_name: HappyHackingSpace/Gakido
+repo_url: https://github.com/HappyHackingSpace/Gakido
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - content.action.view
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex
+  - pymdownx.emoji
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - User Guide: user-guide.md
+  - API Reference: api.md
+  - Development:
+    - Contributing: contributing.md
+    - Changelog: changelog.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/HappyHackingSpace/Gakido
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/Gakido/
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/happyhackingspace
+
+plugins:
+  - search
