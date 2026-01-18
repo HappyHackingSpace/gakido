@@ -7,7 +7,7 @@ install:
 lint:
 	uv run ruff check --fix ./gakido/
 	uv run ruff format ./gakido/
-	uv run ty ./gakido/
+	uv run ty check ./gakido/
 
 ruff:
 	uv run ruff check --fix ./gakido/

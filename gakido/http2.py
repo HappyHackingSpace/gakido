@@ -52,7 +52,9 @@ class HTTP2Connection:
             if not data:
                 # Graceful close; return what we have if anything was received.
                 if status or resp_body or resp_headers:
-                    return Response(status or 0, reason or "", "2", resp_headers, bytes(resp_body))
+                    return Response(
+                        status or 0, reason or "", "2", resp_headers, bytes(resp_body)
+                    )
                 break
             events = self.conn.receive_data(data)
             self._send(self.conn.data_to_send())
@@ -60,14 +62,18 @@ class HTTP2Connection:
                 if isinstance(event, h2.events.ResponseReceived):
                     status = int(event.headers[0][1]) if event.headers else 0
                     resp_headers.extend(
-                        (name.decode() if isinstance(name, bytes) else name,
-                         value.decode() if isinstance(value, bytes) else value)
+                        (
+                            name.decode() if isinstance(name, bytes) else name,
+                            value.decode() if isinstance(value, bytes) else value,
+                        )
                         for name, value in event.headers
                         if not name.startswith(b":")
                     )
                 elif isinstance(event, h2.events.DataReceived):
                     resp_body.extend(event.data)
-                    self.conn.acknowledge_received_data(event.flow_controlled_length, stream_id)
+                    self.conn.acknowledge_received_data(
+                        event.flow_controlled_length, stream_id
+                    )
                 elif isinstance(event, h2.events.StreamEnded):
                     reason = "OK"
                     return Response(status, reason, "2", resp_headers, bytes(resp_body))

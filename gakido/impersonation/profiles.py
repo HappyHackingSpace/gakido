@@ -147,7 +147,10 @@ PROFILES: dict[str, dict] = {
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:120.0) "
                     "Gecko/20100101 Firefox/120.0",
                 ),
-                ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+                (
+                    "Accept",
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                ),
                 ("Accept-Language", "en-US,en;q=0.5"),
                 ("Accept-Encoding", "gzip, deflate, br"),
                 ("Connection", "keep-alive"),
@@ -210,7 +213,10 @@ PROFILES["chrome_120_android"] = {
                 "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 "
                 "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
             ),
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"),
+            (
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            ),
             ("Sec-Fetch-Site", "none"),
             ("Sec-Fetch-Mode", "navigate"),
             ("Sec-Fetch-User", "?1"),
@@ -252,7 +258,10 @@ PROFILES["safari_170"] = {
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                 "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
             ),
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+            (
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            ),
             ("Accept-Language", "en-US,en;q=0.9"),
             ("Accept-Encoding", "gzip, deflate, br"),
         ],
@@ -272,7 +281,10 @@ PROFILES["safari_170_ios"] = {
                 "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
                 "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
             ),
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+            (
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            ),
             ("Accept-Language", "en-US,en;q=0.9"),
             ("Accept-Encoding", "gzip, deflate, br"),
         ],
@@ -290,7 +302,10 @@ PROFILES["firefox_133"] = {
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) "
                 "Gecko/20100101 Firefox/133.0",
             ),
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+            (
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            ),
             ("Accept-Language", "en-US,en;q=0.5"),
             ("Accept-Encoding", "gzip, deflate, br"),
             ("Connection", "keep-alive"),
@@ -311,7 +326,10 @@ PROFILES["firefox_135_android"] = {
                 "User-Agent",
                 "Mozilla/5.0 (Android 14; Mobile; rv:135.0) Gecko/135.0 Firefox/135.0",
             ),
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+            (
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            ),
             ("Accept-Language", "en-US,en;q=0.5"),
             ("Accept-Encoding", "gzip, deflate, br"),
             ("Connection", "keep-alive"),
@@ -337,7 +355,10 @@ PROFILES["edge_101"] = {
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                 "(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47",
             ),
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"),
+            (
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            ),
             ("Sec-Fetch-Site", "none"),
             ("Sec-Fetch-Mode", "navigate"),
             ("Sec-Fetch-User", "?1"),
@@ -358,7 +379,10 @@ PROFILES["tor_145"] = {
                 "User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; rv:115.0) Gecko/20100101 Firefox/115.0",
             ),
-            ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+            (
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            ),
             ("Accept-Language", "en-US,en;q=0.5"),
             ("Accept-Encoding", "gzip, deflate, br"),
             ("Connection", "keep-alive"),

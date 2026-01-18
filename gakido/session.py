@@ -15,7 +15,9 @@ class Session:
         self.client = Client(**client_kwargs)
         self.cookies = CookieJar()
 
-    def request(self, method: str, url: str, headers: dict[str, str] | None = None, **kwargs) -> Response:
+    def request(
+        self, method: str, url: str, headers: dict[str, str] | None = None, **kwargs
+    ) -> Response:
         hdrs = dict(headers or {})
         # Attach Cookie header if present for host.
         from .utils import parse_url
@@ -30,7 +32,9 @@ class Session:
         self.cookies.set_from_headers(resp.raw_headers, host)
         return resp
 
-    def get(self, url: str, headers: dict[str, str] | None = None, **kwargs) -> Response:
+    def get(
+        self, url: str, headers: dict[str, str] | None = None, **kwargs
+    ) -> Response:
         return self.request("GET", url, headers=headers, **kwargs)
 
     def post(

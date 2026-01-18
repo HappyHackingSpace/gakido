@@ -2,12 +2,12 @@ import uuid
 
 
 def _encode_field(name: str, value: str) -> bytes:
-    return (
-        f'Content-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode()
-    )
+    return f'Content-Disposition: form-data; name="{name}"\r\n\r\n{value}\r\n'.encode()
 
 
-def _encode_file(name: str, filename: str, content: bytes, content_type: str | None) -> bytes:
+def _encode_file(
+    name: str, filename: str, content: bytes, content_type: str | None
+) -> bytes:
     ct = content_type or "application/octet-stream"
     headers = (
         f'Content-Disposition: form-data; name="{name}"; filename="{filename}"\r\n'

@@ -55,9 +55,12 @@ class WebSocket:
         if b" 101 " not in resp.split(b"\r\n", 1)[0]:
             raw.close()
             raise RuntimeError(f"WebSocket upgrade failed: {resp!r}")
-        accept = hashlib.sha1((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode()).digest()
-        if f"Sec-WebSocket-Accept: {base64.b64encode(accept).decode()}" not in resp.decode(
-            errors="ignore"
+        accept = hashlib.sha1(
+            (key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode()
+        ).digest()
+        if (
+            f"Sec-WebSocket-Accept: {base64.b64encode(accept).decode()}"
+            not in resp.decode(errors="ignore")
         ):
             raw.close()
             raise RuntimeError("WebSocket accept mismatch")

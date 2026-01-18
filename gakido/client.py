@@ -40,7 +40,10 @@ class Client:
         profile = apply_tls_configuration_options(profile, tls_configuration_options)
         self.profile = apply_ja3_overrides(profile, ja3)
         self.pool = ConnectionPool(
-            profile=self.profile, timeout=timeout, verify=verify, max_per_host=max_per_host
+            profile=self.profile,
+            timeout=timeout,
+            verify=verify,
+            max_per_host=max_per_host,
         )
         self.timeout = timeout
         self.verify = verify
@@ -62,7 +65,9 @@ class Client:
         final_headers.setdefault("Accept-Encoding", "identity")
 
         if files:
-            ctype, body = build_multipart(data if isinstance(data, dict) else None, files)
+            ctype, body = build_multipart(
+                data if isinstance(data, dict) else None, files
+            )
             final_headers["Content-Type"] = ctype
             final_headers["Content-Length"] = str(len(body))
         elif data is not None:
@@ -79,7 +84,10 @@ class Client:
                 raise TypeError("Unsupported data type for request body")
             final_headers.setdefault("Content-Length", str(len(body)))
         else:
-            final_headers.setdefault("Content-Length", "0") if method in ("POST", "PUT") else None
+            final_headers.setdefault("Content-Length", "0") if method in (
+                "POST",
+                "PUT",
+            ) else None
 
         default_headers = list(self.profile.get("headers", {}).get("default", []))
         order = self.profile.get("headers", {}).get("order", [])
@@ -106,7 +114,12 @@ class Client:
 
         conn = self.pool.acquire(parsed.scheme, target_host, target_port)
         try:
-            if self.use_native and parsed.scheme == "http" and not proxy and not self.proxies:
+            if (
+                self.use_native
+                and parsed.scheme == "http"
+                and not proxy
+                and not self.proxies
+            ):
                 result = gakido_core.request(
                     method.upper(),
                     target_host,
@@ -119,7 +132,9 @@ class Client:
                 status_code, reason, version, raw_headers, raw_body = result
                 response = Response(status_code, reason, version, raw_headers, raw_body)
             else:
-                response = conn.request(method.upper(), target_path, merged_headers, body)
+                response = conn.request(
+                    method.upper(), target_path, merged_headers, body
+                )
         except Exception:
             conn.close()
             raise

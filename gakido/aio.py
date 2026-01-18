@@ -56,7 +56,9 @@ class AsyncClient:
         final_headers.setdefault("Accept-Encoding", "identity")
 
         if files:
-            ctype, body = build_multipart(data if isinstance(data, dict) else None, files)
+            ctype, body = build_multipart(
+                data if isinstance(data, dict) else None, files
+            )
             final_headers["Content-Type"] = ctype
             final_headers["Content-Length"] = str(len(body))
         elif data is not None:
@@ -123,25 +125,22 @@ class AsyncClient:
                 connect_host,
                 connect_port,
                 ssl=ssl_ctx,
-                server_hostname=host if ssl_ctx else None),
+                server_hostname=host if ssl_ctx else None,
+            ),
             timeout=self.timeout,
         )
 
         negotiated_protocol = None
-        if ssl_ctx and hasattr(writer.get_extra_info("ssl_object"), "selected_alpn_protocol"):
+        if ssl_ctx and hasattr(
+            writer.get_extra_info("ssl_object"), "selected_alpn_protocol"
+        ):
             ssl_obj = writer.get_extra_info("ssl_object")
             if ssl_obj:
                 negotiated_protocol = ssl_obj.selected_alpn_protocol()
 
         if negotiated_protocol == "h2":
             return await self._request_h2(
-                reader,
-                writer,
-                method,
-                host,
-                target_path,
-                merged_headers,
-                body
+                reader, writer, method, host, target_path, merged_headers, body
             )
 
         # HTTP/1.1 path
@@ -174,7 +173,9 @@ class AsyncClient:
                 name, value = line.split(b":", 1)
             except ValueError as exc:
                 raise ProtocolError(f"Malformed header line: {line!r}") from exc
-            headers_list.append((name.decode("latin-1").strip(), value.decode("latin-1").strip()))
+            headers_list.append(
+                (name.decode("latin-1").strip(), value.decode("latin-1").strip())
+            )
 
         header_map = {k.lower(): v for k, v in headers_list}
         body_bytes: bytes
@@ -225,7 +226,9 @@ class AsyncClient:
             (":scheme", "https"),
             (":path", path),
         ]
-        h2conn.send_headers(stream_id, pseudo_headers + list(headers), end_stream=body is None)
+        h2conn.send_headers(
+            stream_id, pseudo_headers + list(headers), end_stream=body is None
+        )
         if body:
             h2conn.send_data(stream_id, body, end_stream=True)
         writer.write(h2conn.data_to_send())
@@ -247,14 +250,18 @@ class AsyncClient:
                 if isinstance(event, h2.events.ResponseReceived):
                     status = int(event.headers[0][1]) if event.headers else 0
                     resp_headers.extend(
-                        (name.decode() if isinstance(name, bytes) else name,
-                         value.decode() if isinstance(value, bytes) else value)
+                        (
+                            name.decode() if isinstance(name, bytes) else name,
+                            value.decode() if isinstance(value, bytes) else value,
+                        )
                         for name, value in event.headers
                         if not name.startswith(b":")
                     )
                 elif isinstance(event, h2.events.DataReceived):
                     resp_body.extend(event.data)
-                    h2conn.acknowledge_received_data(event.flow_controlled_length, stream_id)
+                    h2conn.acknowledge_received_data(
+                        event.flow_controlled_length, stream_id
+                    )
                 elif isinstance(event, h2.events.StreamEnded):
                     reason = "OK"
                     writer.close()
@@ -273,10 +280,7 @@ class AsyncClient:
         raise ProtocolError("Connection closed before stream ended")
 
     async def get(
-            self,
-            url: str,
-            headers: dict[str, str] | None = None,
-            proxy: str | None = None
+        self, url: str, headers: dict[str, str] | None = None, proxy: str | None = None
     ) -> Response:
         return await self.request("GET", url, headers=headers, data=None, proxy=proxy)
 
@@ -288,7 +292,9 @@ class AsyncClient:
         files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
         proxy: str | None = None,
     ) -> Response:
-        return await self.request("POST", url, headers=headers, data=data, files=files, proxy=proxy)
+        return await self.request(
+            "POST", url, headers=headers, data=data, files=files, proxy=proxy
+        )
 
     async def __aenter__(self) -> AsyncClient:
         return self

@@ -130,7 +130,11 @@ class Connection:
         return response
 
     def _build_request(
-        self, method: str, path: str, headers: Iterable[tuple[str, str]], body: bytes | None
+        self,
+        method: str,
+        path: str,
+        headers: Iterable[tuple[str, str]],
+        body: bytes | None,
     ) -> bytes:
         lines = [f"{method} {path} HTTP/1.1\r\n".encode("ascii")]
         for name, value in headers:
@@ -186,7 +190,9 @@ class Connection:
                 name, value = line.split(b":", 1)
             except ValueError as exc:
                 raise ProtocolError(f"Malformed header line: {line!r}") from exc
-            headers.append((name.decode("latin-1").strip(), value.decode("latin-1").strip()))
+            headers.append(
+                (name.decode("latin-1").strip(), value.decode("latin-1").strip())
+            )
 
         header_map = {k.lower(): v for k, v in headers}
         body: bytes
@@ -267,6 +273,8 @@ class Connection:
 
     def _open_tcp(self) -> socket.socket:
         try:
-            return socket.create_connection((self.host, self.port), timeout=self.timeout)
+            return socket.create_connection(
+                (self.host, self.port), timeout=self.timeout
+            )
         except OSError as exc:
             raise ConnectionError(f"TCP connection failed: {exc}") from exc
