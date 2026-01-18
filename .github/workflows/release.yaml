@@ -43,6 +43,15 @@ jobs:
       - name: Build package
         run: uv build
 
+      - name: Set artifact paths
+        run: |
+          WHEEL=$(ls dist/*.whl | head -1)
+          SDIST=$(ls dist/*.tar.gz | head -1)
+          echo "WHEEL=$WHEEL" >> $GITHUB_ENV
+          echo "SDIST=$SDIST" >> $GITHUB_ENV
+          echo "Wheel: $WHEEL"
+          echo "Sdist: $SDIST"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -60,8 +69,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/gakido-${{ env.VERSION }}-py3-none-any.whl
-          asset_name: gakido-${{ env.VERSION }}-py3-none-any.whl
+          asset_path: ${{ env.WHEEL }}
+          asset_name: ${{ env.WHEEL }}
           asset_content_type: application/octet-stream
 
       - name: Upload Source
@@ -70,6 +79,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/gakido-${{ env.VERSION }}.tar.gz
-          asset_name: gakido-${{ env.VERSION }}.tar.gz
+          asset_path: ${{ env.SDIST }}
+          asset_name: ${{ env.SDIST }}
           asset_content_type: application/gzip
