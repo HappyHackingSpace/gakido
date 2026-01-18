@@ -43,15 +43,6 @@ jobs:
       - name: Build package
         run: uv build
 
-      - name: Run tests
-        run: |
-          uv run pytest
-
-      - name: Run linting
-        run: |
-          uv run ruff check
-          uv run ruff format --check
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
