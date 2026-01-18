@@ -33,12 +33,21 @@ jobs:
         run: |
           uv sync --dev
 
-      - name: Get package version
-        id: get_version
+      - name: Compute tag (use existing tag or create new on main)
         run: |
           VERSION=$(grep -m1 'version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Package version: $VERSION"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="v${VERSION}-${GITHUB_SHA::7}"
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "Using tag: $TAG"
 
       - name: Build package
         run: uv build
@@ -58,8 +67,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.VERSION }}
-          release_name: Release v${{ env.VERSION }}
+          tag_name: ${{ env.TAG }}
+          release_name: Release ${{ env.TAG }}
           draft: false
           prerelease: false
 
