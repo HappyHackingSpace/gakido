@@ -31,4 +31,4 @@ jobs:
 
     - name: Run linting
       run: |
-        make run lint
+        make lint
