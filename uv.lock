@@ -198,6 +198,8 @@ dependencies = [
     { name = "click" },
     { name = "h2" },
     { name = "httpx" },
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
     { name = "requests" },
 ]
 
@@ -217,8 +219,10 @@ requires-dist = [
     { name = "click", specifier = ">=8.3.1" },
     { name = "h2", specifier = ">=4.3.0" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "mkdocs", marker = "extra == 'dev'", specifier = ">=1.6.1" },
     { name = "mkdocs-git-revision-date-localized-plugin", marker = "extra == 'dev'", specifier = ">=1.5.0" },
+    { name = "mkdocs-material", specifier = ">=9.7.1" },
     { name = "mkdocs-material", marker = "extra == 'dev'", specifier = ">=9.7.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.2" },
     { name = "requests", specifier = ">=2.32.5" },
