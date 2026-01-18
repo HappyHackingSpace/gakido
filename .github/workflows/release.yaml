@@ -61,13 +61,14 @@ jobs:
           echo "Wheel: $WHEEL"
           echo "Sdist: $SDIST"
 
-      - name: Create Release
+      - name: Draft & publish release notes
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: release-drafter/release-drafter@v6
         with:
-          tag_name: ${{ env.TAG }}
+          tag: ${{ env.TAG }}
           name: Release ${{ env.TAG }}
-          generate_release_notes: true
+          version: ${{ env.TAG }}
+          publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
