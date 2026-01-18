@@ -8,10 +8,7 @@ import time
 import zlib
 from collections.abc import Iterable
 
-try:
-    import brotli  # type: ignore
-except Exception:  # pragma: no cover - optional dependency
-    brotli = None
+import brotli
 
 from .errors import ConnectionError, ProtocolError, TLSNegotiationError
 from .models import Response
