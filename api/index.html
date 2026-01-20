@@ -488,6 +488,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="gakido.aio.AsyncClient">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http3-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/3 Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gakidois_http3_available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gakido.is_http3_available
+      
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -517,6 +545,17 @@
     <span class="md-ellipsis">
       
         WebSocket
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-extras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation Extras
       
     </span>
   </a>
@@ -620,7 +659,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
+      <a href="../changelog.md" class="md-nav__link">
         
   
   
@@ -694,6 +733,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="gakido.aio.AsyncClient">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#http3-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP/3 Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gakidois_http3_available" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gakido.is_http3_available
+      
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -723,6 +790,17 @@
     <span class="md-ellipsis">
       
         WebSocket
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-extras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation Extras
       
     </span>
   </a>
@@ -773,18 +851,55 @@
 <h1 id="api-reference-essentials">API Reference (essentials)<a class="headerlink" href="#api-reference-essentials" title="Permanent link">&para;</a></h1>
 <h2 id="gakidoclient">gakido.Client<a class="headerlink" href="#gakidoclient" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True)</code></li>
+<li><code>Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True)</code></li>
 <li>Methods: <code>get</code>, <code>post</code>, <code>request</code>, <code>close</code>, context manager.</li>
 <li><code>files</code> supported on <code>post</code>/<code>request</code> for multipart.</li>
 </ul>
 <h2 id="gakidoaioasyncclient">gakido.aio.AsyncClient<a class="headerlink" href="#gakidoaioasyncclient" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Same parameters as <code>Client</code>.</li>
-<li>Async context manager; methods <code>get</code>, <code>post</code>, <code>request</code>.</li>
+<li><code>AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True)</code></li>
+<li>Async context manager; methods <code>get</code>, <code>post</code>, <code>request</code>, <code>close</code>.</li>
+</ul>
+<h3 id="http3-parameters">HTTP/3 Parameters<a class="headerlink" href="#http3-parameters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>http3</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td>Enable HTTP/3 (QUIC) for compatible targets</td>
+</tr>
+<tr>
+<td><code>http3_fallback</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Fall back to HTTP/1.1 or HTTP/2 if HTTP/3 fails</td>
+</tr>
+<tr>
+<td><code>force_http3</code></td>
+<td><code>bool</code></td>
+<td><code>None</code></td>
+<td>Per-request override (in <code>request()</code> method)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gakidois_http3_available">gakido.is_http3_available<a class="headerlink" href="#gakidois_http3_available" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>is_http3_available() -&gt; bool</code></li>
+<li>Returns <code>True</code> if aioquic is installed and HTTP/3 support is available.</li>
 </ul>
 <h2 id="profiles">Profiles<a class="headerlink" href="#profiles" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>impersonate</code> accepts keys from <code>gakido.impersonation.PROFILES</code> (Chrome/Firefox/Safari/Edge/Tor aliases).</li>
+<li>Profiles include HTTP/3 settings (<code>http3.max_stream_data</code>, <code>http3.max_data</code>, <code>http3.idle_timeout</code>).</li>
 </ul>
 <h2 id="tls-overrides">TLS overrides<a class="headerlink" href="#tls-overrides" title="Permanent link">&para;</a></h2>
 <ul>
@@ -796,6 +911,11 @@
 <li><code>gakido.websocket.WebSocket.connect(host, port, resource, headers, tls, timeout)</code></li>
 <li>Methods: <code>send_text</code>, <code>send_bytes</code>, <code>recv</code>, <code>close</code>.</li>
 </ul>
+<h2 id="installation-extras">Installation Extras<a class="headerlink" href="#installation-extras" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="w">          </span><span class="c1"># Core package</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="o">[</span>h3<span class="o">]</span><span class="w">      </span><span class="c1"># With HTTP/3 (QUIC) support</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="o">[</span>dev<span class="o">]</span><span class="w">     </span><span class="c1"># Development dependencies</span>
+</code></pre></div>
 
 
 
