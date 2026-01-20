@@ -84,22 +84,14 @@ jobs:
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "Using tag: $TAG"
 
-      - name: Draft & publish release notes
-        id: create_release
-        uses: release-drafter/release-drafter@v6
-        with:
-          tag: ${{ env.TAG }}
-          name: Release ${{ env.TAG }}
-          version: ${{ env.TAG }}
-          publish: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release artifacts
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
+          name: Release ${{ env.TAG }}
           files: dist/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
