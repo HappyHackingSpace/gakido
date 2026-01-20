@@ -75,6 +75,50 @@ print(payload.decode())
 ws.close()
 ```
 
+## Compression
+
+Gakido automatically handles response compression using profile-based content negotiation.
+
+### Default Behavior (auto_decompress=True)
+
+```python
+from gakido import Client
+
+# Uses profile's Accept-Encoding: "gzip, deflate, br"
+# Automatically decompresses responses
+with Client(impersonate="chrome_120") as c:
+    r = c.get("https://httpbin.org/gzip")
+    print(r.json())  # Already decompressed
+```
+
+### Disable Compression
+
+```python
+from gakido import Client
+
+# Sends Accept-Encoding: identity
+# Returns raw, uncompressed responses
+with Client(auto_decompress=False) as c:
+    r = c.get("https://example.com")
+    print(r.content)  # Raw bytes
+```
+
+### Custom Accept-Encoding
+
+```python
+from gakido import Client
+
+# Override Accept-Encoding per request
+with Client() as c:
+    r = c.get("https://example.com", headers={"Accept-Encoding": "gzip"})
+```
+
+### Supported Encodings
+
+- **gzip** - GNU zip compression
+- **deflate** - zlib/deflate compression
+- **br** - Brotli compression (included via `brotli` package)
+
 ## HTTP/3 (QUIC)
 
 HTTP/3 uses QUIC as the transport layer, providing improved performance for Cloudflare and CDN targets through 0-RTT connection establishment and multiplexed streams.

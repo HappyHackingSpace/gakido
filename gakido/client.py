@@ -4,6 +4,7 @@ import urllib.parse
 
 from gakido import gakido_core
 
+from gakido.compression import decode_body, get_accept_encoding
 from gakido.headers import canonicalize_headers
 from gakido.multipart import build_multipart
 from gakido.impersonation import (
@@ -19,6 +20,18 @@ from gakido.utils import parse_url
 class Client:
     """
     Minimal synchronous client optimized for deterministic header/TLS behavior.
+
+    Args:
+        impersonate: Browser profile to impersonate (default: "chrome_120")
+        timeout: Request timeout in seconds
+        verify: Whether to verify SSL certificates
+        max_per_host: Maximum connections per host
+        use_native: Use native C extension for HTTP (faster)
+        proxies: List of proxy URLs
+        ja3: Custom JA3 fingerprint overrides
+        tls_configuration_options: Custom TLS options
+        force_http1: Force HTTP/1.1 only (default: True)
+        auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
     """
 
     def __init__(
@@ -32,6 +45,7 @@ class Client:
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
         force_http1: bool = True,
+        auto_decompress: bool = True,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1:
@@ -49,6 +63,7 @@ class Client:
         self.verify = verify
         self.use_native = use_native and gakido_core is not None
         self.proxies = proxies or []
+        self.auto_decompress = auto_decompress
 
     def request(
         self,
@@ -62,7 +77,12 @@ class Client:
         parsed, host, port, path = parse_url(url)
         body: bytes | None = None
         final_headers: dict[str, str] = {"Host": host}
-        final_headers.setdefault("Accept-Encoding", "identity")
+
+        # Set Accept-Encoding based on profile and auto_decompress setting
+        # User-provided headers can override this
+        accept_encoding = get_accept_encoding(self.profile, self.auto_decompress)
+        if accept_encoding:
+            final_headers["Accept-Encoding"] = accept_encoding
 
         if files:
             ctype, body = build_multipart(
@@ -130,6 +150,14 @@ class Client:
                     self.timeout,
                 )
                 status_code, reason, version, raw_headers, raw_body = result
+                # Decompress if auto_decompress is enabled
+                if self.auto_decompress:
+                    content_encoding = ""
+                    for name, value in raw_headers:
+                        if name.lower() == "content-encoding":
+                            content_encoding = value
+                            break
+                    raw_body = decode_body(raw_body, content_encoding)
                 response = Response(status_code, reason, version, raw_headers, raw_body)
             else:
                 response = conn.request(

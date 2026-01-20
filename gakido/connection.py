@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-import gzip
-import io
 import socket
 import ssl
 import time
-import zlib
 from collections.abc import Iterable
 
-import brotli
-
+from .compression import decode_body
 from .errors import ConnectionError, ProtocolError, TLSNegotiationError
 from .models import Response
 from .http2 import HTTP2Connection
@@ -208,7 +204,7 @@ class Connection:
         else:
             body = self._read_until_close()
 
-        decoded_body = self._decode_body(body, header_map.get("content-encoding", ""))
+        decoded_body = decode_body(body, header_map.get("content-encoding", ""))
         return Response(status_code, reason, version, headers, decoded_body)
 
     def _read_until_close(self) -> bytes:
@@ -242,26 +238,6 @@ class Connection:
             # Discard CRLF
             _ = self._read_exact(2)
         return b"".join(chunks)
-
-    def _decode_body(self, body: bytes, encoding: str) -> bytes:
-        encoding = encoding.lower()
-        if encoding == "gzip":
-            try:
-                with gzip.GzipFile(fileobj=io.BytesIO(body)) as f:
-                    return f.read()
-            except Exception:
-                return body
-        if encoding == "deflate":
-            try:
-                return zlib.decompress(body, -zlib.MAX_WBITS)
-            except Exception:
-                return body
-        if encoding == "br" and brotli is not None:
-            try:
-                return brotli.decompress(body)
-            except Exception:
-                return body
-        return body
 
     def close(self) -> None:
         if self.sock:

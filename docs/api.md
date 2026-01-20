@@ -1,13 +1,27 @@
 # API Reference (essentials)
 
 ## gakido.Client
-- `Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True)`
+- `Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True, auto_decompress=True)`
 - Methods: `get`, `post`, `request`, `close`, context manager.
 - `files` supported on `post`/`request` for multipart.
 
 ## gakido.aio.AsyncClient
-- `AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True)`
+- `AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True, auto_decompress=True)`
 - Async context manager; methods `get`, `post`, `request`, `close`.
+
+### Compression Parameters
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `auto_decompress` | `bool` | `True` | Automatically decompress gzip/deflate/br responses |
+
+When `auto_decompress=True`:
+- Uses the profile's `Accept-Encoding` header (e.g., `gzip, deflate, br` for Chrome)
+- Automatically decompresses response bodies based on `Content-Encoding`
+- Supports gzip, deflate, and brotli (br) encodings
+
+When `auto_decompress=False`:
+- Sends `Accept-Encoding: identity` (no compression)
+- Returns raw, uncompressed response bodies
 
 ### HTTP/3 Parameters
 | Parameter | Type | Default | Description |

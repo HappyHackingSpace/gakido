@@ -8,6 +8,7 @@ from collections.abc import Iterable
 import h2.connection
 import h2.events
 
+from gakido.compression import decode_body, get_accept_encoding
 from gakido.errors import ProtocolError
 from gakido.headers import canonicalize_headers
 from gakido.multipart import build_multipart
@@ -37,6 +38,7 @@ class AsyncClient:
         force_http1: Force HTTP/1.1 only (default: True)
         http3: Enable HTTP/3 for compatible targets (default: False)
         http3_fallback: Fall back to HTTP/1.1 or HTTP/2 if HTTP/3 fails (default: True)
+        auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
     """
 
     def __init__(
@@ -50,6 +52,7 @@ class AsyncClient:
         force_http1: bool = True,
         http3: bool = False,
         http3_fallback: bool = True,
+        auto_decompress: bool = True,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1 and not http3:
@@ -60,6 +63,7 @@ class AsyncClient:
         self.timeout = timeout
         self.verify = verify
         self.proxy_pool = list(proxy_pool) if proxy_pool else []
+        self.auto_decompress = auto_decompress
 
         # HTTP/3 configuration
         self.http3_enabled = http3 and is_http3_available()
@@ -95,7 +99,11 @@ class AsyncClient:
         parsed, host, port, path = parse_url(url)
         body: bytes | None = None
         final_headers: dict[str, str] = {"Host": host}
-        final_headers.setdefault("Accept-Encoding", "identity")
+
+        # Set Accept-Encoding based on profile and auto_decompress setting
+        accept_encoding = get_accept_encoding(self.profile, self.auto_decompress)
+        if accept_encoding:
+            final_headers["Accept-Encoding"] = accept_encoding
 
         if files:
             ctype, body = build_multipart(
@@ -264,6 +272,12 @@ class AsyncClient:
             await writer.wait_closed()
         except Exception:
             pass
+
+        # Decompress if auto_decompress is enabled
+        if self.auto_decompress:
+            content_encoding = header_map.get("content-encoding", "")
+            body_bytes = decode_body(body_bytes, content_encoding)
+
         return Response(status_code, reason, version, headers_list, body_bytes)
 
     async def _request_h3(
@@ -290,7 +304,22 @@ class AsyncClient:
             self._h3_protocols[cache_key] = proto
 
         proto = self._h3_protocols[cache_key]
-        return await proto.request(method, path, headers, body)
+        response = await proto.request(method, path, headers, body)
+
+        # Decompress if auto_decompress is enabled
+        if self.auto_decompress:
+            content_encoding = response.headers.get("content-encoding", "")
+            if content_encoding:
+                decoded_body = decode_body(response.content, content_encoding)
+                response = Response(
+                    response.status_code,
+                    response.reason,
+                    response.http_version,
+                    response.raw_headers,
+                    decoded_body,
+                )
+
+        return response
 
     async def _request_h2(
         self,
@@ -357,7 +386,13 @@ class AsyncClient:
                         await writer.wait_closed()
                     except Exception:
                         pass
-                    return Response(status, reason, "2", resp_headers, bytes(resp_body))
+                    body_bytes = bytes(resp_body)
+                    # Decompress if auto_decompress is enabled
+                    if self.auto_decompress:
+                        h2_header_map = {k.lower(): v for k, v in resp_headers}
+                        content_encoding = h2_header_map.get("content-encoding", "")
+                        body_bytes = decode_body(body_bytes, content_encoding)
+                    return Response(status, reason, "2", resp_headers, body_bytes)
                 elif isinstance(event, h2.events.StreamReset):
                     writer.close()
                     try:
