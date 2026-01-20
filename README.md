@@ -7,6 +7,7 @@ High-performance CPython HTTP client focused on browser impersonation, anti-bot 
 - JA3/Akamai-style TLS overrides (`tls_configuration_options`, `ExtraFingerprints`)
 - HTTP/1.1, HTTP/2, and **HTTP/3 (QUIC)** support
 - HTTP/3 optimized for Cloudflare and CDN targets
+- **Automatic compression** (gzip, deflate, brotli) with profile-based Accept-Encoding
 - Sync + async clients, connection pooling
 - Multipart uploads
 - Minimal WebSocket client
@@ -107,5 +108,6 @@ asyncio.run(main())
 ### Notes
 - `force_http1=True` by default for compatibility; set `force_http1=False` to allow ALPN h2.
 - `http3=True` enables HTTP/3 (QUIC) for compatible targets (requires `pip install gakido[h3]`).
-- `Accept-Encoding: identity` is sent by default to avoid compressed bodies; override if needed.
+- `auto_decompress=True` by default: uses profile's Accept-Encoding (gzip, deflate, br) and auto-decompresses responses.
+- Set `auto_decompress=False` to disable compression and receive raw responses.
 - Native core (`gakido_core`) is HTTP-only; HTTPS still uses the Python path.
