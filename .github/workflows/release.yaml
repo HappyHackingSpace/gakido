@@ -93,7 +93,7 @@ jobs:
           asset_content_type: application/gzip
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.14
+        uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           password: ${{ secrets.PYPI_TOKEN }}
           skip-existing: true
