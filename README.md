@@ -5,7 +5,8 @@ High-performance CPython HTTP client focused on browser impersonation, anti-bot 
 ### Features
 - Browser profiles (Chrome/Firefox/Safari/Edge/Tor aliases)
 - JA3/Akamai-style TLS overrides (`tls_configuration_options`, `ExtraFingerprints`)
-- HTTP/1.1 and HTTP/2 (HTTP/1.1 forced by default; enable h2 via `force_http1=False`)
+- HTTP/1.1, HTTP/2, and **HTTP/3 (QUIC)** support
+- HTTP/3 optimized for Cloudflare and CDN targets
 - Sync + async clients, connection pooling
 - Multipart uploads
 - Minimal WebSocket client
@@ -13,12 +14,9 @@ High-performance CPython HTTP client focused on browser impersonation, anti-bot 
 
 ### Install
 ```bash
-uv pip install -e .
-uv pip install -e .[dev]   # if you add a dev extra later
-```
-Build native fast-path in place:
-```bash
-uv run python setup.py build_ext --inplace
+pip install gakido
+pip install gakido[h3]     # with HTTP/3 support
+pip install gakido[dev]    # development dependencies
 ```
 
 ### Quick start (sync)
@@ -87,7 +85,27 @@ r = c.get("http://httpbin.org/ip")  # HTTP proxy only
 print(r.text)
 ```
 
+### HTTP/3 (QUIC) for Cloudflare/CDN
+```python
+import asyncio
+from gakido import AsyncClient, is_http3_available
+
+async def main():
+    print(f"HTTP/3 available: {is_http3_available()}")
+
+    async with AsyncClient(
+        impersonate="chrome_120",
+        http3=True,           # Enable HTTP/3
+        http3_fallback=True,  # Fall back to H1/H2 if H3 fails
+    ) as c:
+        r = await c.get("https://cloudflare.com/cdn-cgi/trace")
+        print(f"HTTP/{r.http_version}: {r.status_code}")
+
+asyncio.run(main())
+```
+
 ### Notes
 - `force_http1=True` by default for compatibility; set `force_http1=False` to allow ALPN h2.
+- `http3=True` enables HTTP/3 (QUIC) for compatible targets (requires `pip install gakido[h3]`).
 - `Accept-Encoding: identity` is sent by default to avoid compressed bodies; override if needed.
 - Native core (`gakido_core`) is HTTP-only; HTTPS still uses the Python path.

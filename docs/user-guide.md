@@ -74,3 +74,56 @@ opcode, payload = ws.recv()
 print(payload.decode())
 ws.close()
 ```
+
+## HTTP/3 (QUIC)
+
+HTTP/3 uses QUIC as the transport layer, providing improved performance for Cloudflare and CDN targets through 0-RTT connection establishment and multiplexed streams.
+
+### Installation
+
+```bash
+pip install gakido[h3]
+```
+
+### Basic Usage
+
+```python
+import asyncio
+from gakido import AsyncClient, is_http3_available
+
+async def main():
+    # Check if HTTP/3 is available
+    if not is_http3_available():
+        print("Install HTTP/3 support: pip install gakido[h3]")
+        return
+
+    async with AsyncClient(
+        impersonate="chrome_120",
+        http3=True,           # Enable HTTP/3
+        http3_fallback=True,  # Fall back to H1/H2 if H3 fails
+        force_http1=False,    # Allow H2 as fallback
+    ) as client:
+        response = await client.get("https://cloudflare.com/cdn-cgi/trace")
+        print(f"HTTP/{response.http_version}: {response.status_code}")
+        print(response.text)
+
+asyncio.run(main())
+```
+
+### Force HTTP/3 for Specific Requests
+
+```python
+async with AsyncClient(http3=True) as client:
+    # Use client default (HTTP/3 with fallback)
+    r1 = await client.get("https://example.com")
+
+    # Force HTTP/3 for this specific request (no fallback)
+    r2 = await client.request("GET", "https://cloudflare.com", force_http3=True)
+```
+
+### HTTP/3 Benefits
+
+- **0-RTT Connection**: Faster initial requests with QUIC's zero round-trip handshake
+- **No Head-of-Line Blocking**: Multiplexed streams don't block each other
+- **Connection Migration**: Survives network changes (WiFi to cellular)
+- **Built-in Encryption**: TLS 1.3 integrated into the protocol

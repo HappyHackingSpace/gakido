@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=64", "wheel", "tomli>=2.0.0;python_version<'3.11'"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -34,9 +34,6 @@ dev = [
 
 [tool.setuptools]
 packages = {find = {include = ["gakido*"]}}
-ext-modules = [
-    {name = "gakido.gakido_core", sources = ["gakido/core.c"]}
-]
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
