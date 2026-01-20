@@ -28,7 +28,10 @@ jobs:
       run: |
         uv sync --extra dev
 
-
     - name: Run linting
       run: |
         make lint
+
+    - name: Run tests
+      run: |
+        uv run pytest --cov=gakido --cov-report=term-missing --cov-fail-under=80
