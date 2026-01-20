@@ -16,3 +16,7 @@ class ProtocolError(GakidoError):
 
 class HTTPError(GakidoError):
     """Raised for HTTP-level issues."""
+
+
+class HTTP3NotAvailableError(GakidoError):
+    """Raised when HTTP/3 is requested but aioquic is not installed."""

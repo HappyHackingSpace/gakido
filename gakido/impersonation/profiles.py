@@ -46,6 +46,13 @@ PROFILES: dict[str, dict] = {
             "pseudo_header_order": [":method", ":path", ":authority", ":scheme"],
             "alpn": ["h2", "http/1.1"],
         },
+        # HTTP/3 (QUIC) settings for Cloudflare/CDN targets
+        "http3": {
+            "max_stream_data": 1048576,  # 1MB per stream (Chrome-like)
+            "max_data": 10485760,  # 10MB total
+            "idle_timeout": 30.0,
+            "max_streams_bidi": 100,
+        },
         "headers": {
             "order": [
                 "Host",
@@ -128,6 +135,13 @@ PROFILES: dict[str, dict] = {
             },
             "pseudo_header_order": [":method", ":path", ":authority", ":scheme"],
             "alpn": ["h2", "http/1.1"],
+        },
+        # HTTP/3 (QUIC) settings - Firefox has different defaults
+        "http3": {
+            "max_stream_data": 262144,  # 256KB per stream (Firefox-like)
+            "max_data": 1048576,  # 1MB total
+            "idle_timeout": 30.0,
+            "max_streams_bidi": 100,
         },
         "headers": {
             "order": [
@@ -239,6 +253,13 @@ PROFILES["safari_170"] = {
         },
         "pseudo_header_order": [":method", ":path", ":authority", ":scheme"],
         "alpn": ["h2", "http/1.1"],
+    },
+    # HTTP/3 (QUIC) settings - Safari/macOS style
+    "http3": {
+        "max_stream_data": 1048576,  # 1MB per stream
+        "max_data": 10485760,  # 10MB total
+        "idle_timeout": 30.0,
+        "max_streams_bidi": 100,
     },
     "headers": {
         "order": [

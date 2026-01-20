@@ -18,9 +18,27 @@ from gakido.impersonation import (
 )
 from gakido.models import Response
 from gakido.utils import parse_url
+from gakido.http3 import is_http3_available, HTTP3Protocol
 
 
 class AsyncClient:
+    """
+    Async HTTP client with support for HTTP/1.1, HTTP/2, and HTTP/3.
+
+    HTTP/3 support requires the optional `h3` extra: pip install gakido[h3]
+
+    Args:
+        impersonate: Browser profile to impersonate (default: "chrome_120")
+        timeout: Request timeout in seconds
+        verify: Whether to verify SSL certificates
+        proxy_pool: List of proxy URLs for rotation
+        ja3: Custom JA3 fingerprint overrides
+        tls_configuration_options: Custom TLS options
+        force_http1: Force HTTP/1.1 only (default: True)
+        http3: Enable HTTP/3 for compatible targets (default: False)
+        http3_fallback: Fall back to HTTP/1.1 or HTTP/2 if HTTP/3 fails (default: True)
+    """
+
     def __init__(
         self,
         impersonate: str = "chrome_120",
@@ -30,9 +48,11 @@ class AsyncClient:
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
         force_http1: bool = True,
+        http3: bool = False,
+        http3_fallback: bool = True,
     ) -> None:
         profile = get_profile(impersonate)
-        if force_http1:
+        if force_http1 and not http3:
             profile.setdefault("tls", {})["alpn"] = ["http/1.1"]
             profile.setdefault("http2", {})["alpn"] = ["http/1.1"]
         profile = apply_tls_configuration_options(profile, tls_configuration_options)
@@ -40,6 +60,12 @@ class AsyncClient:
         self.timeout = timeout
         self.verify = verify
         self.proxy_pool = list(proxy_pool) if proxy_pool else []
+
+        # HTTP/3 configuration
+        self.http3_enabled = http3 and is_http3_available()
+        self.http3_fallback = http3_fallback
+        self._h3_protocols: dict[str, HTTP3Protocol] = {}  # Cache per host
+        self._h3_failed_hosts: set[str] = set()  # Track hosts where H3 failed
 
     async def request(
         self,
@@ -49,7 +75,23 @@ class AsyncClient:
         data: bytes | str | dict[str, str] | None = None,
         files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
         proxy: str | None = None,
+        force_http3: bool | None = None,
     ) -> Response:
+        """
+        Send an HTTP request.
+
+        Args:
+            method: HTTP method (GET, POST, PUT, DELETE, etc.)
+            url: Target URL
+            headers: Optional request headers
+            data: Optional request body (bytes, str, or dict for form data)
+            files: Optional files for multipart upload
+            proxy: Optional proxy URL (overrides proxy_pool)
+            force_http3: Force HTTP/3 for this request (None uses client default)
+
+        Returns:
+            Response object
+        """
         parsed, host, port, path = parse_url(url)
         body: bytes | None = None
         final_headers: dict[str, str] = {"Host": host}
@@ -82,6 +124,26 @@ class AsyncClient:
             {**final_headers, **(headers or {})},
             order=order,
         )
+
+        # Determine if we should try HTTP/3
+        use_http3 = force_http3 if force_http3 is not None else self.http3_enabled
+        use_http3 = (
+            use_http3
+            and parsed.scheme == "https"
+            and not proxy
+            and not self.proxy_pool
+            and host not in self._h3_failed_hosts
+        )
+
+        # Try HTTP/3 first if enabled
+        if use_http3:
+            try:
+                return await self._request_h3(method, host, port, path, merged_headers, body)
+            except Exception:
+                if not self.http3_fallback:
+                    raise
+                # Mark this host as failed for HTTP/3 and fall back
+                self._h3_failed_hosts.add(host)
 
         # Proxy handling (HTTP proxy only for now).
         target_host, target_port, target_path = host, port, path  # noqa: F841
@@ -204,6 +266,32 @@ class AsyncClient:
             pass
         return Response(status_code, reason, version, headers_list, body_bytes)
 
+    async def _request_h3(
+        self,
+        method: str,
+        host: str,
+        port: int,
+        path: str,
+        headers: Iterable[tuple[str, str]],
+        body: bytes | None,
+    ) -> Response:
+        """Send request using HTTP/3 (QUIC)."""
+        # Get or create HTTP/3 protocol for this host
+        cache_key = f"{host}:{port}"
+        if cache_key not in self._h3_protocols:
+            proto = HTTP3Protocol(
+                host=host,
+                port=port,
+                verify=self.verify,
+                timeout=self.timeout,
+                profile=self.profile,
+            )
+            await proto.connect()
+            self._h3_protocols[cache_key] = proto
+
+        proto = self._h3_protocols[cache_key]
+        return await proto.request(method, path, headers, body)
+
     async def _request_h2(
         self,
         reader: asyncio.StreamReader,
@@ -296,8 +384,18 @@ class AsyncClient:
             "POST", url, headers=headers, data=data, files=files, proxy=proxy
         )
 
+    async def close(self) -> None:
+        """Close all HTTP/3 connections."""
+        for proto in self._h3_protocols.values():
+            try:
+                await proto.close()
+            except Exception:
+                pass
+        self._h3_protocols.clear()
+        self._h3_failed_hosts.clear()
+
     async def __aenter__(self) -> AsyncClient:
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
-        return None
+        await self.close()
