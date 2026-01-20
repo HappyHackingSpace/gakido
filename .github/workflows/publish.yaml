@@ -1,0 +1,43 @@
+name: Publish to PyPI
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Install build deps
+        run: uv pip install build
+
+      - name: Build
+        run: uv run python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.8.14
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          skip-existing: true
