@@ -343,20 +343,30 @@ def parse_alt_svc(header_value: str) -> dict[str, tuple[str, int]]:
         if not entry or entry == "clear":
             continue
 
-        # Parse: h3=":443" or h3="alt.example.com:8443"
+        # Parse: h3=":443" or h3="alt.example.com:8443" or h3=":443"; ma=86400
         try:
             proto, rest = entry.split("=", 1)
             proto = proto.strip()
 
-            # Remove quotes and parse host:port
-            rest = rest.strip().strip('"')
+            # Remove parameters (everything after unquoted ;)
+            # First, extract the quoted value
+            rest = rest.strip()
+            if rest.startswith('"'):
+                # Find closing quote
+                end_quote = rest.find('"', 1)
+                if end_quote > 0:
+                    rest = rest[1:end_quote]  # Extract content between quotes
+                else:
+                    rest = rest[1:]  # No closing quote, strip leading
+
             if rest.startswith(":"):
                 # Same host, different port
-                port = int(rest[1:].split(";")[0])
+                port_str = rest[1:].split(";")[0].strip()
+                port = int(port_str)
                 services[proto] = ("", port)
             else:
                 # Different host and port
-                host_port = rest.split(";")[0]
+                host_port = rest.split(";")[0].strip()
                 if ":" in host_port:
                     host, port_str = host_port.rsplit(":", 1)
                     services[proto] = (host, int(port_str))
