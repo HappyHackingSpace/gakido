@@ -876,11 +876,13 @@
 <li><code>Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True, auto_decompress=True)</code></li>
 <li>Methods: <code>get</code>, <code>post</code>, <code>request</code>, <code>close</code>, context manager.</li>
 <li><code>files</code> supported on <code>post</code>/<code>request</code> for multipart.</li>
+<li><strong>proxies</strong> (<code>list[str] | None</code>): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: <code>["http://proxy:8080", "socks5://user:pass@proxy:1080"]</code>. Default: <code>None</code>.</li>
 </ul>
 <h2 id="gakidoaioasyncclient">gakido.aio.AsyncClient<a class="headerlink" href="#gakidoaioasyncclient" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True, auto_decompress=True)</code></li>
 <li>Async context manager; methods <code>get</code>, <code>post</code>, <code>request</code>, <code>close</code>.</li>
+<li><strong>proxy_pool</strong> (<code>list[str] | None</code>): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: <code>["http://proxy:8080", "socks5://user:pass@proxy:1080"]</code>. Default: <code>None</code>.</li>
 </ul>
 <h3 id="compression-parameters">Compression Parameters<a class="headerlink" href="#compression-parameters" title="Permanent link">&para;</a></h3>
 <table>
