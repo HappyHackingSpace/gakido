@@ -9,6 +9,7 @@ from .compression import decode_body
 from .errors import ConnectionError, ProtocolError, TLSNegotiationError
 from .models import Response
 from .http2 import HTTP2Connection
+from .socks5 import socks5_handshake
 
 
 class Connection:
@@ -24,6 +25,7 @@ class Connection:
         profile: dict,
         timeout: float = 10.0,
         verify: bool = True,
+        proxy_url: str | None = None,
     ) -> None:
         self.host = host
         self.port = port
@@ -31,6 +33,7 @@ class Connection:
         self.profile = profile
         self.timeout = timeout
         self.verify = verify
+        self.proxy_url = proxy_url
         self.sock: socket.socket | ssl.SSLSocket | None = None
         self.negotiated_protocol: str | None = None
         self.created_at = time.time()
@@ -38,6 +41,10 @@ class Connection:
 
     def connect(self) -> None:
         raw = self._open_tcp()
+
+        # Perform SOCKS5 handshake if applicable
+        if self.proxy_url and self.proxy_url.lower().startswith(("socks5://", "socks5h://")):
+            socks5_handshake(raw, self.proxy_url, self.host, self.port)
 
         if self.scheme == "https":
             context = ssl.create_default_context()
@@ -248,9 +255,16 @@ class Connection:
         self.closed = True
 
     def _open_tcp(self) -> socket.socket:
+        # If using SOCKS5 proxy, connect to the proxy instead of the target
+        if self.proxy_url and self.proxy_url.lower().startswith(("socks5://", "socks5h://")):
+            from .socks5 import _parse_socks5_url
+            proxy_host, proxy_port, _, _ = _parse_socks5_url(self.proxy_url)
+            target_host, target_port = proxy_host, proxy_port
+        else:
+            target_host, target_port = self.host, self.port
         try:
             return socket.create_connection(
-                (self.host, self.port), timeout=self.timeout
+                (target_host, target_port), timeout=self.timeout
             )
         except OSError as exc:
             raise ConnectionError(f"TCP connection failed: {exc}") from exc

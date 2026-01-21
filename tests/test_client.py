@@ -394,7 +394,7 @@ class TestClientProxy:
     @patch('gakido.client.ConnectionPool')
     @patch('gakido.client.get_profile')
     def test_invalid_proxy_scheme_raises(self, mock_get_profile, mock_pool):
-        """Test non-http proxy raises ValueError."""
+        """Test unsupported proxy scheme raises ValueError."""
         mock_get_profile.return_value = {
             "headers": {"default": [], "order": []},
             "tls": {},
@@ -402,13 +402,13 @@ class TestClientProxy:
         mock_pool.return_value.acquire.return_value = MagicMock()
 
         client = Client()
-        with pytest.raises(ValueError, match="Only http proxies"):
-            client.request("GET", "http://example.com", proxy="socks5://proxy:1080")
+        with pytest.raises(ValueError, match="Unsupported proxy scheme"):
+            client.request("GET", "http://example.com", proxy="ftp://proxy:1080")
 
     @patch('gakido.client.ConnectionPool')
     @patch('gakido.client.get_profile')
     def test_proxy_uses_absolute_url(self, mock_get_profile, mock_pool):
-        """Test proxy request uses absolute URL form."""
+        """Test HTTP proxy request uses absolute URL form."""
         mock_get_profile.return_value = {
             "headers": {"default": [], "order": []},
             "tls": {},
@@ -425,6 +425,27 @@ class TestClientProxy:
         call_args = mock_conn.request.call_args[0]
         path = call_args[1]
         assert path == "http://example.com/path"
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_socks5_proxy_passed_to_pool(self, mock_get_profile, mock_pool):
+        """Test SOCKS5 proxy URL is passed to pool.acquire."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        mock_conn = MagicMock()
+        mock_response = Response(200, "OK", "1.1", [], b"")
+        mock_conn.request.return_value = mock_response
+        mock_conn.closed = False
+        mock_pool.return_value.acquire.return_value = mock_conn
+
+        client = Client(use_native=False)
+        client.request("GET", "http://example.com", proxy="socks5://user:pass@proxy:1080")
+
+        # Verify pool was acquired with proxy_url
+        call_args = mock_pool.return_value.acquire.call_args
+        assert call_args.kwargs["proxy_url"] == "socks5://user:pass@proxy:1080"
 
     @patch('gakido.client.ConnectionPool')
     @patch('gakido.client.get_profile')

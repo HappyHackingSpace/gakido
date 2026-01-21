@@ -490,22 +490,22 @@ class TestAsyncClientProxy:
     @patch('gakido.aio.get_profile')
     @patch('gakido.aio.asyncio.open_connection')
     async def test_invalid_proxy_scheme_raises(self, mock_open_conn, mock_get_profile):
-        """Test non-http proxy raises ValueError."""
+        """Test unsupported proxy scheme raises ValueError."""
         mock_get_profile.return_value = {
             "headers": {"default": [], "order": []},
             "tls": {},
         }
 
         client = AsyncClient()
-        with pytest.raises(ValueError, match="Only http proxy"):
-            await client.request("GET", "http://example.com", proxy="socks5://proxy:1080")
+        with pytest.raises(ValueError, match="Unsupported proxy scheme"):
+            await client.request("GET", "http://example.com", proxy="ftp://proxy:1080")
 
     @pytest.mark.asyncio
     @patch('gakido.aio.get_profile')
     @patch('gakido.aio.asyncio.open_connection')
     @patch('gakido.aio.asyncio.wait_for')
     async def test_proxy_uses_absolute_url(self, mock_wait_for, mock_open_conn, mock_get_profile):
-        """Test proxy request uses absolute URL form."""
+        """Test HTTP proxy request uses absolute URL form."""
         mock_get_profile.return_value = {
             "headers": {"default": [], "order": []},
             "tls": {},
@@ -533,6 +533,46 @@ class TestAsyncClientProxy:
         call_args = mock_writer.writelines.call_args[0][0]
         request_line = call_args[0].decode()
         assert "http://example.com/path" in request_line
+
+    @pytest.mark.asyncio
+    @patch('gakido.aio.get_profile')
+    @patch('gakido.asyncio_socks5.socks5_handshake_async')
+    @patch('gakido.aio.asyncio.open_connection')
+    @patch('gakido.aio.asyncio.wait_for')
+    async def test_socks5_proxy_triggers_handshake(self, mock_wait_for, mock_open_conn, mock_socks5_handshake, mock_get_profile):
+        """Test SOCKS5 proxy triggers handshake and connects to proxy host."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+
+        mock_reader = AsyncMock()
+        mock_writer = MagicMock()
+        mock_writer.close = MagicMock()
+        mock_writer.wait_closed = AsyncMock()
+        mock_writer.drain = AsyncMock()
+        mock_writer.writelines = MagicMock()
+        mock_writer.get_extra_info = MagicMock(return_value=None)
+        mock_wait_for.return_value = (mock_reader, mock_writer)
+
+        mock_reader.readline = AsyncMock(side_effect=[
+            b"HTTP/1.1 200 OK\r\n",
+            b"\r\n",
+        ])
+        mock_reader.read = AsyncMock(return_value=b"")
+
+        client = AsyncClient()
+        await client.request("GET", "http://example.com", proxy="socks5://proxy:1080")
+
+        # Ensure we connected to the proxy, not the target
+        mock_open_conn.assert_called_once_with("proxy", 1080)
+        # Ensure handshake was called
+        mock_socks5_handshake.assert_called_once()
+        args, kwargs = mock_socks5_handshake.call_args
+        assert args[1] == mock_reader
+        assert args[2] == "socks5://proxy:1080"
+        assert args[3] == "example.com"
+        assert args[4] == 80
 
 
 class TestAsyncClientHTTPS:

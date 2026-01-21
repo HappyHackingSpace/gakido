@@ -153,60 +153,108 @@ class AsyncClient:
                 # Mark this host as failed for HTTP/3 and fall back
                 self._h3_failed_hosts.add(host)
 
-        # Proxy handling (HTTP proxy only for now).
-        target_host, target_port, target_path = host, port, path  # noqa: F841
+        # Unified proxy handling (HTTP and SOCKS5)
+        target_path = path
+        proxy_url: str | None = None
         if proxy or self.proxy_pool:
             proxy_url = proxy or self.proxy_pool[0]
             p = urllib.parse.urlparse(proxy_url)
-            if p.scheme not in ("http",):
-                raise ValueError("Only http proxy supported in async client")
-            connect_host = p.hostname
-            connect_port = p.port or 80
-            target_path = url  # absolute form for proxies
+            if p.scheme.lower() == "http":
+                connect_host = p.hostname
+                connect_port = p.port or 80
+                target_path = url  # absolute form for HTTP proxy
+            elif p.scheme.lower() in ("socks5", "socks5h"):
+                connect_host = p.hostname
+                connect_port = p.port or 1080
+            else:
+                raise ValueError(f"Unsupported proxy scheme: {p.scheme}")
         else:
             connect_host = host
             connect_port = port
 
-        ssl_ctx: ssl.SSLContext | None = None
-        if parsed.scheme == "https":
-            ssl_ctx = ssl.create_default_context()
-            if not self.verify:
-                ssl_ctx.check_hostname = False
-                ssl_ctx.verify_mode = ssl.CERT_NONE
-            tls = self.profile.get("tls", {})
-            ciphers = tls.get("ciphers")
-            if ciphers:
-                try:
-                    ssl_ctx.set_ciphers(ciphers)
-                except ssl.SSLError:
+        # For SOCKS5, we must connect without TLS first, perform handshake, then upgrade if needed
+        if proxy_url and proxy_url.lower().startswith(("socks5://", "socks5h://")):
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(connect_host, connect_port),
+                timeout=self.timeout,
+            )
+            from .asyncio_socks5 import socks5_handshake_async
+            await socks5_handshake_async(writer, reader, proxy_url, host, port)
+            # Now perform TLS wrap if needed
+            if parsed.scheme == "https":
+                ssl_ctx = ssl.create_default_context()
+                if not self.verify:
+                    ssl_ctx.check_hostname = False
+                    ssl_ctx.verify_mode = ssl.CERT_NONE
+                tls = self.profile.get("tls", {})
+                ciphers = tls.get("ciphers")
+                if ciphers:
                     try:
-                        ssl_ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+                        ssl_ctx.set_ciphers(ciphers)
                     except ssl.SSLError:
+                        try:
+                            ssl_ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+                        except ssl.SSLError:
+                            pass
+                alpn = tls.get("alpn") or self.profile.get("http2", {}).get("alpn")
+                if alpn:
+                    try:
+                        ssl_ctx.set_alpn_protocols(alpn)
+                    except NotImplementedError:
                         pass
-            alpn = tls.get("alpn") or self.profile.get("http2", {}).get("alpn")
-            if alpn:
-                try:
-                    ssl_ctx.set_alpn_protocols(alpn)
-                except NotImplementedError:
-                    pass
+                # Upgrade to TLS
+                transport = await asyncio.wait_for(
+                    writer.start_tls(ssl_ctx, server_hostname=host),
+                    timeout=self.timeout,
+                )
+                # After start_tls, reader/writer are already updated; we can get negotiated protocol
+                assert transport is not None  # for type checkers
+                ssl_obj = transport.get_extra_info("ssl_object")
+                negotiated_protocol = ssl_obj.selected_alpn_protocol() if ssl_obj else None
+            else:
+                negotiated_protocol = None
+        else:
+            # HTTP proxy or no proxy: use existing path with optional TLS from the start
+            ssl_ctx: ssl.SSLContext | None = None
+            if parsed.scheme == "https":
+                ssl_ctx = ssl.create_default_context()
+                if not self.verify:
+                    ssl_ctx.check_hostname = False
+                    ssl_ctx.verify_mode = ssl.CERT_NONE
+                tls = self.profile.get("tls", {})
+                ciphers = tls.get("ciphers")
+                if ciphers:
+                    try:
+                        ssl_ctx.set_ciphers(ciphers)
+                    except ssl.SSLError:
+                        try:
+                            ssl_ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+                        except ssl.SSLError:
+                            pass
+                alpn = tls.get("alpn") or self.profile.get("http2", {}).get("alpn")
+                if alpn:
+                    try:
+                        ssl_ctx.set_alpn_protocols(alpn)
+                    except NotImplementedError:
+                        pass
 
-        reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(
-                connect_host,
-                connect_port,
-                ssl=ssl_ctx,
-                server_hostname=host if ssl_ctx else None,
-            ),
-            timeout=self.timeout,
-        )
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(
+                    connect_host,
+                    connect_port,
+                    ssl=ssl_ctx,
+                    server_hostname=host if ssl_ctx else None,
+                ),
+                timeout=self.timeout,
+            )
 
-        negotiated_protocol = None
-        if ssl_ctx and hasattr(
-            writer.get_extra_info("ssl_object"), "selected_alpn_protocol"
-        ):
-            ssl_obj = writer.get_extra_info("ssl_object")
-            if ssl_obj:
-                negotiated_protocol = ssl_obj.selected_alpn_protocol()
+            negotiated_protocol = None
+            if ssl_ctx and hasattr(
+                writer.get_extra_info("ssl_object"), "selected_alpn_protocol"
+            ):
+                ssl_obj = writer.get_extra_info("ssl_object")
+                if ssl_obj:
+                    negotiated_protocol = ssl_obj.selected_alpn_protocol()
 
         if negotiated_protocol == "h2":
             return await self._request_h2(
