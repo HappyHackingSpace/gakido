@@ -15,7 +15,7 @@ from gakido.impersonation import (
 from gakido.models import Response
 from gakido.pool import ConnectionPool
 from gakido.utils import parse_url
-
+from gakido.backoff import retry_with_backoff
 
 class Client:
     """
@@ -46,6 +46,10 @@ class Client:
         tls_configuration_options: dict | None = None,
         force_http1: bool = True,
         auto_decompress: bool = True,
+        max_retries: int = 0,
+        retry_base_delay: float = 1.0,
+        retry_max_delay: float = 60.0,
+        retry_jitter: bool = True,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1:
@@ -64,8 +68,13 @@ class Client:
         self.use_native = use_native and gakido_core is not None
         self.proxies = proxies or []
         self.auto_decompress = auto_decompress
+        # Retry configuration
+        self.max_retries = max_retries
+        self.retry_base_delay = retry_base_delay
+        self.retry_max_delay = retry_max_delay
+        self.retry_jitter = retry_jitter
 
-    def request(
+    def _make_request(
         self,
         method: str,
         url: str,
@@ -171,16 +180,53 @@ class Client:
             self.pool.release(conn)
         return response
 
-    def get(self, url: str, headers: dict[str, str] | None = None) -> Response:
-        return self.request("GET", url, headers=headers, data=None)
+    def request(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None = None,
+        data: bytes | str | dict[str, str] | None = None,
+        files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
+        proxy: str | None = None,
+    ) -> Response:
+        """
+        Make an HTTP request with optional retry logic.
+
+        Args:
+            method: HTTP method (GET, POST, etc.)
+            url: Request URL
+            headers: Additional headers
+            data: Request body
+            files: Multipart files
+            proxy: Override proxy URL
+
+        Returns:
+            Response object
+        """
+        if self.max_retries <= 0:
+            # No retries, call directly
+            return self._make_request(method, url, headers, data, files, proxy)
+
+        # Apply retry decorator
+        retry_decorator = retry_with_backoff(
+            max_attempts=self.max_retries + 1,  # +1 for initial attempt
+            base_delay=self.retry_base_delay,
+            max_delay=self.retry_max_delay,
+            jitter=self.retry_jitter,
+        )
+        return retry_decorator(self._make_request)(method, url, headers, data, files, proxy)
+
+    def get(self, url: str, headers: dict[str, str] | None = None, proxy: str | None = None) -> Response:
+        return self.request("GET", url, headers=headers, data=None, proxy=proxy)
 
     def post(
         self,
         url: str,
         headers: dict[str, str] | None = None,
         data: bytes | str | dict[str, str] | None = None,
+        proxy: str | None = None,
     ) -> Response:
-        return self.request("POST", url, headers=headers, data=data)
+        return self.request("POST", url, headers=headers, data=data, proxy=proxy)
 
     def close(self) -> None:
         self.pool.close()
