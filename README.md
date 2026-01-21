@@ -78,11 +78,26 @@ ws.close()
 ```
 
 ### Proxies
-```python
-from gakido import Client
 
-c = Client(proxies=["http://127.0.0.1:8080"])
-r = c.get("http://httpbin.org/ip")  # HTTP proxy only
+gakido supports HTTP, SOCKS5, and SOCKS5H proxies for both sync and async clients.
+
+```python
+from gakido import Client, AsyncClient
+
+# Sync client with HTTP or SOCKS5 proxy
+c = Client()
+r = c.get("http://httpbin.org/ip", proxy="http://127.0.0.1:8080")
+r = c.get("http://httpbin.org/ip", proxy="socks5://127.0.0.1:1080")
+r = c.get("http://httpbin.org/ip", proxy="socks5h://user:pass@127.0.0.1:1080")  # proxy resolves hostname
+print(r.text)
+
+# Async client with proxy pool
+async_client = AsyncClient(proxy_pool=[
+    "http://proxy1:8080",
+    "socks5://proxy2:1080",
+    "socks5h://user:pass@proxy3:1080",
+])
+r = await async_client.get("http://httpbin.org/ip")
 print(r.text)
 ```
 

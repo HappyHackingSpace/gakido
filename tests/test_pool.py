@@ -75,7 +75,7 @@ class TestConnectionPool:
             pool.release(conn)
 
         # Only max_per_host should be kept
-        key = ("https", "example.com", 443)
+        key = ("https", "example.com", 443, None)
         assert len(pool._pools[key]) == 2
 
     def test_different_hosts_separate_pools(self):

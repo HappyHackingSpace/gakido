@@ -7,7 +7,7 @@ from .connection import Connection
 
 class ConnectionPool:
     """
-    Naive connection pool keyed by (scheme, host, port).
+    Naive connection pool keyed by (scheme, host, port, proxy_url).
     """
 
     def __init__(
@@ -21,20 +21,20 @@ class ConnectionPool:
         self.timeout = timeout
         self.verify = verify
         self.max_per_host = max_per_host
-        self._pools: dict[tuple[str, str, int], list[Connection]] = defaultdict(list)
+        self._pools: dict[tuple[str, str, int, str | None], list[Connection]] = defaultdict(list)
 
-    def acquire(self, scheme: str, host: str, port: int) -> Connection:
-        key = (scheme, host, port)
+    def acquire(self, scheme: str, host: str, port: int, proxy_url: str | None = None) -> Connection:
+        key = (scheme, host, port, proxy_url)
         while self._pools[key]:
             conn = self._pools[key].pop()
             if not conn.closed:
                 return conn
-        return Connection(host, port, scheme, self.profile, self.timeout, self.verify)
+        return Connection(host, port, scheme, self.profile, self.timeout, self.verify, proxy_url=proxy_url)
 
     def release(self, conn: Connection) -> None:
         if conn.closed:
             return
-        key = (conn.scheme, conn.host, conn.port)
+        key = (conn.scheme, conn.host, conn.port, conn.proxy_url)
         bucket = self._pools[key]
         if len(bucket) >= self.max_per_host:
             conn.close()

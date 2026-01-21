@@ -131,23 +131,31 @@ class Client:
         if not seen_conn:
             merged_headers.insert(1, ("Connection", "keep-alive"))
 
-        # Proxy handling (HTTP proxy only for now).
-        target_host, target_port, target_path = host, port, path
+        # Unified proxy handling (HTTP and SOCKS5)
+        proxy_url: str | None = None
+        target_path = path
         if proxy or self.proxies:
             proxy_url = proxy or self.proxies[0]
             p = urllib.parse.urlparse(proxy_url)
-            if p.scheme not in ("http",):
-                raise ValueError("Only http proxies are supported in sync client")
-            target_host, target_port = p.hostname or "", p.port or 80
-            target_path = url  # absolute-form for proxy
+            if p.scheme.lower() == "http":
+                # HTTP proxy: connect to proxy; use absolute-form request path
+                target_host, target_port = p.hostname or "", p.port or 80
+                target_path = url
+            elif p.scheme.lower() in ("socks5", "socks5h"):
+                # SOCKS5 proxy: connection logic handled in Connection; keep target host/port for pool key
+                target_host, target_port = host, port
+            else:
+                raise ValueError(f"Unsupported proxy scheme: {p.scheme}")
 
-        conn = self.pool.acquire(parsed.scheme, target_host, target_port)
+        else:
+            target_host, target_port = host, port
+
+        conn = self.pool.acquire(parsed.scheme, target_host, target_port, proxy_url=proxy_url)
         try:
             if (
                 self.use_native
                 and parsed.scheme == "http"
-                and not proxy
-                and not self.proxies
+                and not proxy_url
             ):
                 result = gakido_core.request(
                     method.upper(),
