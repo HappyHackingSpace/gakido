@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""
+Standalone retry with exponential backoff example.
+"""
+
+import time
+import random
+import asyncio
+from typing import Optional, Set, Type
+from collections.abc import Callable
+
+
+class RetryError(Exception):
+    """Raised when the maximum number of retries is exhausted."""
+    pass
+
+
+def _default_retryable_status_codes() -> set[int]:
+    """Default HTTP status codes that are considered retryable."""
+    return {408, 429, 500, 502, 503, 504, 507, 511}
+
+
+def _default_retryable_exceptions() -> set[type[BaseException]]:
+    """Default exception types that are considered retryable."""
+    return {ConnectionError, TimeoutError, OSError}
+
+
+def _calculate_delay(attempt: int, base: float, max_delay: float, jitter: bool) -> float:
+    """Calculate exponential backoff delay with optional jitter."""
+    delay = min(base * (2 ** attempt), max_delay)
+    if jitter:
+        delay *= (0.5 + random.random() * 0.5)  # 50-100% of delay
+    return delay
+
+
+def retry_with_backoff(
+    max_attempts: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0,
+    jitter: bool = True,
+    retryable_status_codes: set[int] | None = None,
+    retryable_exceptions: set[type[BaseException]] | None = None,
+) -> Callable:
+    """
+    Decorator for retry with exponential backoff.
+    """
+    if retryable_status_codes is None:
+        retryable_status_codes = _default_retryable_status_codes()
+    if retryable_exceptions is None:
+        retryable_exceptions = _default_retryable_exceptions()
+
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args, **kwargs):
+            attempt = 0
+            last_exc = None
+
+            while attempt < max_attempts:
+                try:
+                    result = func(*args, **kwargs)
+                    # Check for retryable HTTP status codes
+                    if hasattr(result, "status_code") and result.status_code in retryable_status_codes:
+                        raise RetryError(f"Retryable status code: {result.status_code}")
+                    return result
+                except RetryError:
+                    # Our own retry error for status codes
+                    last_exc = RetryError(f"Retryable status code")
+                except Exception as e:
+                    # Check if exception is retryable
+                    if not any(isinstance(e, exc_type) for exc_type in retryable_exceptions):
+                        raise  # Non-retryable, re-raise immediately
+                    last_exc = e
+
+                attempt += 1
+                if attempt >= max_attempts:
+                    break
+
+                # Calculate delay and wait
+                delay = _calculate_delay(attempt - 1, base_delay, max_delay, jitter)
+                time.sleep(delay)
+
+            raise RetryError(f"Max retries ({max_attempts}) exhausted") from last_exc
+
+        return wrapper
+    return decorator
+
+
+def aretry_with_backoff(
+    max_attempts: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0,
+    jitter: bool = True,
+    retryable_status_codes: set[int] | None = None,
+    retryable_exceptions: set[type[BaseException]] | None = None,
+) -> Callable:
+    """
+    Async decorator for retry with exponential backoff.
+    """
+    if retryable_status_codes is None:
+        retryable_status_codes = _default_retryable_status_codes()
+    if retryable_exceptions is None:
+        retryable_exceptions = _default_retryable_exceptions()
+
+    def decorator(func: Callable) -> Callable:
+        async def awrapper(*args, **kwargs):
+            attempt = 0
+            last_exc = None
+
+            while attempt < max_attempts:
+                try:
+                    result = await func(*args, **kwargs)
+                    # Check for retryable HTTP status codes
+                    if hasattr(result, "status_code") and result.status_code in retryable_status_codes:
+                        raise RetryError(f"Retryable status code: {result.status_code}")
+                    return result
+                except RetryError:
+                    # Our own retry error for status codes
+                    last_exc = RetryError(f"Retryable status code")
+                except Exception as e:
+                    # Check if exception is retryable
+                    if not any(isinstance(e, exc_type) for exc_type in retryable_exceptions):
+                        raise  # Non-retryable, re-raise immediately
+                    last_exc = e
+
+                attempt += 1
+                if attempt >= max_attempts:
+                    break
+
+                # Calculate delay and wait
+                delay = _calculate_delay(attempt - 1, base_delay, max_delay, jitter)
+                await asyncio.sleep(delay)
+
+            raise RetryError(f"Max retries ({max_attempts}) exhausted") from last_exc
+
+        return awrapper
+    return decorator
+
+
+def sync_retry_example():
+    """Example of sync retry with exponential backoff."""
+    print("=== Sync retry example ===")
+
+    call_count = 0
+
+    @retry_with_backoff(max_attempts=3, base_delay=0.1, jitter=False)
+    def flaky_function():
+        nonlocal call_count
+        call_count += 1
+        print(f"  Attempt {call_count}...")
+        if call_count < 3:
+            raise ConnectionError("Temporary failure")
+        return "Success!"
+
+    try:
+        start = time.time()
+        result = flaky_function()
+        elapsed = time.time() - start
+        print(f"  Result: {result}")
+        print(f"  Time elapsed: {elapsed:.2f}s")
+    except RetryError as e:
+        print(f"  Failed: {e}")
+
+async def async_retry_example():
+    """Example of async retry with exponential backoff."""
+    print("\n=== Async retry example ===")
+
+    call_count = 0
+
+    @aretry_with_backoff(max_attempts=3, base_delay=0.1, jitter=False)
+    async def async_flaky_function():
+        nonlocal call_count
+        call_count += 1
+        print(f"  Attempt {call_count}...")
+        if call_count < 3:
+            raise ConnectionError("Temporary failure")
+        return "Success!"
+
+    try:
+        start = time.time()
+        result = await async_flaky_function()
+        elapsed = time.time() - start
+        print(f"  Result: {result}")
+        print(f"  Time elapsed: {elapsed:.2f}s")
+    except RetryError as e:
+        print(f"  Failed: {e}")
+
+def delay_calculation_example():
+    """Example of delay calculation with jitter."""
+    print("\n=== Delay calculation example ===")
+
+    print("  Exponential backoff delays (no jitter):")
+    for i in range(4):
+        delay = _calculate_delay(i, base=0.1, max_delay=2.0, jitter=False)
+        print(f"    Attempt {i}: {delay:.3f}s")
+
+    print("\n  With jitter (50-100% of base delay):")
+    for i in range(4):
+        delay = _calculate_delay(i, base=0.1, max_delay=2.0, jitter=True)
+        print(f"    Attempt {i}: {delay:.3f}s")
+
+if __name__ == "__main__":
+    sync_retry_example()
+    asyncio.run(async_retry_example())
+    delay_calculation_example()
+    print("\n✓ Retry with exponential backoff examples completed!")

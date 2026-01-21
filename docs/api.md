@@ -1,15 +1,23 @@
 # API Reference (essentials)
 
 ## gakido.Client
-- `Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True, auto_decompress=True)`
+- `Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True, auto_decompress=True, max_retries=0, retry_base_delay=1.0, retry_max_delay=60.0, retry_jitter=True)`
 - Methods: `get`, `post`, `request`, `close`, context manager.
 - `files` supported on `post`/`request` for multipart.
 - **proxies** (`list[str] | None`): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: `["http://proxy:8080", "socks5://user:pass@proxy:1080"]`. Default: `None`.
+- **max_retries** (`int`): Maximum number of retry attempts (0 disables retry). Default: `0`.
+- **retry_base_delay** (`float`): Initial delay in seconds for exponential backoff. Default: `1.0`.
+- **retry_max_delay** (`float`): Maximum delay in seconds. Default: `60.0`.
+- **retry_jitter** (`bool`): Whether to add random jitter to avoid thundering herd. Default: `True`.
 
 ## gakido.aio.AsyncClient
-- `AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True, auto_decompress=True)`
+- `AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True, auto_decompress=True, max_retries=0, retry_base_delay=1.0, retry_max_delay=60.0, retry_jitter=True)`
 - Async context manager; methods `get`, `post`, `request`, `close`.
 - **proxy_pool** (`list[str] | None`): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: `["http://proxy:8080", "socks5://user:pass@proxy:1080"]`. Default: `None`.
+- **max_retries** (`int`): Maximum number of retry attempts (0 disables retry). Default: `0`.
+- **retry_base_delay** (`float`): Initial delay in seconds for exponential backoff. Default: `1.0`.
+- **retry_max_delay** (`float`): Maximum delay in seconds. Default: `60.0`.
+- **retry_jitter** (`bool`): Whether to add random jitter to avoid thundering herd. Default: `True`.
 
 ### Compression Parameters
 | Parameter | Type | Default | Description |

@@ -19,8 +19,11 @@ from gakido.impersonation import (
 )
 from gakido.models import Response
 from gakido.utils import parse_url
+from gakido.backoff import aretry_with_backoff
 from gakido.http3 import is_http3_available, HTTP3Protocol
 
+# Re-export for tests
+__all__ = ['AsyncClient', 'is_http3_available']
 
 class AsyncClient:
     """
@@ -53,6 +56,10 @@ class AsyncClient:
         http3: bool = False,
         http3_fallback: bool = True,
         auto_decompress: bool = True,
+        max_retries: int = 0,
+        retry_base_delay: float = 1.0,
+        retry_max_delay: float = 60.0,
+        retry_jitter: bool = True,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1 and not http3:
@@ -64,6 +71,11 @@ class AsyncClient:
         self.verify = verify
         self.proxy_pool = list(proxy_pool) if proxy_pool else []
         self.auto_decompress = auto_decompress
+        # Retry configuration
+        self.max_retries = max_retries
+        self.retry_base_delay = retry_base_delay
+        self.retry_max_delay = retry_max_delay
+        self.retry_jitter = retry_jitter
 
         # HTTP/3 configuration
         self.http3_enabled = http3 and is_http3_available()
@@ -71,7 +83,7 @@ class AsyncClient:
         self._h3_protocols: dict[str, HTTP3Protocol] = {}  # Cache per host
         self._h3_failed_hosts: set[str] = set()  # Track hosts where H3 failed
 
-    async def request(
+    async def _make_request(
         self,
         method: str,
         url: str,
@@ -368,6 +380,44 @@ class AsyncClient:
                 )
 
         return response
+
+    async def request(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None = None,
+        data: bytes | str | dict[str, str] | None = None,
+        files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
+        proxy: str | None = None,
+        force_http3: bool | None = None,
+    ) -> Response:
+        """
+        Make an async HTTP request with optional retry logic.
+
+        Args:
+            method: HTTP method
+            url: Request URL
+            headers: Additional headers
+            data: Request body
+            files: Multipart files
+            proxy: Override proxy URL
+            force_http3: Force HTTP/3 if available
+
+        Returns:
+            Response object
+        """
+        if self.max_retries <= 0:
+            # No retries, call directly
+            return await self._make_request(method, url, headers, data, files, proxy, force_http3)
+
+        # Apply retry decorator
+        retry_decorator = aretry_with_backoff(
+            max_attempts=self.max_retries + 1,  # +1 for initial attempt
+            base_delay=self.retry_base_delay,
+            max_delay=self.retry_max_delay,
+            jitter=self.retry_jitter,
+        )
+        return await retry_decorator(self._make_request)(method, url, headers, data, files, proxy, force_http3)
 
     async def _request_h2(
         self,

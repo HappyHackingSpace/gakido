@@ -101,6 +101,40 @@ r = await async_client.get("http://httpbin.org/ip")
 print(r.text)
 ```
 
+### Retry with Exponential Backoff
+
+gakido supports configurable retry with exponential backoff for both sync and async clients.
+
+```python
+from gakido import Client, AsyncClient
+import time
+
+# Sync client with retry
+client = Client(
+    max_retries=3,           # Up to 3 retry attempts (4 total attempts)
+    retry_base_delay=0.5,    # Start with 0.5s delay
+    retry_max_delay=30.0,    # Cap delay at 30s
+    retry_jitter=True,       # Add random jitter to avoid thundering herd
+)
+try:
+    resp = client.get("http://flaky.example.com")
+except Exception as e:
+    print(f"Failed after retries: {e}")
+
+# Async client with retry
+async_client = AsyncClient(
+    max_retries=2,
+    retry_base_delay=1.0,
+    retry_jitter=False,  # Predictable delays for testing
+)
+resp = await async_client.get("http://api.example.com")
+
+# Retryable status codes (by default): 408, 429, 500, 502, 503, 504, 507, 511
+# Retryable exceptions (by default): ConnectionError, TimeoutError, OSError
+
+See [Retry Documentation](docs/retry.md) for detailed information about retry options and best practices.
+```
+
 ### HTTP/3 (QUIC) for Cloudflare/CDN
 ```python
 import asyncio
