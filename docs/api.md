@@ -4,10 +4,12 @@
 - `Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True, auto_decompress=True)`
 - Methods: `get`, `post`, `request`, `close`, context manager.
 - `files` supported on `post`/`request` for multipart.
+- **proxies** (`list[str] | None`): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: `["http://proxy:8080", "socks5://user:pass@proxy:1080"]`. Default: `None`.
 
 ## gakido.aio.AsyncClient
 - `AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True, auto_decompress=True)`
 - Async context manager; methods `get`, `post`, `request`, `close`.
+- **proxy_pool** (`list[str] | None`): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: `["http://proxy:8080", "socks5://user:pass@proxy:1080"]`. Default: `None`.
 
 ### Compression Parameters
 | Parameter | Type | Default | Description |
