@@ -873,16 +873,24 @@
 <h1 id="api-reference-essentials">API Reference (essentials)<a class="headerlink" href="#api-reference-essentials" title="Permanent link">&para;</a></h1>
 <h2 id="gakidoclient">gakido.Client<a class="headerlink" href="#gakidoclient" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True, auto_decompress=True)</code></li>
+<li><code>Client(impersonate="chrome_120", ja3=None, tls_configuration_options=None, proxies=None, timeout=10.0, verify=True, use_native=True, force_http1=True, auto_decompress=True, max_retries=0, retry_base_delay=1.0, retry_max_delay=60.0, retry_jitter=True)</code></li>
 <li>Methods: <code>get</code>, <code>post</code>, <code>request</code>, <code>close</code>, context manager.</li>
 <li><code>files</code> supported on <code>post</code>/<code>request</code> for multipart.</li>
 <li><strong>proxies</strong> (<code>list[str] | None</code>): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: <code>["http://proxy:8080", "socks5://user:pass@proxy:1080"]</code>. Default: <code>None</code>.</li>
+<li><strong>max_retries</strong> (<code>int</code>): Maximum number of retry attempts (0 disables retry). Default: <code>0</code>.</li>
+<li><strong>retry_base_delay</strong> (<code>float</code>): Initial delay in seconds for exponential backoff. Default: <code>1.0</code>.</li>
+<li><strong>retry_max_delay</strong> (<code>float</code>): Maximum delay in seconds. Default: <code>60.0</code>.</li>
+<li><strong>retry_jitter</strong> (<code>bool</code>): Whether to add random jitter to avoid thundering herd. Default: <code>True</code>.</li>
 </ul>
 <h2 id="gakidoaioasyncclient">gakido.aio.AsyncClient<a class="headerlink" href="#gakidoaioasyncclient" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True, auto_decompress=True)</code></li>
+<li><code>AsyncClient(impersonate="chrome_120", timeout=10.0, verify=True, proxy_pool=None, ja3=None, tls_configuration_options=None, force_http1=True, http3=False, http3_fallback=True, auto_decompress=True, max_retries=0, retry_base_delay=1.0, retry_max_delay=60.0, retry_jitter=True)</code></li>
 <li>Async context manager; methods <code>get</code>, <code>post</code>, <code>request</code>, <code>close</code>.</li>
 <li><strong>proxy_pool</strong> (<code>list[str] | None</code>): List of proxy URLs to rotate through. Supports HTTP, SOCKS5, and SOCKS5H schemes. Example: <code>["http://proxy:8080", "socks5://user:pass@proxy:1080"]</code>. Default: <code>None</code>.</li>
+<li><strong>max_retries</strong> (<code>int</code>): Maximum number of retry attempts (0 disables retry). Default: <code>0</code>.</li>
+<li><strong>retry_base_delay</strong> (<code>float</code>): Initial delay in seconds for exponential backoff. Default: <code>1.0</code>.</li>
+<li><strong>retry_max_delay</strong> (<code>float</code>): Maximum delay in seconds. Default: <code>60.0</code>.</li>
+<li><strong>retry_jitter</strong> (<code>bool</code>): Whether to add random jitter to avoid thundering herd. Default: <code>True</code>.</li>
 </ul>
 <h3 id="compression-parameters">Compression Parameters<a class="headerlink" href="#compression-parameters" title="Permanent link">&para;</a></h3>
 <table>
