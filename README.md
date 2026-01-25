@@ -12,6 +12,7 @@ High-performance CPython HTTP client focused on browser impersonation, anti-bot 
 - Multipart uploads
 - Minimal WebSocket client
 - Optional native HTTP fast-path (`gakido_core`, HTTP only)
+- **96 browser profiles** (24 base + 72 aliases) for Chrome, Firefox, Safari, Edge, Opera, Brave, Vivaldi, Tor
 
 ### Install
 ```bash
