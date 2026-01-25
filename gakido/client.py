@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import urllib.parse
 
-from gakido import gakido_core
+try:
+    from gakido import gakido_core
+except ImportError:
+    gakido_core = None  # type: ignore[assignment]
 
 from gakido.compression import decode_body, get_accept_encoding
 from gakido.headers import canonicalize_headers
