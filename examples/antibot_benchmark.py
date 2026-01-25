@@ -39,6 +39,12 @@ from gakido.impersonation import (
 )
 from gakido.impersonation.profiles import PROFILES, ALIAS_MAP
 
+try:
+    from importlib.metadata import version as get_version
+    GAKIDO_VERSION = get_version("gakido")
+except Exception:
+    GAKIDO_VERSION = "0.1.0"
+
 
 # =============================================================================
 # Test Endpoints
@@ -411,7 +417,7 @@ class AntibotBenchmark:
 
         report = BenchmarkReport(
             timestamp=datetime.now().isoformat(),
-            gakido_version="0.1.0",  # TODO: get from package
+            gakido_version=GAKIDO_VERSION,
             total_profiles_tested=len(self.results),
             total_tests_run=total_tests,
             overall_success_rate=(total_passed / total_tests * 100) if total_tests > 0 else 0.0,
