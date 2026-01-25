@@ -14,7 +14,7 @@ client = Client()
 # Stream a large file
 with client.stream("GET", "https://example.com/large-file.zip") as response:
     print(f"Status: {response.status_code}")
-    
+
     # Iterate over chunks
     for chunk in response.iter_bytes(chunk_size=8192):
         # Process each chunk (e.g., write to file, compute hash)
@@ -29,7 +29,7 @@ from gakido import AsyncClient
 
 async def download():
     client = AsyncClient()
-    
+
     async with await client.stream("GET", "https://example.com/large-file.zip") as response:
         async for chunk in response.aiter_bytes(chunk_size=8192):
             process(chunk)
@@ -135,7 +135,7 @@ client = Client()
 with client.stream("GET", url) as response:
     content_length = int(response.headers.get("content-length", 0))
     downloaded = 0
-    
+
     for chunk in response.iter_bytes():
         downloaded += len(chunk)
         if content_length:
@@ -157,15 +157,15 @@ async def download(client, url, filename):
 
 async def main():
     client = AsyncClient()
-    
+
     urls = [
         ("https://example.com/file1.zip", "file1.zip"),
         ("https://example.com/file2.zip", "file2.zip"),
         ("https://example.com/file3.zip", "file3.zip"),
     ]
-    
+
     await asyncio.gather(*[
-        download(client, url, filename) 
+        download(client, url, filename)
         for url, filename in urls
     ])
 
