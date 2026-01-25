@@ -1115,10 +1115,12 @@
 <li>Returns <code>True</code> if aioquic is installed and HTTP/3 support is available.</li>
 </ul>
 <h2 id="profiles">Profiles<a class="headerlink" href="#profiles" title="Permanent link">&para;</a></h2>
+<p><strong>96 browser profiles</strong> available (24 base + 72 aliases). See <a href="../profiles/">Browser Profiles</a> for complete list.</p>
 <ul>
-<li><code>impersonate</code> accepts keys from <code>gakido.impersonation.PROFILES</code> (Chrome/Firefox/Safari/Edge/Tor aliases).</li>
-<li>Profiles include HTTP/3 settings (<code>http3.max_stream_data</code>, <code>http3.max_data</code>, <code>http3.idle_timeout</code>).</li>
-<li>Chrome/Edge profiles include <code>client_hints</code> (Sec-CH-UA headers) and <code>canvas_webgl</code> fingerprint data.</li>
+<li><code>impersonate</code> accepts keys from <code>gakido.impersonation.PROFILES</code></li>
+<li>Supported browsers: Chrome, Firefox, Safari, Edge, Opera, Brave, Vivaldi, Tor</li>
+<li>Profiles include HTTP/3 settings (<code>http3.max_stream_data</code>, <code>http3.max_data</code>, <code>http3.idle_timeout</code>)</li>
+<li>Chrome/Edge/Opera/Brave/Vivaldi profiles include <code>client_hints</code> (Sec-CH-UA headers) and <code>canvas_webgl</code> fingerprint data</li>
 </ul>
 <h2 id="client-hints-fingerprints">Client Hints &amp; Fingerprints<a class="headerlink" href="#client-hints-fingerprints" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
