@@ -9,6 +9,7 @@ try:
     from gakido import gakido_core  # type: ignore[unresolved-import]
 except ImportError:
     gakido_core = None  # type: ignore[assignment]
+from gakido.streaming import StreamingResponse, AsyncStreamingResponse
 
 __all__ = [
     "Client",
@@ -18,4 +19,6 @@ __all__ = [
     "gakido_core",
     "ExtraFingerprints",
     "is_http3_available",
+    "StreamingResponse",
+    "AsyncStreamingResponse",
 ]

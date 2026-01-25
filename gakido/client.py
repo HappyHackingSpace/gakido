@@ -16,6 +16,7 @@ from gakido.impersonation import (
     apply_tls_configuration_options,
 )
 from gakido.models import Response
+from gakido.streaming import StreamingResponse
 from gakido.pool import ConnectionPool
 from gakido.utils import parse_url
 from gakido.backoff import retry_with_backoff
@@ -226,6 +227,99 @@ class Client:
             jitter=self.retry_jitter,
         )
         return retry_decorator(self._make_request)(method, url, headers, data, files, proxy)
+
+    def stream(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None = None,
+        data: bytes | str | dict[str, str] | None = None,
+        proxy: str | None = None,
+        chunk_size: int = 8192,
+    ) -> StreamingResponse:
+        """
+        Make a streaming HTTP request without loading entire body into memory.
+
+        Args:
+            method: HTTP method (GET, POST, etc.)
+            url: Request URL
+            headers: Additional headers
+            data: Request body
+            proxy: Override proxy URL
+            chunk_size: Size of chunks to yield (default: 8192)
+
+        Returns:
+            StreamingResponse object - must be closed after use
+
+        Example:
+            with client.stream("GET", url) as response:
+                for chunk in response.iter_bytes():
+                    process(chunk)
+        """
+        parsed, host, port, path = parse_url(url)
+        body: bytes | None = None
+        final_headers: dict[str, str] = {"Host": host}
+
+        accept_encoding = get_accept_encoding(self.profile, self.auto_decompress)
+        if accept_encoding:
+            final_headers["Accept-Encoding"] = accept_encoding
+
+        if data is not None:
+            if isinstance(data, bytes):
+                body = data
+            elif isinstance(data, str):
+                body = data.encode("utf-8")
+            elif isinstance(data, dict):
+                body = urllib.parse.urlencode(data).encode("utf-8")
+                final_headers.setdefault(
+                    "Content-Type", "application/x-www-form-urlencoded; charset=utf-8"
+                )
+            else:
+                raise TypeError("Unsupported data type for request body")
+            final_headers.setdefault("Content-Length", str(len(body)))
+        else:
+            final_headers.setdefault("Content-Length", "0") if method in (
+                "POST",
+                "PUT",
+            ) else None
+
+        default_headers = list(self.profile.get("headers", {}).get("default", []))
+        order = self.profile.get("headers", {}).get("order", [])
+        merged_headers = canonicalize_headers(
+            default_headers,
+            {**final_headers, **(headers or {})},
+            order=order,
+        )
+        seen_conn = any(name.lower() == "connection" for name, _ in merged_headers)
+        if not seen_conn:
+            merged_headers.insert(1, ("Connection", "keep-alive"))
+
+        # Proxy handling
+        proxy_url: str | None = None
+        target_path = path
+        if proxy or self.proxies:
+            proxy_url = proxy or self.proxies[0]
+            p = urllib.parse.urlparse(proxy_url)
+            if p.scheme.lower() == "http":
+                target_host, target_port = p.hostname or "", p.port or 80
+                target_path = url
+            elif p.scheme.lower() in ("socks5", "socks5h"):
+                target_host, target_port = host, port
+            else:
+                raise ValueError(f"Unsupported proxy scheme: {p.scheme}")
+        else:
+            target_host, target_port = host, port
+
+        from gakido.connection import Connection
+        conn = Connection(
+            target_host, target_port, parsed.scheme, self.profile,
+            self.timeout, self.verify, proxy_url=proxy_url
+        )
+
+        return conn.stream(
+            method.upper(), target_path, merged_headers, body,
+            auto_decompress=self.auto_decompress, chunk_size=chunk_size
+        )
 
     def get(self, url: str, headers: dict[str, str] | None = None, proxy: str | None = None) -> Response:
         return self.request("GET", url, headers=headers, data=None, proxy=proxy)
