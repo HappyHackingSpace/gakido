@@ -23,4 +23,5 @@ with Client(impersonate="chrome_120") as c:
 - Multipart uploads
 - [Retry with exponential backoff](retry.md)
 - [Rate limiting](rate-limiting.md)
+- [Antibot benchmark](antibot-benchmark.md) for testing impersonation
 - Minimal WebSocket client
