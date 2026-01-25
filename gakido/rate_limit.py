@@ -10,7 +10,8 @@ import threading
 import time
 from collections import deque
 from collections.abc import Callable
-from typing import TypeVar, Awaitable
+from typing import TypeVar
+from collections.abc import Awaitable
 
 T = TypeVar("T")
 R = TypeVar("R")

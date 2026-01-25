@@ -1,5 +1,5 @@
 from gakido.client import Client
-from gakido.session import Session
+from gakido.session import Session, AsyncSession
 from gakido.fingerprints import ExtraFingerprints
 from gakido.aio import AsyncClient
 from gakido.http3 import is_http3_available
@@ -25,6 +25,7 @@ from gakido.rate_limit import (
 __all__ = [
     "Client",
     "Session",
+    "AsyncSession",
     "AsyncClient",
     "AsyncWebSocket",
     "gakido_core",
