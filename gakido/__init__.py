@@ -4,6 +4,7 @@ from gakido import gakido_core  # type: ignore[unresolved-import]
 from gakido.fingerprints import ExtraFingerprints
 from gakido.aio import AsyncClient
 from gakido.http3 import is_http3_available
+from gakido.streaming import StreamingResponse, AsyncStreamingResponse
 
 __all__ = [
     "Client",
@@ -12,4 +13,6 @@ __all__ = [
     "gakido_core",
     "ExtraFingerprints",
     "is_http3_available",
+    "StreamingResponse",
+    "AsyncStreamingResponse",
 ]

@@ -18,5 +18,7 @@ with Client(impersonate="chrome_120") as c:
 - JA3/Akamai-like overrides via `tls_configuration_options`
 - HTTP/1.1 and HTTP/2 (ALPN) plus optional native HTTP fast-path
 - Async client
+- [Streaming responses](streaming.md) for large downloads
 - Multipart uploads
+- [Retry with exponential backoff](retry.md)
 - Minimal WebSocket client

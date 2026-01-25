@@ -18,6 +18,7 @@ from gakido.impersonation import (
     apply_tls_configuration_options,
 )
 from gakido.models import Response
+from gakido.streaming import AsyncStreamingResponse
 from gakido.utils import parse_url
 from gakido.backoff import aretry_with_backoff
 from gakido.http3 import is_http3_available, HTTP3Protocol
@@ -515,6 +516,198 @@ class AsyncClient:
     ) -> Response:
         return await self.request(
             "POST", url, headers=headers, data=data, files=files, proxy=proxy
+        )
+
+    async def stream(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None = None,
+        data: bytes | str | dict[str, str] | None = None,
+        proxy: str | None = None,
+        chunk_size: int = 8192,
+    ) -> AsyncStreamingResponse:
+        """
+        Make an async streaming HTTP request without loading entire body into memory.
+
+        Args:
+            method: HTTP method (GET, POST, etc.)
+            url: Request URL
+            headers: Additional headers
+            data: Request body
+            proxy: Override proxy URL
+            chunk_size: Size of chunks to yield (default: 8192)
+
+        Returns:
+            AsyncStreamingResponse object - must be closed after use
+
+        Example:
+            async with client.stream("GET", url) as response:
+                async for chunk in response.aiter_bytes():
+                    process(chunk)
+        """
+        parsed, host, port, path = parse_url(url)
+        body: bytes | None = None
+        final_headers: dict[str, str] = {"Host": host}
+
+        accept_encoding = get_accept_encoding(self.profile, self.auto_decompress)
+        if accept_encoding:
+            final_headers["Accept-Encoding"] = accept_encoding
+
+        if data is not None:
+            if isinstance(data, bytes):
+                body = data
+            elif isinstance(data, str):
+                body = data.encode("utf-8")
+            elif isinstance(data, dict):
+                body = urllib.parse.urlencode(data).encode("utf-8")
+                final_headers.setdefault(
+                    "Content-Type", "application/x-www-form-urlencoded; charset=utf-8"
+                )
+            else:
+                raise TypeError("Unsupported data type for request body")
+            final_headers.setdefault("Content-Length", str(len(body)))
+
+        default_headers = list(self.profile.get("headers", {}).get("default", []))
+        order = self.profile.get("headers", {}).get("order", [])
+        merged_headers = canonicalize_headers(
+            default_headers,
+            {**final_headers, **(headers or {})},
+            order=order,
+        )
+
+        # Proxy handling
+        target_path = path
+        proxy_url: str | None = None
+        if proxy or self.proxy_pool:
+            proxy_url = proxy or self.proxy_pool[0]
+            p = urllib.parse.urlparse(proxy_url)
+            if p.scheme.lower() == "http":
+                connect_host = p.hostname
+                connect_port = p.port or 80
+                target_path = url
+            elif p.scheme.lower() in ("socks5", "socks5h"):
+                connect_host = p.hostname
+                connect_port = p.port or 1080
+            else:
+                raise ValueError(f"Unsupported proxy scheme: {p.scheme}")
+        else:
+            connect_host = host
+            connect_port = port
+
+        # For SOCKS5, connect without TLS first, perform handshake, then upgrade
+        if proxy_url and proxy_url.lower().startswith(("socks5://", "socks5h://")):
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(connect_host, connect_port),
+                timeout=self.timeout,
+            )
+            from .asyncio_socks5 import socks5_handshake_async
+            await socks5_handshake_async(writer, reader, proxy_url, host, port)
+            if parsed.scheme == "https":
+                ssl_ctx = ssl.create_default_context()
+                if not self.verify:
+                    ssl_ctx.check_hostname = False
+                    ssl_ctx.verify_mode = ssl.CERT_NONE
+                tls = self.profile.get("tls", {})
+                ciphers = tls.get("ciphers")
+                if ciphers:
+                    try:
+                        ssl_ctx.set_ciphers(ciphers)
+                    except ssl.SSLError:
+                        try:
+                            ssl_ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+                        except ssl.SSLError:
+                            pass
+                await asyncio.wait_for(
+                    writer.start_tls(ssl_ctx, server_hostname=host),
+                    timeout=self.timeout,
+                )
+        else:
+            ssl_ctx: ssl.SSLContext | None = None
+            if parsed.scheme == "https":
+                ssl_ctx = ssl.create_default_context()
+                if not self.verify:
+                    ssl_ctx.check_hostname = False
+                    ssl_ctx.verify_mode = ssl.CERT_NONE
+                tls = self.profile.get("tls", {})
+                ciphers = tls.get("ciphers")
+                if ciphers:
+                    try:
+                        ssl_ctx.set_ciphers(ciphers)
+                    except ssl.SSLError:
+                        try:
+                            ssl_ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+                        except ssl.SSLError:
+                            pass
+
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(
+                    connect_host,
+                    connect_port,
+                    ssl=ssl_ctx,
+                    server_hostname=host if ssl_ctx else None,
+                ),
+                timeout=self.timeout,
+            )
+
+        # Send HTTP/1.1 request
+        req_lines = [f"{method} {target_path} HTTP/1.1\r\n".encode("ascii")]
+        for name, value in merged_headers:
+            req_lines.append(f"{name}: {value}\r\n".encode("latin-1"))
+        req_lines.append(b"\r\n")
+        if body:
+            req_lines.append(body)
+        writer.writelines(req_lines)
+        await writer.drain()
+
+        # Parse response headers
+        status_line = await reader.readline()
+        if not status_line:
+            raise ProtocolError("Empty response")
+        try:
+            parts = status_line.decode("latin-1").strip().split(" ", 2)
+            version = parts[0].split("/", 1)[1]
+            status_code = int(parts[1])
+            reason = parts[2] if len(parts) > 2 else ""
+        except Exception as exc:
+            raise ProtocolError(f"Malformed status line: {status_line!r}") from exc
+
+        headers_list: list[tuple[str, str]] = []
+        while True:
+            line = await reader.readline()
+            if line in (b"\r\n", b"\n", b""):
+                break
+            try:
+                name, value = line.split(b":", 1)
+            except ValueError as exc:
+                raise ProtocolError(f"Malformed header line: {line!r}") from exc
+            headers_list.append(
+                (name.decode("latin-1").strip(), value.decode("latin-1").strip())
+            )
+
+        header_map = {k.lower(): v for k, v in headers_list}
+        transfer_encoding = header_map.get("transfer-encoding", "").lower()
+        chunked = "chunked" in transfer_encoding
+        content_length: int | None = None
+        if not chunked and "content-length" in header_map:
+            try:
+                content_length = int(header_map["content-length"])
+            except ValueError:
+                pass
+        content_encoding = header_map.get("content-encoding", "")
+
+        return AsyncStreamingResponse(
+            status_code=status_code,
+            reason=reason,
+            http_version=version,
+            headers=headers_list,
+            reader=reader,
+            writer=writer,
+            content_length=content_length,
+            chunked=chunked,
+            content_encoding=content_encoding,
+            auto_decompress=self.auto_decompress,
+            chunk_size=chunk_size,
         )
 
     async def close(self) -> None:

@@ -8,6 +8,7 @@ from collections.abc import Iterable
 from .compression import decode_body
 from .errors import ConnectionError, ProtocolError, TLSNegotiationError
 from .models import Response
+from .streaming import StreamingResponse
 from .http2 import HTTP2Connection
 from .socks5 import socks5_handshake
 
@@ -132,6 +133,37 @@ class Connection:
             self.close()
         return response
 
+    def stream(
+        self,
+        method: str,
+        path: str,
+        headers: Iterable[tuple[str, str]],
+        body: bytes | None = None,
+        auto_decompress: bool = True,
+        chunk_size: int = 8192,
+    ) -> StreamingResponse:
+        """
+        Send request and return a streaming response.
+
+        The caller is responsible for closing the StreamingResponse.
+        The connection will NOT be reused after streaming.
+        """
+        if self.closed or self.sock is None:
+            self.connect()
+
+        request_bytes = self._build_request(method, path, headers, body)
+        try:
+            assert self.sock is not None
+            self.sock.sendall(request_bytes)
+        except OSError as exc:
+            self.close()
+            raise ConnectionError(f"Send failed: {exc}") from exc
+
+        if self.negotiated_protocol == "h2":
+            raise NotImplementedError("Streaming not supported for HTTP/2 in sync client")
+
+        return self._read_streaming_response(auto_decompress, chunk_size)
+
     def _build_request(
         self,
         method: str,
@@ -245,6 +277,64 @@ class Connection:
             # Discard CRLF
             _ = self._read_exact(2)
         return b"".join(chunks)
+
+    def _read_streaming_response(
+        self, auto_decompress: bool, chunk_size: int
+    ) -> StreamingResponse:
+        """Parse response headers and return a StreamingResponse for body iteration."""
+        status_line = self._readline()
+        if not status_line:
+            raise ProtocolError("Empty response")
+        try:
+            parts = status_line.decode("latin-1").strip().split(" ", 2)
+            version = parts[0].split("/", 1)[1]
+            status_code = int(parts[1])
+            reason = parts[2] if len(parts) > 2 else ""
+        except Exception as exc:
+            raise ProtocolError(f"Malformed status line: {status_line!r}") from exc
+
+        headers: list[tuple[str, str]] = []
+        while True:
+            line = self._readline()
+            if line in (b"\r\n", b"\n", b""):
+                break
+            try:
+                name, value = line.split(b":", 1)
+            except ValueError as exc:
+                raise ProtocolError(f"Malformed header line: {line!r}") from exc
+            headers.append(
+                (name.decode("latin-1").strip(), value.decode("latin-1").strip())
+            )
+
+        header_map = {k.lower(): v for k, v in headers}
+        transfer_encoding = header_map.get("transfer-encoding", "").lower()
+        chunked = "chunked" in transfer_encoding
+        content_length: int | None = None
+        if not chunked and "content-length" in header_map:
+            try:
+                content_length = int(header_map["content-length"])
+            except ValueError:
+                pass
+        content_encoding = header_map.get("content-encoding", "")
+
+        # Transfer socket ownership to StreamingResponse
+        assert self.sock is not None
+        sock = self.sock
+        self.sock = None
+        self.closed = True
+
+        return StreamingResponse(
+            status_code=status_code,
+            reason=reason,
+            http_version=version,
+            headers=headers,
+            sock=sock,
+            content_length=content_length,
+            chunked=chunked,
+            content_encoding=content_encoding,
+            auto_decompress=auto_decompress,
+            chunk_size=chunk_size,
+        )
 
     def close(self) -> None:
         if self.sock:
