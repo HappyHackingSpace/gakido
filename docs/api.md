@@ -47,6 +47,22 @@ When `auto_decompress=False`:
 ## Profiles
 - `impersonate` accepts keys from `gakido.impersonation.PROFILES` (Chrome/Firefox/Safari/Edge/Tor aliases).
 - Profiles include HTTP/3 settings (`http3.max_stream_data`, `http3.max_data`, `http3.idle_timeout`).
+- Chrome/Edge profiles include `client_hints` (Sec-CH-UA headers) and `canvas_webgl` fingerprint data.
+
+## Client Hints & Fingerprints
+
+```python
+from gakido.impersonation import (
+    get_client_hints_headers,        # Extract Sec-CH-UA headers from profile
+    get_canvas_webgl_fingerprint,    # Get WebGL vendor/renderer from profile
+    build_client_hints_for_platform, # Build custom client hints
+    generate_sec_ch_ua,              # Generate Sec-CH-UA header value
+    parse_accept_ch,                 # Parse Accept-CH response header
+    WEBGL_RENDERERS,                 # Predefined WebGL renderer strings
+)
+```
+
+See [Client Hints & Browser Fingerprints](client-hints.md) for full documentation.
 
 ## TLS overrides
 - `ja3` dict: override ciphers/alpn/curves/sig_algs.
