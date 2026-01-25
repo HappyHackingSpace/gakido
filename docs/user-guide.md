@@ -44,6 +44,33 @@ r = c.get("https://tls.browserleaks.com/json")
 print(r.json().get("ja3_hash"))
 ```
 
+## Client Hints & Fingerprints
+
+Chrome and Edge profiles automatically include Sec-CH-UA client hints for better impersonation:
+
+```python
+from gakido import Client
+from gakido.impersonation import get_profile, get_client_hints_headers
+
+# Client hints are sent automatically
+with Client(impersonate="chrome_120") as c:
+    r = c.get("https://httpbin.org/headers")
+    # Headers include: Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform
+
+# Access client hints and fingerprint data
+profile = get_profile("chrome_120")
+hints = get_client_hints_headers(profile, include_high_entropy=True)
+print(hints)
+# {'Sec-CH-UA': '"Not_A Brand";v="8", ...', 'Sec-CH-UA-Platform': '"macOS"', ...}
+
+# Access Canvas/WebGL fingerprint
+from gakido.impersonation import get_canvas_webgl_fingerprint
+fp = get_canvas_webgl_fingerprint(profile)
+print(fp["webgl_renderer"])  # "ANGLE (Apple, ANGLE Metal Renderer: ...)"
+```
+
+See [Client Hints & Browser Fingerprints](client-hints.md) for full documentation.
+
 ## TLS overrides (JA3/Akamai style)
 
 ```python
