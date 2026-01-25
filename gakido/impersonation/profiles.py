@@ -59,6 +59,14 @@ PROFILES: dict[str, dict] = {
                 "Connection",
                 "Pragma",
                 "Cache-Control",
+                "Sec-CH-UA",
+                "Sec-CH-UA-Mobile",
+                "Sec-CH-UA-Platform",
+                "Sec-CH-UA-Platform-Version",
+                "Sec-CH-UA-Full-Version-List",
+                "Sec-CH-UA-Arch",
+                "Sec-CH-UA-Bitness",
+                "Sec-CH-UA-Model",
                 "Upgrade-Insecure-Requests",
                 "User-Agent",
                 "Accept",
@@ -73,6 +81,12 @@ PROFILES: dict[str, dict] = {
                 ("Connection", "keep-alive"),
                 ("Pragma", "no-cache"),
                 ("Cache-Control", "no-cache"),
+                (
+                    "Sec-CH-UA",
+                    '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                ),
+                ("Sec-CH-UA-Mobile", "?0"),
+                ("Sec-CH-UA-Platform", '"macOS"'),
                 ("Upgrade-Insecure-Requests", "1"),
                 (
                     "User-Agent",
@@ -93,6 +107,21 @@ PROFILES: dict[str, dict] = {
                 ("Accept-Encoding", "gzip, deflate, br"),
                 ("Accept-Language", "en-US,en;q=0.9"),
             ],
+        },
+        "client_hints": {
+            "Sec-CH-UA": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            "Sec-CH-UA-Mobile": "?0",
+            "Sec-CH-UA-Platform": '"macOS"',
+            "Sec-CH-UA-Platform-Version": '"14.0.0"',
+            "Sec-CH-UA-Full-Version-List": '"Not_A Brand";v="8.0.0.0", "Chromium";v="120.0.6099.129", "Google Chrome";v="120.0.6099.129"',
+            "Sec-CH-UA-Arch": '"arm"',
+            "Sec-CH-UA-Bitness": '"64"',
+            "Sec-CH-UA-Model": '""',
+        },
+        "canvas_webgl": {
+            "webgl_vendor": "Google Inc. (Apple)",
+            "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+            "canvas_hash": "a]@~)!@#$%^&*()_+{}|:<>?`-=[]\\;',./",
         },
     },
     "firefox_120": {
@@ -173,6 +202,11 @@ PROFILES: dict[str, dict] = {
                 ("Cache-Control", "no-cache"),
             ],
         },
+        "canvas_webgl": {
+            "webgl_vendor": "Google Inc. (Apple)",
+            "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+            "canvas_hash": "firefox_120_macos_canvas_fp",
+        },
     },
 }
 
@@ -221,6 +255,12 @@ PROFILES["chrome_120_android"] = {
             ("Connection", "keep-alive"),
             ("Pragma", "no-cache"),
             ("Cache-Control", "no-cache"),
+            (
+                "Sec-CH-UA",
+                '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            ),
+            ("Sec-CH-UA-Mobile", "?1"),
+            ("Sec-CH-UA-Platform", '"Android"'),
             ("Upgrade-Insecure-Requests", "1"),
             (
                 "User-Agent",
@@ -238,6 +278,21 @@ PROFILES["chrome_120_android"] = {
             ("Accept-Encoding", "gzip, deflate, br"),
             ("Accept-Language", "en-US,en;q=0.9"),
         ],
+    },
+    "client_hints": {
+        "Sec-CH-UA": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "Sec-CH-UA-Mobile": "?1",
+        "Sec-CH-UA-Platform": '"Android"',
+        "Sec-CH-UA-Platform-Version": '"14.0.0"',
+        "Sec-CH-UA-Full-Version-List": '"Not_A Brand";v="8.0.0.0", "Chromium";v="120.0.6099.129", "Google Chrome";v="120.0.6099.129"',
+        "Sec-CH-UA-Arch": '""',
+        "Sec-CH-UA-Bitness": '"64"',
+        "Sec-CH-UA-Model": '"Pixel 7"',
+    },
+    "canvas_webgl": {
+        "webgl_vendor": "Qualcomm",
+        "webgl_renderer": "Adreno (TM) 730",
+        "canvas_hash": "android_pixel7_canvas_fp",
     },
 }
 
@@ -287,6 +342,11 @@ PROFILES["safari_170"] = {
             ("Accept-Encoding", "gzip, deflate, br"),
         ],
     },
+    "canvas_webgl": {
+        "webgl_vendor": "Apple Inc.",
+        "webgl_renderer": "Apple GPU",
+        "canvas_hash": "safari_macos_canvas_fp",
+    },
 }
 
 PROFILES["safari_170_ios"] = {
@@ -309,6 +369,11 @@ PROFILES["safari_170_ios"] = {
             ("Accept-Language", "en-US,en;q=0.9"),
             ("Accept-Encoding", "gzip, deflate, br"),
         ],
+    },
+    "canvas_webgl": {
+        "webgl_vendor": "Apple Inc.",
+        "webgl_renderer": "Apple GPU",
+        "canvas_hash": "safari_ios_canvas_fp",
     },
 }
 
@@ -335,6 +400,11 @@ PROFILES["firefox_133"] = {
             ("Cache-Control", "no-cache"),
         ],
     },
+    "canvas_webgl": {
+        "webgl_vendor": "Google Inc. (Apple)",
+        "webgl_renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "canvas_hash": "firefox_macos_canvas_fp",
+    },
 }
 
 PROFILES["firefox_135_android"] = {
@@ -359,6 +429,11 @@ PROFILES["firefox_135_android"] = {
             ("Cache-Control", "no-cache"),
         ],
     },
+    "canvas_webgl": {
+        "webgl_vendor": "Qualcomm",
+        "webgl_renderer": "Adreno (TM) 730",
+        "canvas_hash": "firefox_android_canvas_fp",
+    },
 }
 
 PROFILES["edge_101"] = {
@@ -370,6 +445,12 @@ PROFILES["edge_101"] = {
             ("Connection", "keep-alive"),
             ("Pragma", "no-cache"),
             ("Cache-Control", "no-cache"),
+            (
+                "Sec-CH-UA",
+                '"Not A(Brand";v="99", "Microsoft Edge";v="101", "Chromium";v="101"',
+            ),
+            ("Sec-CH-UA-Mobile", "?0"),
+            ("Sec-CH-UA-Platform", '"Windows"'),
             ("Upgrade-Insecure-Requests", "1"),
             (
                 "User-Agent",
@@ -387,6 +468,21 @@ PROFILES["edge_101"] = {
             ("Accept-Encoding", "gzip, deflate, br"),
             ("Accept-Language", "en-US,en;q=0.9"),
         ],
+    },
+    "client_hints": {
+        "Sec-CH-UA": '"Not A(Brand";v="99", "Microsoft Edge";v="101", "Chromium";v="101"',
+        "Sec-CH-UA-Mobile": "?0",
+        "Sec-CH-UA-Platform": '"Windows"',
+        "Sec-CH-UA-Platform-Version": '"10.0.0"',
+        "Sec-CH-UA-Full-Version-List": '"Not A(Brand";v="99.0.0.0", "Microsoft Edge";v="101.0.1210.47", "Chromium";v="101.0.4951.64"',
+        "Sec-CH-UA-Arch": '"x86"',
+        "Sec-CH-UA-Bitness": '"64"',
+        "Sec-CH-UA-Model": '""',
+    },
+    "canvas_webgl": {
+        "webgl_vendor": "Google Inc. (NVIDIA)",
+        "webgl_renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3080 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "canvas_hash": "edge_windows_canvas_fp",
     },
 }
 
@@ -411,6 +507,11 @@ PROFILES["tor_145"] = {
             ("Pragma", "no-cache"),
             ("Cache-Control", "no-cache"),
         ],
+    },
+    "canvas_webgl": {
+        "webgl_vendor": "Mozilla",
+        "webgl_renderer": "Mozilla",
+        "canvas_hash": "tor_uniform_canvas_fp",
     },
 }
 
