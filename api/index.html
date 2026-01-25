@@ -679,6 +679,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#client-hints-fingerprints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client Hints &amp; Fingerprints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tls-overrides" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -935,6 +946,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#client-hints-fingerprints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Client Hints &amp; Fingerprints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tls-overrides" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1096,7 +1118,19 @@
 <ul>
 <li><code>impersonate</code> accepts keys from <code>gakido.impersonation.PROFILES</code> (Chrome/Firefox/Safari/Edge/Tor aliases).</li>
 <li>Profiles include HTTP/3 settings (<code>http3.max_stream_data</code>, <code>http3.max_data</code>, <code>http3.idle_timeout</code>).</li>
+<li>Chrome/Edge profiles include <code>client_hints</code> (Sec-CH-UA headers) and <code>canvas_webgl</code> fingerprint data.</li>
 </ul>
+<h2 id="client-hints-fingerprints">Client Hints &amp; Fingerprints<a class="headerlink" href="#client-hints-fingerprints" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">get_client_hints_headers</span><span class="p">,</span>        <span class="c1"># Extract Sec-CH-UA headers from profile</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">get_canvas_webgl_fingerprint</span><span class="p">,</span>    <span class="c1"># Get WebGL vendor/renderer from profile</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">build_client_hints_for_platform</span><span class="p">,</span> <span class="c1"># Build custom client hints</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">generate_sec_ch_ua</span><span class="p">,</span>              <span class="c1"># Generate Sec-CH-UA header value</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">parse_accept_ch</span><span class="p">,</span>                 <span class="c1"># Parse Accept-CH response header</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">WEBGL_RENDERERS</span><span class="p">,</span>                 <span class="c1"># Predefined WebGL renderer strings</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span>
+</code></pre></div>
+<p>See <a href="../client-hints/">Client Hints &amp; Browser Fingerprints</a> for full documentation.</p>
 <h2 id="tls-overrides">TLS overrides<a class="headerlink" href="#tls-overrides" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>ja3</code> dict: override ciphers/alpn/curves/sig_algs.</li>
@@ -1108,9 +1142,9 @@
 <li>Methods: <code>send_text</code>, <code>send_bytes</code>, <code>recv</code>, <code>close</code>.</li>
 </ul>
 <h2 id="installation-extras">Installation Extras<a class="headerlink" href="#installation-extras" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="w">          </span><span class="c1"># Core package</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="o">[</span>h3<span class="o">]</span><span class="w">      </span><span class="c1"># With HTTP/3 (QUIC) support</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="o">[</span>dev<span class="o">]</span><span class="w">     </span><span class="c1"># Development dependencies</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="w">          </span><span class="c1"># Core package</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="o">[</span>h3<span class="o">]</span><span class="w">      </span><span class="c1"># With HTTP/3 (QUIC) support</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="o">[</span>dev<span class="o">]</span><span class="w">     </span><span class="c1"># Development dependencies</span>
 </code></pre></div>
 
 
