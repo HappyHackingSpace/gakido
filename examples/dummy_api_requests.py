@@ -161,7 +161,7 @@ def preview_response(resp_data: Any, max_len: int = 200) -> str:
         text = json.dumps(resp_data[:2], indent=2) + f"\n... ({len(resp_data)} items)"
     else:
         text = str(resp_data)
-    
+
     if len(text) > max_len:
         return text[:max_len] + "..."
     return text
@@ -174,28 +174,28 @@ def preview_response(resp_data: Any, max_len: int = 200) -> str:
 def run_sync_requests(profile: str = "chrome_120", verbose: bool = True) -> list[RequestResult]:
     """Run requests using sync client."""
     results: list[RequestResult] = []
-    
+
     print(f"\n{'='*70}")
     print(f"  GAKIDO DUMMY API REQUESTS (Sync)")
     print(f"  Profile: {profile}")
     print(f"{'='*70}")
-    
+
     with Client(impersonate=profile, timeout=15.0) as client:
         for api_name, api_config in DUMMY_APIS.items():
             print(f"\n--- {api_name}: {api_config['description']} ---")
-            
+
             for endpoint_name, endpoint_path in api_config["endpoints"].items():
                 url = make_url(api_config, endpoint_path)
-                
+
                 try:
                     resp = client.get(url)
-                    
+
                     try:
                         data = resp.json()
                         preview = preview_response(data)
                     except Exception:
                         preview = resp.text[:200]
-                    
+
                     result = RequestResult(
                         api_name=api_name,
                         endpoint_name=endpoint_name,
@@ -204,11 +204,11 @@ def run_sync_requests(profile: str = "chrome_120", verbose: bool = True) -> list
                         status_code=resp.status_code,
                         response_preview=preview,
                     )
-                    
+
                     if verbose:
                         status = "✅" if result.success else "❌"
                         print(f"  {status} {endpoint_name:20s} HTTP {resp.status_code}")
-                    
+
                 except Exception as e:
                     result = RequestResult(
                         api_name=api_name,
@@ -219,9 +219,9 @@ def run_sync_requests(profile: str = "chrome_120", verbose: bool = True) -> list
                     )
                     if verbose:
                         print(f"  ❌ {endpoint_name:20s} ERROR: {str(e)[:50]}")
-                
+
                 results.append(result)
-    
+
     return results
 
 
@@ -232,28 +232,28 @@ def run_sync_requests(profile: str = "chrome_120", verbose: bool = True) -> list
 async def run_async_requests(profile: str = "chrome_120", verbose: bool = True) -> list[RequestResult]:
     """Run requests using async client."""
     results: list[RequestResult] = []
-    
+
     print(f"\n{'='*70}")
     print(f"  GAKIDO DUMMY API REQUESTS (Async)")
     print(f"  Profile: {profile}")
     print(f"{'='*70}")
-    
+
     async with AsyncClient(impersonate=profile, timeout=15.0) as client:
         for api_name, api_config in DUMMY_APIS.items():
             print(f"\n--- {api_name}: {api_config['description']} ---")
-            
+
             for endpoint_name, endpoint_path in api_config["endpoints"].items():
                 url = make_url(api_config, endpoint_path)
-                
+
                 try:
                     resp = await client.get(url)
-                    
+
                     try:
                         data = resp.json()
                         preview = preview_response(data)
                     except Exception:
                         preview = resp.text[:200]
-                    
+
                     result = RequestResult(
                         api_name=api_name,
                         endpoint_name=endpoint_name,
@@ -262,11 +262,11 @@ async def run_async_requests(profile: str = "chrome_120", verbose: bool = True) 
                         status_code=resp.status_code,
                         response_preview=preview,
                     )
-                    
+
                     if verbose:
                         status = "✅" if result.success else "❌"
                         print(f"  {status} {endpoint_name:20s} HTTP {resp.status_code}")
-                    
+
                 except Exception as e:
                     result = RequestResult(
                         api_name=api_name,
@@ -277,9 +277,9 @@ async def run_async_requests(profile: str = "chrome_120", verbose: bool = True) 
                     )
                     if verbose:
                         print(f"  ❌ {endpoint_name:20s} ERROR: {str(e)[:50]}")
-                
+
                 results.append(result)
-    
+
     return results
 
 
@@ -292,7 +292,7 @@ def run_crud_examples(profile: str = "chrome_120") -> None:
     print(f"\n{'='*70}")
     print(f"  CRUD OPERATIONS EXAMPLES")
     print(f"{'='*70}")
-    
+
     with Client(impersonate=profile, timeout=15.0) as client:
         # POST - Create
         print("\n--- POST (Create) ---")
@@ -308,7 +308,7 @@ def run_crud_examples(profile: str = "chrome_120") -> None:
         )
         print(f"  POST /posts: HTTP {resp.status_code}")
         print(f"  Response: {resp.json()}")
-        
+
         # PUT - Update
         print("\n--- PUT (Update) ---")
         put_data = {
@@ -324,7 +324,7 @@ def run_crud_examples(profile: str = "chrome_120") -> None:
         )
         print(f"  PUT /posts/1: HTTP {resp.status_code}")
         print(f"  Response: {resp.json()}")
-        
+
         # PATCH - Partial Update
         print("\n--- PATCH (Partial Update) ---")
         patch_data = {"title": "Patched Title Only"}
@@ -335,12 +335,12 @@ def run_crud_examples(profile: str = "chrome_120") -> None:
         )
         print(f"  PATCH /posts/1: HTTP {resp.status_code}")
         print(f"  Response: {resp.json()}")
-        
+
         # DELETE
         print("\n--- DELETE ---")
         resp = client.delete("https://jsonplaceholder.typicode.com/posts/1")
         print(f"  DELETE /posts/1: HTTP {resp.status_code}")
-        
+
         # POST with form data
         print("\n--- POST (Form Data) ---")
         resp = client.post(
@@ -361,7 +361,7 @@ def run_specific_examples(profile: str = "chrome_120") -> None:
     print(f"\n{'='*70}")
     print(f"  SPECIFIC API EXAMPLES")
     print(f"{'='*70}")
-    
+
     with Client(impersonate=profile, timeout=15.0) as client:
         # Random User
         print("\n--- Random User ---")
@@ -370,14 +370,14 @@ def run_specific_examples(profile: str = "chrome_120") -> None:
         print(f"  Name: {user['name']['first']} {user['name']['last']}")
         print(f"  Email: {user['email']}")
         print(f"  Country: {user['location']['country']}")
-        
+
         # Random Joke
         print("\n--- Random Joke ---")
         resp = client.get("https://official-joke-api.appspot.com/random_joke")
         joke = resp.json()
         print(f"  Setup: {joke['setup']}")
         print(f"  Punchline: {joke['punchline']}")
-        
+
         # IP Info
         print("\n--- Your IP Info ---")
         resp = client.get("https://ipinfo.io/json")
@@ -385,7 +385,7 @@ def run_specific_examples(profile: str = "chrome_120") -> None:
         print(f"  IP: {ip_info.get('ip', 'N/A')}")
         print(f"  City: {ip_info.get('city', 'N/A')}")
         print(f"  Country: {ip_info.get('country', 'N/A')}")
-        
+
         # Random Quote
         print("\n--- Random Quote ---")
         try:
@@ -400,7 +400,7 @@ def run_specific_examples(profile: str = "chrome_120") -> None:
                 print(f"  (Quote API returned {resp.status_code})")
         except Exception as e:
             print(f"  (Quote API error: {str(e)[:50]})")
-        
+
         # DummyJSON Product
         print("\n--- Random Product ---")
         resp = client.get("https://dummyjson.com/products/1")
@@ -419,14 +419,14 @@ def print_summary(results: list[RequestResult]) -> None:
     total = len(results)
     passed = sum(1 for r in results if r.success)
     failed = total - passed
-    
+
     print(f"\n{'='*70}")
     print(f"  SUMMARY")
     print(f"{'='*70}")
     print(f"  Total requests: {total}")
     print(f"  Successful: {passed} ({passed/total*100:.1f}%)")
     print(f"  Failed: {failed}")
-    
+
     if failed > 0:
         print("\n  Failed requests:")
         for r in results:
@@ -487,9 +487,9 @@ Examples:
         action="store_true",
         help="Suppress verbose output",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.crud:
         run_crud_examples(args.profile)
     elif args.examples:
