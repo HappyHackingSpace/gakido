@@ -16,10 +16,19 @@ High-performance CPython HTTP client focused on browser impersonation, anti-bot 
 - [Antibot benchmark](docs/antibot-benchmark.md) for testing impersonation against detection systems
 
 ### Install
+
+**pip:**
 ```bash
 pip install gakido
 pip install gakido[h3]     # with HTTP/3 support
 pip install gakido[dev]    # development dependencies
+```
+
+**uv:**
+```bash
+uv add gakido
+uv add gakido[h3]          # with HTTP/3 support
+uv add gakido[dev]         # development dependencies
 ```
 
 ### Quick start (sync)
