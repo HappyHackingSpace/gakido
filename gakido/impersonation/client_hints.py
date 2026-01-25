@@ -7,7 +7,6 @@ headers for better impersonation, as well as canvas/webgl fingerprint data.
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 

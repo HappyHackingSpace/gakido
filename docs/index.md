@@ -14,7 +14,7 @@ with Client(impersonate="chrome_120") as c:
 
 ## Features
 
-- Browser profiles (Chrome/Firefox/Safari/Edge/Tor aliases)
+- [96 browser profiles](profiles.md) (Chrome/Firefox/Safari/Edge/Opera/Brave/Vivaldi/Tor)
 - [Sec-CH-UA client hints & Canvas/WebGL fingerprints](client-hints.md) for better impersonation
 - JA3/Akamai-like overrides via `tls_configuration_options`
 - HTTP/1.1 and HTTP/2 (ALPN) plus optional native HTTP fast-path

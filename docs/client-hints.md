@@ -158,7 +158,7 @@ from gakido.impersonation import (
     build_client_hints_for_platform, # Build custom hints
     parse_accept_ch,                 # Parse Accept-CH header
     should_send_hint,                # Check if hint should be sent
-    
+
     # Canvas/WebGL
     get_canvas_webgl_fingerprint,    # Get fingerprint from profile
     get_webgl_renderer,              # Get predefined renderer

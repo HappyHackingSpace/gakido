@@ -45,9 +45,13 @@ When `auto_decompress=False`:
 - Returns `True` if aioquic is installed and HTTP/3 support is available.
 
 ## Profiles
-- `impersonate` accepts keys from `gakido.impersonation.PROFILES` (Chrome/Firefox/Safari/Edge/Tor aliases).
-- Profiles include HTTP/3 settings (`http3.max_stream_data`, `http3.max_data`, `http3.idle_timeout`).
-- Chrome/Edge profiles include `client_hints` (Sec-CH-UA headers) and `canvas_webgl` fingerprint data.
+
+**96 browser profiles** available (24 base + 72 aliases). See [Browser Profiles](profiles.md) for complete list.
+
+- `impersonate` accepts keys from `gakido.impersonation.PROFILES`
+- Supported browsers: Chrome, Firefox, Safari, Edge, Opera, Brave, Vivaldi, Tor
+- Profiles include HTTP/3 settings (`http3.max_stream_data`, `http3.max_data`, `http3.idle_timeout`)
+- Chrome/Edge/Opera/Brave/Vivaldi profiles include `client_hints` (Sec-CH-UA headers) and `canvas_webgl` fingerprint data
 
 ## Client Hints & Fingerprints
 
