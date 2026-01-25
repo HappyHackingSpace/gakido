@@ -8,8 +8,19 @@ from gakido.async_websocket import AsyncWebSocket
 try:
     from gakido import gakido_core  # type: ignore[unresolved-import]
 except ImportError:
-    gakido_core = None  # type: ignore[assignment]
+    gakido_core = None
 from gakido.streaming import StreamingResponse, AsyncStreamingResponse
+from gakido.rate_limit import (
+    RateLimitExceeded,
+    TokenBucket,
+    AsyncTokenBucket,
+    SlidingWindowLimiter,
+    AsyncSlidingWindowLimiter,
+    PerHostRateLimiter,
+    AsyncPerHostRateLimiter,
+    rate_limited,
+    arate_limited,
+)
 
 __all__ = [
     "Client",
@@ -21,4 +32,13 @@ __all__ = [
     "is_http3_available",
     "StreamingResponse",
     "AsyncStreamingResponse",
+    "RateLimitExceeded",
+    "TokenBucket",
+    "AsyncTokenBucket",
+    "SlidingWindowLimiter",
+    "AsyncSlidingWindowLimiter",
+    "PerHostRateLimiter",
+    "AsyncPerHostRateLimiter",
+    "rate_limited",
+    "arate_limited",
 ]

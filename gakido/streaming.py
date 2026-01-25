@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class StreamingResponse:
     """
     Streaming HTTP response that yields chunks without loading entire body into memory.
-    
+
     Use iter_bytes() or iter_lines() to consume the response body incrementally.
     The response must be closed after use to release the connection.
     """
@@ -55,18 +55,18 @@ class StreamingResponse:
     def iter_bytes(self, chunk_size: int | None = None) -> Iterator[bytes]:
         """
         Iterate over response body in chunks.
-        
+
         Args:
             chunk_size: Size of chunks to yield (default: 8192)
-            
+
         Yields:
             Raw bytes chunks from the response body
         """
         if self._closed:
             raise RuntimeError("Response has been closed")
-        
+
         size = chunk_size or self._chunk_size
-        
+
         if self._chunked:
             yield from self._iter_chunked(size)
         elif self._content_length is not None:
@@ -77,7 +77,7 @@ class StreamingResponse:
     def _iter_chunked(self, chunk_size: int) -> Iterator[bytes]:
         """Iterate over chunked transfer encoding."""
         buffer = b""
-        
+
         while True:
             # Read chunk size line
             line = self._readline()
@@ -87,12 +87,12 @@ class StreamingResponse:
                 size = int(line.strip(), 16)
             except ValueError:
                 break
-            
+
             if size == 0:
                 # Final chunk, consume trailing CRLF
                 self._readline()
                 break
-            
+
             # Read chunk data
             remaining = size
             while remaining > 0:
@@ -101,15 +101,15 @@ class StreamingResponse:
                 if not data:
                     break
                 remaining -= len(data)
-                
+
                 if self._auto_decompress and self._content_encoding:
                     buffer += data
                 else:
                     yield data
-            
+
             # Consume CRLF after chunk
             self._read_exact(2)
-        
+
         # Decompress accumulated buffer if needed
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
@@ -119,19 +119,19 @@ class StreamingResponse:
         assert self._content_length is not None
         remaining = self._content_length
         buffer = b""
-        
+
         while remaining > 0:
             to_read = min(remaining, chunk_size)
             data = self._sock.recv(to_read)
             if not data:
                 break
             remaining -= len(data)
-            
+
             if self._auto_decompress and self._content_encoding:
                 buffer += data
             else:
                 yield data
-        
+
         # Decompress accumulated buffer if needed
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
@@ -139,7 +139,7 @@ class StreamingResponse:
     def _iter_until_close(self, chunk_size: int) -> Iterator[bytes]:
         """Iterate until connection closes."""
         buffer = b""
-        
+
         while True:
             try:
                 data = self._sock.recv(chunk_size)
@@ -147,12 +147,12 @@ class StreamingResponse:
                 break
             if not data:
                 break
-            
+
             if self._auto_decompress and self._content_encoding:
                 buffer += data
             else:
                 yield data
-        
+
         # Decompress accumulated buffer if needed
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
@@ -160,11 +160,11 @@ class StreamingResponse:
     def iter_lines(self, chunk_size: int | None = None, decode: str = "utf-8") -> Iterator[str]:
         """
         Iterate over response body line by line.
-        
+
         Args:
             chunk_size: Size of chunks to read (default: 8192)
             decode: Character encoding for decoding bytes to str (default: utf-8)
-            
+
         Yields:
             Lines from the response body (without line endings)
         """
@@ -174,7 +174,7 @@ class StreamingResponse:
             while b"\n" in pending:
                 line, pending = pending.split(b"\n", 1)
                 yield line.rstrip(b"\r").decode(decode, errors="replace")
-        
+
         # Yield any remaining content
         if pending:
             yield pending.rstrip(b"\r").decode(decode, errors="replace")
@@ -232,7 +232,7 @@ class StreamingResponse:
 class AsyncStreamingResponse:
     """
     Async streaming HTTP response that yields chunks without loading entire body into memory.
-    
+
     Use aiter_bytes() or aiter_lines() to consume the response body incrementally.
     The response must be closed after use to release the connection.
     """
@@ -274,18 +274,18 @@ class AsyncStreamingResponse:
     async def aiter_bytes(self, chunk_size: int | None = None) -> AsyncIterator[bytes]:
         """
         Async iterate over response body in chunks.
-        
+
         Args:
             chunk_size: Size of chunks to yield (default: 8192)
-            
+
         Yields:
             Raw bytes chunks from the response body
         """
         if self._closed:
             raise RuntimeError("Response has been closed")
-        
+
         size = chunk_size or self._chunk_size
-        
+
         if self._chunked:
             async for chunk in self._aiter_chunked(size):
                 yield chunk
@@ -299,7 +299,7 @@ class AsyncStreamingResponse:
     async def _aiter_chunked(self, chunk_size: int) -> AsyncIterator[bytes]:
         """Async iterate over chunked transfer encoding."""
         buffer = b""
-        
+
         while True:
             line = await self._reader.readline()
             if not line:
@@ -308,11 +308,11 @@ class AsyncStreamingResponse:
                 size = int(line.strip(), 16)
             except ValueError:
                 break
-            
+
             if size == 0:
                 await self._reader.readline()
                 break
-            
+
             remaining = size
             while remaining > 0:
                 to_read = min(remaining, chunk_size)
@@ -320,15 +320,15 @@ class AsyncStreamingResponse:
                 if not data:
                     break
                 remaining -= len(data)
-                
+
                 if self._auto_decompress and self._content_encoding:
                     buffer += data
                 else:
                     yield data
-            
+
             # Consume CRLF after chunk
             await self._reader.readexactly(2)
-        
+
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
 
@@ -337,47 +337,47 @@ class AsyncStreamingResponse:
         assert self._content_length is not None
         remaining = self._content_length
         buffer = b""
-        
+
         while remaining > 0:
             to_read = min(remaining, chunk_size)
             data = await self._reader.read(to_read)
             if not data:
                 break
             remaining -= len(data)
-            
+
             if self._auto_decompress and self._content_encoding:
                 buffer += data
             else:
                 yield data
-        
+
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
 
     async def _aiter_until_close(self, chunk_size: int) -> AsyncIterator[bytes]:
         """Async iterate until connection closes."""
         buffer = b""
-        
+
         while True:
             data = await self._reader.read(chunk_size)
             if not data:
                 break
-            
+
             if self._auto_decompress and self._content_encoding:
                 buffer += data
             else:
                 yield data
-        
+
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
 
     async def aiter_lines(self, chunk_size: int | None = None, decode: str = "utf-8") -> AsyncIterator[str]:
         """
         Async iterate over response body line by line.
-        
+
         Args:
             chunk_size: Size of chunks to read (default: 8192)
             decode: Character encoding for decoding bytes to str (default: utf-8)
-            
+
         Yields:
             Lines from the response body (without line endings)
         """
@@ -387,7 +387,7 @@ class AsyncStreamingResponse:
             while b"\n" in pending:
                 line, pending = pending.split(b"\n", 1)
                 yield line.rstrip(b"\r").decode(decode, errors="replace")
-        
+
         if pending:
             yield pending.rstrip(b"\r").decode(decode, errors="replace")
 

@@ -5,7 +5,7 @@ import urllib.parse
 try:
     from gakido import gakido_core
 except ImportError:
-    gakido_core = None  # type: ignore[assignment]
+    gakido_core = None
 
 from gakido.compression import decode_body, get_accept_encoding
 from gakido.headers import canonicalize_headers
@@ -20,6 +20,7 @@ from gakido.streaming import StreamingResponse
 from gakido.pool import ConnectionPool
 from gakido.utils import parse_url
 from gakido.backoff import retry_with_backoff
+from gakido.rate_limit import TokenBucket, PerHostRateLimiter
 
 class Client:
     """
@@ -36,6 +37,10 @@ class Client:
         tls_configuration_options: Custom TLS options
         force_http1: Force HTTP/1.1 only (default: True)
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
+        rate_limit: Global rate limit (requests per second), None to disable
+        rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
+        rate_limit_per_host: Per-host rate limit (requests per second), None to disable
+        rate_limit_blocking: If True, wait when rate limited; if False, raise RateLimitExceeded
     """
 
     def __init__(
@@ -54,6 +59,10 @@ class Client:
         retry_base_delay: float = 1.0,
         retry_max_delay: float = 60.0,
         retry_jitter: bool = True,
+        rate_limit: float | None = None,
+        rate_limit_capacity: float | None = None,
+        rate_limit_per_host: float | None = None,
+        rate_limit_blocking: bool = True,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1:
@@ -77,6 +86,21 @@ class Client:
         self.retry_base_delay = retry_base_delay
         self.retry_max_delay = retry_max_delay
         self.retry_jitter = retry_jitter
+        # Rate limiting configuration
+        self._rate_limiter: TokenBucket | None = None
+        self._per_host_limiter: PerHostRateLimiter | None = None
+        if rate_limit is not None:
+            self._rate_limiter = TokenBucket(
+                rate=rate_limit,
+                capacity=rate_limit_capacity,
+                blocking=rate_limit_blocking,
+            )
+        if rate_limit_per_host is not None:
+            self._per_host_limiter = PerHostRateLimiter(
+                rate=rate_limit_per_host,
+                capacity=rate_limit_capacity,
+                blocking=rate_limit_blocking,
+            )
 
     def _make_request(
         self,
@@ -215,6 +239,13 @@ class Client:
         Returns:
             Response object
         """
+        # Apply rate limiting
+        if self._rate_limiter is not None:
+            self._rate_limiter.acquire()
+        if self._per_host_limiter is not None:
+            parsed, host, _, _ = parse_url(url)
+            self._per_host_limiter.acquire(host)
+
         if self.max_retries <= 0:
             # No retries, call directly
             return self._make_request(method, url, headers, data, files, proxy)

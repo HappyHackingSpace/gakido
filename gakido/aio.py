@@ -22,6 +22,7 @@ from gakido.streaming import AsyncStreamingResponse
 from gakido.utils import parse_url
 from gakido.backoff import aretry_with_backoff
 from gakido.http3 import is_http3_available, HTTP3Protocol
+from gakido.rate_limit import AsyncTokenBucket, AsyncPerHostRateLimiter
 
 # Re-export for tests
 __all__ = ['AsyncClient', 'is_http3_available']
@@ -43,6 +44,10 @@ class AsyncClient:
         http3: Enable HTTP/3 for compatible targets (default: False)
         http3_fallback: Fall back to HTTP/1.1 or HTTP/2 if HTTP/3 fails (default: True)
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
+        rate_limit: Global rate limit (requests per second), None to disable
+        rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
+        rate_limit_per_host: Per-host rate limit (requests per second), None to disable
+        rate_limit_blocking: If True, wait when rate limited; if False, raise RateLimitExceeded
     """
 
     def __init__(
@@ -61,6 +66,10 @@ class AsyncClient:
         retry_base_delay: float = 1.0,
         retry_max_delay: float = 60.0,
         retry_jitter: bool = True,
+        rate_limit: float | None = None,
+        rate_limit_capacity: float | None = None,
+        rate_limit_per_host: float | None = None,
+        rate_limit_blocking: bool = True,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1 and not http3:
@@ -83,6 +92,21 @@ class AsyncClient:
         self.http3_fallback = http3_fallback
         self._h3_protocols: dict[str, HTTP3Protocol] = {}  # Cache per host
         self._h3_failed_hosts: set[str] = set()  # Track hosts where H3 failed
+        # Rate limiting configuration
+        self._rate_limiter: AsyncTokenBucket | None = None
+        self._per_host_limiter: AsyncPerHostRateLimiter | None = None
+        if rate_limit is not None:
+            self._rate_limiter = AsyncTokenBucket(
+                rate=rate_limit,
+                capacity=rate_limit_capacity,
+                blocking=rate_limit_blocking,
+            )
+        if rate_limit_per_host is not None:
+            self._per_host_limiter = AsyncPerHostRateLimiter(
+                rate=rate_limit_per_host,
+                capacity=rate_limit_capacity,
+                blocking=rate_limit_blocking,
+            )
 
     async def _make_request(
         self,
@@ -407,6 +431,13 @@ class AsyncClient:
         Returns:
             Response object
         """
+        # Apply rate limiting
+        if self._rate_limiter is not None:
+            await self._rate_limiter.acquire()
+        if self._per_host_limiter is not None:
+            parsed, host, _, _ = parse_url(url)
+            await self._per_host_limiter.acquire(host)
+
         if self.max_retries <= 0:
             # No retries, call directly
             return await self._make_request(method, url, headers, data, files, proxy, force_http3)
