@@ -4,28 +4,16 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      bump_type:
-        description: 'Version bump type'
-        required: false
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
 
 jobs:
   release:
-    name: Bump, Build and Release
+    name: Build and Release
     runs-on: ubuntu-latest
-    # Skip if this is a version bump commit (prevents infinite loop)
-    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     permissions:
       contents: write
       id-token: write
     outputs:
-      new_tag: ${{ steps.bump.outputs.new_tag }}
+      new_tag: ${{ steps.version.outputs.new_tag }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -36,69 +24,54 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Bump version
-        id: bump
+      - name: Get version and create tag
+        id: version
         run: |
-          # Extract current version
-          CURRENT_VERSION=$(grep -m1 'version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-          echo "Current version: $CURRENT_VERSION"
+          # Extract current version from pyproject.toml
+          VERSION=$(grep -m1 'version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "Version: $VERSION"
 
-          # Parse version parts
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          NEW_TAG="v${VERSION}"
 
-          # Determine bump type
-          BUMP_TYPE="${{ github.event.inputs.bump_type || 'patch' }}"
-
-          if [[ "$BUMP_TYPE" == "major" ]]; then
-            MAJOR=$((MAJOR + 1))
-            MINOR=0
-            PATCH=0
-          elif [[ "$BUMP_TYPE" == "minor" ]]; then
-            MINOR=$((MINOR + 1))
-            PATCH=0
-          else
-            PATCH=$((PATCH + 1))
+          # Check if tag already exists
+          if git rev-parse "$NEW_TAG" >/dev/null 2>&1; then
+            echo "Tag $NEW_TAG already exists, skipping release"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
-          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-          NEW_TAG="v${NEW_VERSION}"
-
-          echo "New version: $NEW_VERSION"
-          echo "New tag: $NEW_TAG"
-
-          # Update pyproject.toml
-          sed -i "s/version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" pyproject.toml
+          echo "Creating tag: $NEW_TAG"
 
           # Configure git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Commit and tag
-          git add pyproject.toml
-          git commit -m "chore(release): bump version to ${NEW_VERSION}"
+          # Create and push tag only
           git tag "$NEW_TAG"
-
-          # Push changes and tag
-          git push origin main
           git push origin "$NEW_TAG"
 
           # Set outputs
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
 
       - name: Install build tools
+        if: steps.version.outputs.skip != 'true'
         run: pip install build cibuildwheel
 
       - name: Build sdist
+        if: steps.version.outputs.skip != 'true'
         run: python -m build --sdist
 
       - name: Build wheels (Linux)
+        if: steps.version.outputs.skip != 'true'
         uses: pypa/cibuildwheel@v3.3.1
         env:
           CIBW_BUILD: "cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
 
       - name: Collect artifacts
+        if: steps.version.outputs.skip != 'true'
         run: |
           mkdir -p final_dist
           cp dist/*.tar.gz final_dist/ 2>/dev/null || true
@@ -106,16 +79,18 @@ jobs:
           ls -la final_dist/
 
       - name: Create GitHub Release
+        if: steps.version.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.bump.outputs.new_tag }}
-          name: Release ${{ steps.bump.outputs.new_tag }}
+          tag_name: ${{ steps.version.outputs.new_tag }}
+          name: Release ${{ steps.version.outputs.new_tag }}
           files: final_dist/*
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
+        if: steps.version.outputs.skip != 'true'
         uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           packages-dir: final_dist/
