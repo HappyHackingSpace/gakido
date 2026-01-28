@@ -3,76 +3,136 @@ name: Release
 on:
   push:
     branches: [main]
-    tags:
-      - 'v*'
   workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
-  bump-version:
-    name: Bump version and tag
+  release:
+    name: Bump, Build and Release
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(release):')
+    # Skip if this is a version bump commit (prevents infinite loop)
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
     permissions:
       contents: write
+      id-token: write
     outputs:
-      new_version: ${{ steps.bump.outputs.new_version }}
       new_tag: ${{ steps.bump.outputs.new_tag }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Bump patch version
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Bump version
         id: bump
         run: |
           # Extract current version
           CURRENT_VERSION=$(grep -m1 'version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
           echo "Current version: $CURRENT_VERSION"
-          
+
           # Parse version parts
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-          
-          # Bump patch version
-          NEW_PATCH=$((PATCH + 1))
-          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+
+          # Determine bump type
+          BUMP_TYPE="${{ github.event.inputs.bump_type || 'patch' }}"
+
+          if [[ "$BUMP_TYPE" == "major" ]]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [[ "$BUMP_TYPE" == "minor" ]]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
           NEW_TAG="v${NEW_VERSION}"
-          
+
           echo "New version: $NEW_VERSION"
           echo "New tag: $NEW_TAG"
-          
+
           # Update pyproject.toml
           sed -i "s/version = \"${CURRENT_VERSION}\"/version = \"${NEW_VERSION}\"/" pyproject.toml
-          
+
           # Configure git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Commit and tag
           git add pyproject.toml
           git commit -m "chore(release): bump version to ${NEW_VERSION}"
           git tag "$NEW_TAG"
-          
+
           # Push changes and tag
           git push origin main
           git push origin "$NEW_TAG"
-          
+
           # Set outputs
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
-  build-wheels:
-    name: Build wheels on ${{ matrix.os }}
-    needs: [bump-version]
-    if: always() && (needs.bump-version.result == 'success' || startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
+      - name: Install build tools
+        run: pip install build cibuildwheel
+
+      - name: Build sdist
+        run: python -m build --sdist
+
+      - name: Build wheels (Linux)
+        uses: pypa/cibuildwheel@v3.3.1
+        env:
+          CIBW_BUILD: "cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p final_dist
+          cp dist/*.tar.gz final_dist/ 2>/dev/null || true
+          cp wheelhouse/*.whl final_dist/ 2>/dev/null || true
+          ls -la final_dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.new_tag }}
+          name: Release ${{ steps.bump.outputs.new_tag }}
+          files: final_dist/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.13.0
+        with:
+          packages-dir: final_dist/
+          password: ${{ secrets.PYPI_TOKEN }}
+          skip-existing: true
+
+  build-macos-wheels:
+    name: Build macOS wheels
+    needs: [release]
+    runs-on: macos-latest
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ needs.bump-version.outputs.new_tag || github.ref }}
+          ref: ${{ needs.release.outputs.new_tag || github.ref }}
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.3.1
@@ -80,81 +140,17 @@ jobs:
           CIBW_BUILD: "cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
 
-      - uses: actions/upload-artifact@v6
-        with:
-          name: wheels-${{ matrix.os }}
-          path: ./wheelhouse/*.whl
-
-  build-sdist:
-    name: Build source distribution
-    needs: [bump-version]
-    if: always() && (needs.bump-version.result == 'success' || startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.bump-version.outputs.new_tag || github.ref }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-
-      - name: Install build
-        run: pip install build
-
-      - name: Build sdist
-        run: python -m build --sdist
-
-      - uses: actions/upload-artifact@v6
-        with:
-          name: sdist
-          path: dist/*.tar.gz
-
-  release:
-    needs: [bump-version, build-wheels, build-sdist]
-    if: always() && needs.build-wheels.result == 'success' && needs.build-sdist.result == 'success'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.bump-version.outputs.new_tag || github.ref }}
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v7
-        with:
-          path: dist
-          merge-multiple: true
-
-      - name: List dist contents
-        run: ls -la dist/
-
-      - name: Get tag name
-        run: |
-          if [[ -n "${{ needs.bump-version.outputs.new_tag }}" ]]; then
-            TAG="${{ needs.bump-version.outputs.new_tag }}"
-          else
-            TAG="${GITHUB_REF#refs/tags/}"
-          fi
-          echo "TAG=$TAG" >> $GITHUB_ENV
-          echo "Using tag: $TAG"
-
-      - name: Create GitHub Release
+      - name: Upload to existing release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.TAG }}
-          name: Release ${{ env.TAG }}
-          files: dist/*
-          generate_release_notes: true
-          fail_on_unmatched_files: true
+          tag_name: ${{ needs.release.outputs.new_tag }}
+          files: wheelhouse/*.whl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to PyPI
+      - name: Publish macOS wheels to PyPI
         uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
+          packages-dir: wheelhouse/
           password: ${{ secrets.PYPI_TOKEN }}
           skip-existing: true
