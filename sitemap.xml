@@ -2,42 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/antibot-benchmark/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/api/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/client-hints/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/contributing/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/profiles/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/rate-limiting/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/retry/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/streaming/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
     <url>
          <loc>https://happyhackingspace.github.io/Gakido/user-guide/</loc>
-         <lastmod>2026-02-04</lastmod>
+         <lastmod>2026-02-21</lastmod>
     </url>
 </urlset>
