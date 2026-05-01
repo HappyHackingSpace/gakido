@@ -18,7 +18,7 @@
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../streaming/">
+        <link rel="next" href="../caching/">
       
       
         
@@ -270,6 +270,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../caching/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Caching
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="../streaming/" class="md-tabs__link">
         
   
@@ -507,8 +526,41 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Sync client">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Caching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Caching">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-with-custom-ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache with Custom TTL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-cache-non-persistent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Cache (Non-Persistent)
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#post-multipart-upload" class="md-nav__link">
@@ -718,6 +770,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../caching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Caching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../streaming/" class="md-nav__link">
         
   
@@ -841,10 +920,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
             
   
   
@@ -862,8 +941,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -943,8 +1022,41 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Sync client">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Caching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Caching">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-with-custom-ttl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache with Custom TTL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-cache-non-persistent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Cache (Non-Persistent)
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#post-multipart-upload" class="md-nav__link">
@@ -1188,6 +1300,34 @@
     <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/get&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Accept-Encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;identity&quot;</span><span class="p">})</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 </code></pre></div>
+<h2 id="response-caching">Response Caching<a class="headerlink" href="#response-caching" title="Permanent link">&para;</a></h2>
+<p>Enable HTTP response caching to improve performance for repeated requests:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="c1"># Enable file-based caching with default settings</span>
+<span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+    <span class="c1"># First request hits the server</span>
+    <span class="n">r1</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Second request served from cache (instant)</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="cache-with-custom-ttl">Cache with Custom TTL<a class="headerlink" href="#cache-with-custom-ttl" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="c1"># Cache responses for 30 minutes</span>
+<span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="o">=</span><span class="mi">1800</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="memory-cache-non-persistent">Memory Cache (Non-Persistent)<a class="headerlink" href="#memory-cache-non-persistent" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">MemoryCache</span>
+
+<span class="c1"># In-memory cache for short-lived scripts (faster than disk)</span>
+<span class="n">cache</span> <span class="o">=</span> <span class="n">MemoryCache</span><span class="p">(</span><span class="n">default_ttl</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>See <a href="../caching/">HTTP Response Caching</a> for complete documentation.</p>
 <h3 id="post-multipart-upload">POST / multipart upload<a class="headerlink" href="#post-multipart-upload" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">)}</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">}</span>
