@@ -91,7 +91,7 @@ jobs:
 
       - name: Publish to PyPI
         if: steps.version.outputs.skip != 'true'
-        uses: pypa/gh-action-pypi-publish@v1.13.0
+        uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
           packages-dir: final_dist/
           password: ${{ secrets.PYPI_TOKEN }}
@@ -124,7 +124,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish macOS wheels to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0
+        uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
           packages-dir: wheelhouse/
           password: ${{ secrets.PYPI_TOKEN }}
