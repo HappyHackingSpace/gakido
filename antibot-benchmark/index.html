@@ -643,34 +643,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../changelog.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Changelog
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -975,14 +947,14 @@
 <h1 id="antibot-systems-benchmark">Antibot Systems Benchmark<a class="headerlink" href="#antibot-systems-benchmark" title="Permanent link">&para;</a></h1>
 <p>Gakido includes a comprehensive benchmark tool to test browser impersonation against various antibot detection systems.</p>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Run with default profiles (13 profiles)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Test specific profile</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--profile<span class="w"> </span>chrome_144
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Test all 24 base profiles</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--all-profiles
+<div class="highlight"><pre><span></span><code><span class="c1"># Run with default profiles (13 profiles)</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py
+
+<span class="c1"># Test specific profile</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--profile<span class="w"> </span>chrome_144
+
+<span class="c1"># Test all 24 base profiles</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--all-profiles
 </code></pre></div>
 <h2 id="test-categories">Test Categories<a class="headerlink" href="#test-categories" title="Permanent link">&para;</a></h2>
 <p>The benchmark tests <strong>9 endpoints</strong> across <strong>4 categories</strong>:</p>
@@ -1081,17 +1053,17 @@
 </table>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Default profiles</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Single profile</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--profile<span class="w"> </span>chrome_144
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Multiple profiles</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>-p<span class="w"> </span>chrome_144<span class="w"> </span>-p<span class="w"> </span>firefox_147<span class="w"> </span>-p<span class="w"> </span>brave_131
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># All base profiles (24 profiles)</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--all-profiles
+<div class="highlight"><pre><span></span><code><span class="c1"># Default profiles</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py
+
+<span class="c1"># Single profile</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--profile<span class="w"> </span>chrome_144
+
+<span class="c1"># Multiple profiles</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>-p<span class="w"> </span>chrome_144<span class="w"> </span>-p<span class="w"> </span>firefox_147<span class="w"> </span>-p<span class="w"> </span>brave_131
+
+<span class="c1"># All base profiles (24 profiles)</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--all-profiles
 </code></pre></div>
 <h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
 <table>
@@ -1129,17 +1101,17 @@
 </tbody>
 </table>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Async mode (faster for multiple profiles)</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--async
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Custom timeout</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--timeout<span class="w"> </span><span class="m">30</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Save results to JSON</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--output<span class="w"> </span>results.json
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Quiet mode with JSON output</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>-q<span class="w"> </span>-o<span class="w"> </span>results.json
+<div class="highlight"><pre><span></span><code><span class="c1"># Async mode (faster for multiple profiles)</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--async
+
+<span class="c1"># Custom timeout</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--timeout<span class="w"> </span><span class="m">30</span>
+
+<span class="c1"># Save results to JSON</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>--output<span class="w"> </span>results.json
+
+<span class="c1"># Quiet mode with JSON output</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/antibot_benchmark.py<span class="w"> </span>-q<span class="w"> </span>-o<span class="w"> </span>results.json
 </code></pre></div>
 <h2 id="default-profiles-tested">Default Profiles Tested<a class="headerlink" href="#default-profiles-tested" title="Permanent link">&para;</a></h2>
 <p>The benchmark tests these 13 profiles by default:</p>
@@ -1220,141 +1192,141 @@
 </tbody>
 </table>
 <h2 id="sample-output">Sample Output<a class="headerlink" href="#sample-output" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>======================================================================
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  GAKIDO ANTIBOT SYSTEMS BENCHMARK
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>======================================================================
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Profiles to test: 4
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Timeout: 10.0s
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>============================================================
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>Testing profile: chrome_144
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>============================================================
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  ✅ tls_browserleaks          HTTP 200   711ms
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>  ✅ scrapfly_ja3              HTTP 200   950ms
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>  ✅ httpbin_headers           HTTP 200   873ms
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>  ✅ httpbin_user_agent        HTTP 200   260ms
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>  ✅ nowsecure                 HTTP 200   2389ms
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>  ✅ sannysoft                 HTTP 200   608ms
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>  ✅ incolumitas               HTTP 200   1087ms
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>  ✅ cloudflare_trace          HTTP 200   469ms
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>  ✅ cloudflare_1111           HTTP 200   419ms
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>  Summary: 9/9 passed (100.0%) | Avg: 895ms
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>======================================================================
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>  BENCHMARK SUMMARY
-<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>======================================================================
-<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>
-<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>Profiles tested: 4
-<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>Total tests run: 36
-<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>Overall success rate: 100.0%
-<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>
-<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>--- Category Breakdown ---
-<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>  TLS Fingerprint     : 8/8 (100.0%)
-<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a>  HTTP Headers        : 8/8 (100.0%)
-<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>  Bot Detection       : 12/12 (100.0%)
-<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>  Cloudflare          : 8/8 (100.0%)
-<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a>
-<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a>--- Profile Rankings ---
-<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>   1. chrome_144                100.0% | hints:✓ | macOS
-<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>   2. firefox_147               100.0% | hints:✗ | Linux
-<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a>   3. safari_184_macos          100.0% | hints:✗ | macOS
-<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a>   4. brave_131                 100.0% | hints:✓ | Windows
-<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a>
-<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>🏆 Perfect scores: chrome_144, firefox_147, safari_184_macos, brave_131
+<div class="highlight"><pre><span></span><code>======================================================================
+  GAKIDO ANTIBOT SYSTEMS BENCHMARK
+======================================================================
+Profiles to test: 4
+Timeout: 10.0s
+
+============================================================
+Testing profile: chrome_144
+============================================================
+  ✅ tls_browserleaks          HTTP 200   711ms
+  ✅ scrapfly_ja3              HTTP 200   950ms
+  ✅ httpbin_headers           HTTP 200   873ms
+  ✅ httpbin_user_agent        HTTP 200   260ms
+  ✅ nowsecure                 HTTP 200   2389ms
+  ✅ sannysoft                 HTTP 200   608ms
+  ✅ incolumitas               HTTP 200   1087ms
+  ✅ cloudflare_trace          HTTP 200   469ms
+  ✅ cloudflare_1111           HTTP 200   419ms
+
+  Summary: 9/9 passed (100.0%) | Avg: 895ms
+
+======================================================================
+  BENCHMARK SUMMARY
+======================================================================
+
+Profiles tested: 4
+Total tests run: 36
+Overall success rate: 100.0%
+
+--- Category Breakdown ---
+  TLS Fingerprint     : 8/8 (100.0%)
+  HTTP Headers        : 8/8 (100.0%)
+  Bot Detection       : 12/12 (100.0%)
+  Cloudflare          : 8/8 (100.0%)
+
+--- Profile Rankings ---
+   1. chrome_144                100.0% | hints:✓ | macOS
+   2. firefox_147               100.0% | hints:✗ | Linux
+   3. safari_184_macos          100.0% | hints:✗ | macOS
+   4. brave_131                 100.0% | hints:✓ | Windows
+
+🏆 Perfect scores: chrome_144, firefox_147, safari_184_macos, brave_131
 </code></pre></div>
 <h2 id="json-output-format">JSON Output Format<a class="headerlink" href="#json-output-format" title="Permanent link">&para;</a></h2>
 <p>When using <code>--output</code>, results are saved in this format:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-25T16:15:00.000000&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;gakido_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;total_profiles_tested&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&quot;total_tests_run&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span><span class="p">,</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nt">&quot;overall_success_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">&quot;profiles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">&quot;profile_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;macOS&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">      </span><span class="nt">&quot;has_client_hints&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="nt">&quot;has_canvas_webgl&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">      </span><span class="nt">&quot;user_agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">      </span><span class="nt">&quot;tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">          </span><span class="nt">&quot;endpoint_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tls_browserleaks&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">          </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://tls.browserleaks.com/json&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TLS/JA3 fingerprint analysis&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">          </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">          </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">          </span><span class="nt">&quot;response_time_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">711.5</span><span class="p">,</span>
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">          </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">          </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;ja3_hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}}</span>
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">      </span><span class="p">],</span>
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">      </span><span class="nt">&quot;total_tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">      </span><span class="nt">&quot;passed_tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">      </span><span class="nt">&quot;failed_tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">      </span><span class="nt">&quot;success_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
-<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">      </span><span class="nt">&quot;avg_response_time_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">895.2</span>
-<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="w">  </span><span class="p">],</span>
-<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">  </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">    </span><span class="nt">&quot;category_stats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">      </span><span class="nt">&quot;TLS Fingerprint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">},</span>
-<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="w">      </span><span class="nt">&quot;HTTP Headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">},</span>
-<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="w">      </span><span class="nt">&quot;Bot Detection&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">},</span>
-<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="w">      </span><span class="nt">&quot;Cloudflare&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">}</span>
-<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="w">    </span><span class="nt">&quot;best_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="w">    </span><span class="nt">&quot;worst_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tor_145&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="w">    </span><span class="nt">&quot;profiles_with_100_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;firefox_147&quot;</span><span class="p">]</span>
-<a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-25T16:15:00.000000&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;gakido_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total_profiles_tested&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total_tests_run&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;overall_success_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;profiles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;profile_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;macOS&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;has_client_hints&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;has_canvas_webgl&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;user_agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;endpoint_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tls_browserleaks&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://tls.browserleaks.com/json&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TLS/JA3 fingerprint analysis&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;response_time_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">711.5</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;ja3_hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;total_tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;passed_tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;failed_tests&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;success_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;avg_response_time_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">895.2</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;category_stats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;TLS Fingerprint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;HTTP Headers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;Bot Detection&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;Cloudflare&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;best_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;worst_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tor_145&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;profiles_with_100_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;firefox_147&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
 </code></pre></div>
 <h2 id="programmatic-usage">Programmatic Usage<a class="headerlink" href="#programmatic-usage" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">examples.antibot_benchmark</span><span class="w"> </span><span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">AsyncAntibotBenchmark</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Sync benchmark</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">benchmark</span> <span class="o">=</span> <span class="n">AntibotBenchmark</span><span class="p">(</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">profiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span> <span class="s2">&quot;firefox_147&quot;</span><span class="p">],</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">)</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">report</span> <span class="o">=</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="c1"># Access results</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success rate: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_success_rate</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="k">for</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">profiles</span><span class="p">:</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">profile</span><span class="o">.</span><span class="n">profile_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">profile</span><span class="o">.</span><span class="n">success_rate</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="c1"># Save to JSON</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="n">benchmark</span><span class="o">.</span><span class="n">save_report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="s2">&quot;results.json&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="c1"># Async benchmark</span>
-<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_async</span><span class="p">():</span>
-<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>    <span class="n">benchmark</span> <span class="o">=</span> <span class="n">AsyncAntibotBenchmark</span><span class="p">(</span>
-<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>        <span class="n">profiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span> <span class="s2">&quot;firefox_147&quot;</span><span class="p">],</span>
-<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>        <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
-<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>    <span class="p">)</span>
-<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">run_async</span><span class="p">()</span>
-<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>
-<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="n">report</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_async</span><span class="p">())</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">examples.antibot_benchmark</span> <span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">AsyncAntibotBenchmark</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
+
+<span class="c1"># Sync benchmark</span>
+<span class="n">benchmark</span> <span class="o">=</span> <span class="n">AntibotBenchmark</span><span class="p">(</span>
+    <span class="n">profiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span> <span class="s2">&quot;firefox_147&quot;</span><span class="p">],</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Access results</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success rate: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_success_rate</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">profiles</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">profile</span><span class="o">.</span><span class="n">profile_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">profile</span><span class="o">.</span><span class="n">success_rate</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+<span class="c1"># Save to JSON</span>
+<span class="n">benchmark</span><span class="o">.</span><span class="n">save_report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="s2">&quot;results.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># Async benchmark</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">run_async</span><span class="p">():</span>
+    <span class="n">benchmark</span> <span class="o">=</span> <span class="n">AsyncAntibotBenchmark</span><span class="p">(</span>
+        <span class="n">profiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span> <span class="s2">&quot;firefox_147&quot;</span><span class="p">],</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">run_async</span><span class="p">()</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_async</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="adding-custom-endpoints">Adding Custom Endpoints<a class="headerlink" href="#adding-custom-endpoints" title="Permanent link">&para;</a></h2>
 <p>You can extend the benchmark by adding custom endpoints:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">examples.antibot_benchmark</span><span class="w"> </span><span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">BOT_DETECTION_ENDPOINTS</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># Add custom endpoint</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">BOT_DETECTION_ENDPOINTS</span><span class="p">[</span><span class="s2">&quot;my_endpoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com/bot-check&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;My custom bot check&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="s2">&quot;check&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_bot&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Custom validation</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="s2">&quot;check_status&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">}</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1"># Run benchmark with custom endpoint included</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">benchmark</span> <span class="o">=</span> <span class="n">AntibotBenchmark</span><span class="p">(</span><span class="n">profiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">])</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="n">report</span> <span class="o">=</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">examples.antibot_benchmark</span> <span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">BOT_DETECTION_ENDPOINTS</span>
+
+<span class="c1"># Add custom endpoint</span>
+<span class="n">BOT_DETECTION_ENDPOINTS</span><span class="p">[</span><span class="s2">&quot;my_endpoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com/bot-check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;My custom bot check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;check&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_bot&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Custom validation</span>
+    <span class="s2">&quot;check_status&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Run benchmark with custom endpoint included</span>
+<span class="n">benchmark</span> <span class="o">=</span> <span class="n">AntibotBenchmark</span><span class="p">(</span><span class="n">profiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">])</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
 <h2 id="interpreting-results">Interpreting Results<a class="headerlink" href="#interpreting-results" title="Permanent link">&para;</a></h2>
 <h3 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h3>

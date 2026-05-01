@@ -643,34 +643,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../changelog.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Changelog
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1125,13 +1097,13 @@
 <h1 id="browser-profiles">Browser Profiles<a class="headerlink" href="#browser-profiles" title="Permanent link">&para;</a></h1>
 <p>Gakido includes <strong>24 base browser profiles</strong> with <strong>72 aliases</strong> for a total of <strong>96 available profile names</strong>.</p>
 <h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Use any profile by name</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;firefox_147&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;safari_184_macos&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;brave_131&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="c1"># Use any profile by name</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;firefox_147&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;safari_184_macos&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;brave_131&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="profile-summary">Profile Summary<a class="headerlink" href="#profile-summary" title="Permanent link">&para;</a></h2>
 <table>
@@ -1252,17 +1224,17 @@
 </tbody>
 </table>
 <h3 id="aliases">Aliases<a class="headerlink" href="#aliases" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>chrome99, chrome100, chrome101, chrome104, chrome107, chrome110,
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>chrome116, chrome119, chrome120, chrome123, chrome124 → chrome_120
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>chrome131, chrome131_windows, chrome132, chrome133, chrome133a → chrome_131_windows
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>chrome134, chrome135, chrome136, chrome136_linux → chrome_136_linux
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>chrome144, chrome144_macos → chrome_144
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>chrome99_android, chrome131_android, chrome132_android, chrome133_android,
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>chrome134_android, chrome135_android, chrome144_android → chrome_120_android
+<div class="highlight"><pre><span></span><code>chrome99, chrome100, chrome101, chrome104, chrome107, chrome110,
+chrome116, chrome119, chrome120, chrome123, chrome124 → chrome_120
+
+chrome131, chrome131_windows, chrome132, chrome133, chrome133a → chrome_131_windows
+
+chrome134, chrome135, chrome136, chrome136_linux → chrome_136_linux
+
+chrome144, chrome144_macos → chrome_144
+
+chrome99_android, chrome131_android, chrome132_android, chrome133_android,
+chrome134_android, chrome135_android, chrome144_android → chrome_120_android
 </code></pre></div>
 <hr />
 <h2 id="firefox-profiles-5-base-10-aliases">Firefox Profiles (5 base + 10 aliases)<a class="headerlink" href="#firefox-profiles-5-base-10-aliases" title="Permanent link">&para;</a></h2>
@@ -1310,13 +1282,13 @@
 </tbody>
 </table>
 <h3 id="aliases_1">Aliases<a class="headerlink" href="#aliases_1" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>firefox133, firefox135 → firefox_133
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>firefox140, firefox145, firefox147, firefox147_linux → firefox_147
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>firefox147_macos → firefox_147_macos
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>firefox135_android, firefox147_android → firefox_135_android
+<div class="highlight"><pre><span></span><code>firefox133, firefox135 → firefox_133
+
+firefox140, firefox145, firefox147, firefox147_linux → firefox_147
+
+firefox147_macos → firefox_147_macos
+
+firefox135_android, firefox147_android → firefox_135_android
 </code></pre></div>
 <hr />
 <h2 id="safari-profiles-6-base-12-aliases">Safari Profiles (6 base + 12 aliases)<a class="headerlink" href="#safari-profiles-6-base-12-aliases" title="Permanent link">&para;</a></h2>
@@ -1370,17 +1342,17 @@
 </tbody>
 </table>
 <h3 id="aliases_2">Aliases<a class="headerlink" href="#aliases_2" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>safari153, safari155, safari170 → safari_170
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>safari180, safari184, safari184_macos, safari260 → safari_184_macos
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>safari172_ios → safari_170_ios
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>safari180_ios, safari184_ios, safari187_ios → safari_187_ios
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>safari260_ios, safari26_ios → safari_26_ios
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>safari184_ipad, safari186_ipad → safari_184_ipad
+<div class="highlight"><pre><span></span><code>safari153, safari155, safari170 → safari_170
+
+safari180, safari184, safari184_macos, safari260 → safari_184_macos
+
+safari172_ios → safari_170_ios
+
+safari180_ios, safari184_ios, safari187_ios → safari_187_ios
+
+safari260_ios, safari26_ios → safari_26_ios
+
+safari184_ipad, safari186_ipad → safari_184_ipad
 </code></pre></div>
 <hr />
 <h2 id="edge-profiles-3-base-10-aliases">Edge Profiles (3 base + 10 aliases)<a class="headerlink" href="#edge-profiles-3-base-10-aliases" title="Permanent link">&para;</a></h2>
@@ -1416,11 +1388,11 @@
 </tbody>
 </table>
 <h3 id="aliases_3">Aliases<a class="headerlink" href="#aliases_3" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>edge99, edge101 → edge_101
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>edge131, edge131_windows, edge133, edge135 → edge_131
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>edge140, edge144, edge144_windows → edge_144
+<div class="highlight"><pre><span></span><code>edge99, edge101 → edge_101
+
+edge131, edge131_windows, edge133, edge135 → edge_131
+
+edge140, edge144, edge144_windows → edge_144
 </code></pre></div>
 <hr />
 <h2 id="other-browsers-4-base-10-aliases">Other Browsers (4 base + 10 aliases)<a class="headerlink" href="#other-browsers-4-base-10-aliases" title="Permanent link">&para;</a></h2>
@@ -1443,7 +1415,7 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>opera115, opera115_windows, opera120 → opera_115
+<div class="highlight"><pre><span></span><code>opera115, opera115_windows, opera120 → opera_115
 </code></pre></div>
 <h3 id="brave-1-base-3-aliases">Brave (1 base + 3 aliases)<a class="headerlink" href="#brave-1-base-3-aliases" title="Permanent link">&para;</a></h3>
 <table>
@@ -1464,7 +1436,7 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>brave131, brave131_windows, brave135 → brave_131
+<div class="highlight"><pre><span></span><code>brave131, brave131_windows, brave135 → brave_131
 </code></pre></div>
 <h3 id="vivaldi-1-base-2-aliases">Vivaldi (1 base + 2 aliases)<a class="headerlink" href="#vivaldi-1-base-2-aliases" title="Permanent link">&para;</a></h3>
 <table>
@@ -1485,7 +1457,7 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>vivaldi7, vivaldi7_windows → vivaldi_7
+<div class="highlight"><pre><span></span><code>vivaldi7, vivaldi7_windows → vivaldi_7
 </code></pre></div>
 <h3 id="tor-browser-1-base-2-aliases">Tor Browser (1 base + 2 aliases)<a class="headerlink" href="#tor-browser-1-base-2-aliases" title="Permanent link">&para;</a></h3>
 <table>
@@ -1506,7 +1478,7 @@
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>tor145, tor150 → tor_145
+<div class="highlight"><pre><span></span><code>tor145, tor150 → tor_145
 </code></pre></div>
 <hr />
 <h2 id="profile-features">Profile Features<a class="headerlink" href="#profile-features" title="Permanent link">&para;</a></h2>
@@ -1575,22 +1547,22 @@
 </table>
 <hr />
 <h2 id="accessing-profile-data">Accessing Profile Data<a class="headerlink" href="#accessing-profile-data" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">PROFILES</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># Get a specific profile</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">)</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1"># Access profile components</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;tls&quot;</span><span class="p">][</span><span class="s2">&quot;ciphers&quot;</span><span class="p">])</span>      <span class="c1"># TLS cipher suite</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;http2&quot;</span><span class="p">][</span><span class="s2">&quot;settings&quot;</span><span class="p">])</span>   <span class="c1"># HTTP/2 settings</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">][</span><span class="s2">&quot;order&quot;</span><span class="p">])</span>    <span class="c1"># Header order</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">][</span><span class="s2">&quot;default&quot;</span><span class="p">])</span>  <span class="c1"># Default headers</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;client_hints&quot;</span><span class="p">))</span>    <span class="c1"># Sec-CH-UA headers (if available)</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas_webgl&quot;</span><span class="p">))</span>    <span class="c1"># WebGL fingerprint data</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="c1"># List all available profiles</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total profiles: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">PROFILES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">PROFILES</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">PROFILES</span>
+
+<span class="c1"># Get a specific profile</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">)</span>
+
+<span class="c1"># Access profile components</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;tls&quot;</span><span class="p">][</span><span class="s2">&quot;ciphers&quot;</span><span class="p">])</span>      <span class="c1"># TLS cipher suite</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;http2&quot;</span><span class="p">][</span><span class="s2">&quot;settings&quot;</span><span class="p">])</span>   <span class="c1"># HTTP/2 settings</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">][</span><span class="s2">&quot;order&quot;</span><span class="p">])</span>    <span class="c1"># Header order</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;headers&quot;</span><span class="p">][</span><span class="s2">&quot;default&quot;</span><span class="p">])</span>  <span class="c1"># Default headers</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;client_hints&quot;</span><span class="p">))</span>    <span class="c1"># Sec-CH-UA headers (if available)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;canvas_webgl&quot;</span><span class="p">))</span>    <span class="c1"># WebGL fingerprint data</span>
+
+<span class="c1"># List all available profiles</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total profiles: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">PROFILES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">PROFILES</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 </code></pre></div>
 <hr />
 <h2 id="recommended-profiles-by-use-case">Recommended Profiles by Use Case<a class="headerlink" href="#recommended-profiles-by-use-case" title="Permanent link">&para;</a></h2>
@@ -1643,28 +1615,28 @@
 <hr />
 <h2 id="user-agent-strings">User Agent Strings<a class="headerlink" href="#user-agent-strings" title="Permanent link">&para;</a></h2>
 <h3 id="chrome-144-macos">Chrome 144 (macOS)<a class="headerlink" href="#chrome-144-macos" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
 </code></pre></div>
 <h3 id="chrome-131-windows">Chrome 131 (Windows)<a class="headerlink" href="#chrome-131-windows" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
 </code></pre></div>
 <h3 id="firefox-147-linux">Firefox 147 (Linux)<a class="headerlink" href="#firefox-147-linux" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Mozilla/5.0 (X11; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (X11; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0
 </code></pre></div>
 <h3 id="safari-184-macos">Safari 18.4 (macOS)<a class="headerlink" href="#safari-184-macos" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4.1 Safari/605.1.15
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4.1 Safari/605.1.15
 </code></pre></div>
 <h3 id="safari-187-ios">Safari 18.7 (iOS)<a class="headerlink" href="#safari-187-ios" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1
 </code></pre></div>
 <h3 id="edge-144-windows">Edge 144 (Windows)<a class="headerlink" href="#edge-144-windows" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0
 </code></pre></div>
 <h3 id="brave-131-windows">Brave 131 (Windows)<a class="headerlink" href="#brave-131-windows" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36
 </code></pre></div>
 <h3 id="tor-browser-145">Tor Browser 14.5<a class="headerlink" href="#tor-browser-145" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Mozilla/5.0 (Windows NT 10.0; rv:115.0) Gecko/20100101 Firefox/115.0
+<div class="highlight"><pre><span></span><code>Mozilla/5.0 (Windows NT 10.0; rv:115.0) Gecko/20100101 Firefox/115.0
 </code></pre></div>
 
 

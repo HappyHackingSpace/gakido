@@ -643,34 +643,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../changelog.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Changelog
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -956,13 +928,13 @@
 <p>Client hints are HTTP headers that provide information about the browser and platform. Modern browsers (Chrome, Edge) send these automatically, and anti-bot systems check for their presence and consistency.</p>
 <h3 id="automatic-client-hints">Automatic Client Hints<a class="headerlink" href="#automatic-client-hints" title="Permanent link">&para;</a></h3>
 <p>Chrome and Edge profiles automatically include basic client hints in requests:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Client hints are sent automatically with Chrome/Edge profiles</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/headers&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;headers&quot;</span><span class="p">])</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="c1"># Includes: Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="c1"># Client hints are sent automatically with Chrome/Edge profiles</span>
+<span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/headers&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;headers&quot;</span><span class="p">])</span>
+    <span class="c1"># Includes: Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform</span>
 </code></pre></div>
 <h3 id="available-client-hints">Available Client Hints<a class="headerlink" href="#available-client-hints" title="Permanent link">&para;</a></h3>
 <table>
@@ -1017,59 +989,59 @@
 </tbody>
 </table>
 <h3 id="extracting-client-hints-from-profiles">Extracting Client Hints from Profiles<a class="headerlink" href="#extracting-client-hints-from-profiles" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">get_client_hints_headers</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Get basic hints (always sent)</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">basic</span> <span class="o">=</span> <span class="n">get_client_hints_headers</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">include_high_entropy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># {&#39;Sec-CH-UA&#39;: &#39;&quot;Not_A Brand&quot;;v=&quot;8&quot;, ...&#39;, &#39;Sec-CH-UA-Mobile&#39;: &#39;?0&#39;, ...}</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># Get all hints including high-entropy</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">all_hints</span> <span class="o">=</span> <span class="n">get_client_hints_headers</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">include_high_entropy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Includes: Sec-CH-UA-Platform-Version, Sec-CH-UA-Arch, etc.</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">get_client_hints_headers</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get basic hints (always sent)</span>
+<span class="n">basic</span> <span class="o">=</span> <span class="n">get_client_hints_headers</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">include_high_entropy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="c1"># {&#39;Sec-CH-UA&#39;: &#39;&quot;Not_A Brand&quot;;v=&quot;8&quot;, ...&#39;, &#39;Sec-CH-UA-Mobile&#39;: &#39;?0&#39;, ...}</span>
+
+<span class="c1"># Get all hints including high-entropy</span>
+<span class="n">all_hints</span> <span class="o">=</span> <span class="n">get_client_hints_headers</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">include_high_entropy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Includes: Sec-CH-UA-Platform-Version, Sec-CH-UA-Arch, etc.</span>
 </code></pre></div>
 <h3 id="building-custom-client-hints">Building Custom Client Hints<a class="headerlink" href="#building-custom-client-hints" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_client_hints_for_platform</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Build hints for a custom platform</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">hints</span> <span class="o">=</span> <span class="n">build_client_hints_for_platform</span><span class="p">(</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">browser</span><span class="o">=</span><span class="s2">&quot;Google Chrome&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;120&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;Windows&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">mobile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">platform_version</span><span class="o">=</span><span class="s2">&quot;10.0.0&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">arch</span><span class="o">=</span><span class="s2">&quot;x86&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">bitness</span><span class="o">=</span><span class="s2">&quot;64&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">build_client_hints_for_platform</span>
+
+<span class="c1"># Build hints for a custom platform</span>
+<span class="n">hints</span> <span class="o">=</span> <span class="n">build_client_hints_for_platform</span><span class="p">(</span>
+    <span class="n">browser</span><span class="o">=</span><span class="s2">&quot;Google Chrome&quot;</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;120&quot;</span><span class="p">,</span>
+    <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;Windows&quot;</span><span class="p">,</span>
+    <span class="n">mobile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">platform_version</span><span class="o">=</span><span class="s2">&quot;10.0.0&quot;</span><span class="p">,</span>
+    <span class="n">arch</span><span class="o">=</span><span class="s2">&quot;x86&quot;</span><span class="p">,</span>
+    <span class="n">bitness</span><span class="o">=</span><span class="s2">&quot;64&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 </code></pre></div>
 <h3 id="handling-accept-ch-response-headers">Handling Accept-CH Response Headers<a class="headerlink" href="#handling-accept-ch-response-headers" title="Permanent link">&para;</a></h3>
 <p>Servers can request additional client hints via the <code>Accept-CH</code> response header:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_accept_ch</span><span class="p">,</span> <span class="n">get_profile</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Parse server&#39;s Accept-CH header</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">accept_ch</span> <span class="o">=</span> <span class="s2">&quot;Sec-CH-UA-Platform-Version, Sec-CH-UA-Arch&quot;</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">requested</span> <span class="o">=</span> <span class="n">parse_accept_ch</span><span class="p">(</span><span class="n">accept_ch</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># [&#39;Sec-CH-UA-Platform-Version&#39;, &#39;Sec-CH-UA-Arch&#39;]</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># Get hints to send in next request</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">hints</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;client_hints&quot;</span><span class="p">,</span> <span class="p">{})</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">requested</span><span class="p">:</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">hints</span><span class="p">:</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">hints</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">parse_accept_ch</span><span class="p">,</span> <span class="n">get_profile</span>
+
+<span class="c1"># Parse server&#39;s Accept-CH header</span>
+<span class="n">accept_ch</span> <span class="o">=</span> <span class="s2">&quot;Sec-CH-UA-Platform-Version, Sec-CH-UA-Arch&quot;</span>
+<span class="n">requested</span> <span class="o">=</span> <span class="n">parse_accept_ch</span><span class="p">(</span><span class="n">accept_ch</span><span class="p">)</span>
+<span class="c1"># [&#39;Sec-CH-UA-Platform-Version&#39;, &#39;Sec-CH-UA-Arch&#39;]</span>
+
+<span class="c1"># Get hints to send in next request</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
+<span class="n">hints</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;client_hints&quot;</span><span class="p">,</span> <span class="p">{})</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">requested</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">hints</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">hints</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="canvaswebgl-fingerprints">Canvas/WebGL Fingerprints<a class="headerlink" href="#canvaswebgl-fingerprints" title="Permanent link">&para;</a></h2>
 <p>Canvas and WebGL fingerprints are used by anti-bot systems to identify browsers. Each profile includes realistic fingerprint data.</p>
 <h3 id="accessing-fingerprint-data">Accessing Fingerprint Data<a class="headerlink" href="#accessing-fingerprint-data" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">get_canvas_webgl_fingerprint</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">fp</span> <span class="o">=</span> <span class="n">get_canvas_webgl_fingerprint</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;webgl_vendor&quot;</span><span class="p">])</span>   <span class="c1"># &quot;Google Inc. (Apple)&quot;</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;webgl_renderer&quot;</span><span class="p">])</span> <span class="c1"># &quot;ANGLE (Apple, ANGLE Metal Renderer: ...)&quot;</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;canvas_hash&quot;</span><span class="p">])</span>    <span class="c1"># Unique canvas hash</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">get_canvas_webgl_fingerprint</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
+<span class="n">fp</span> <span class="o">=</span> <span class="n">get_canvas_webgl_fingerprint</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;webgl_vendor&quot;</span><span class="p">])</span>   <span class="c1"># &quot;Google Inc. (Apple)&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;webgl_renderer&quot;</span><span class="p">])</span> <span class="c1"># &quot;ANGLE (Apple, ANGLE Metal Renderer: ...)&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;canvas_hash&quot;</span><span class="p">])</span>    <span class="c1"># Unique canvas hash</span>
 </code></pre></div>
 <h3 id="platform-specific-fingerprints">Platform-Specific Fingerprints<a class="headerlink" href="#platform-specific-fingerprints" title="Permanent link">&para;</a></h3>
 <p>Different profiles have appropriate fingerprints for their platform:</p>
@@ -1115,18 +1087,18 @@
 </tbody>
 </table>
 <h3 id="predefined-webgl-renderers">Predefined WebGL Renderers<a class="headerlink" href="#predefined-webgl-renderers" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">WEBGL_RENDERERS</span><span class="p">,</span> <span class="n">get_webgl_renderer</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Available presets</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">WEBGL_RENDERERS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># chrome_macos_m1, chrome_macos_intel, chrome_windows_nvidia,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># chrome_windows_amd, chrome_android_adreno, chrome_android_mali,</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># firefox_macos, safari_macos, safari_ios, tor</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1"># Get specific renderer</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">renderer</span> <span class="o">=</span> <span class="n">get_webgl_renderer</span><span class="p">(</span><span class="s2">&quot;chrome_windows_nvidia&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">renderer</span><span class="p">[</span><span class="s2">&quot;vendor&quot;</span><span class="p">])</span>   <span class="c1"># &quot;Google Inc. (NVIDIA)&quot;</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="nb">print</span><span class="p">(</span><span class="n">renderer</span><span class="p">[</span><span class="s2">&quot;renderer&quot;</span><span class="p">])</span> <span class="c1"># &quot;ANGLE (NVIDIA, NVIDIA GeForce RTX 3080 ...)&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">WEBGL_RENDERERS</span><span class="p">,</span> <span class="n">get_webgl_renderer</span>
+
+<span class="c1"># Available presets</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">WEBGL_RENDERERS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="c1"># chrome_macos_m1, chrome_macos_intel, chrome_windows_nvidia,</span>
+<span class="c1"># chrome_windows_amd, chrome_android_adreno, chrome_android_mali,</span>
+<span class="c1"># firefox_macos, safari_macos, safari_ios, tor</span>
+
+<span class="c1"># Get specific renderer</span>
+<span class="n">renderer</span> <span class="o">=</span> <span class="n">get_webgl_renderer</span><span class="p">(</span><span class="s2">&quot;chrome_windows_nvidia&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">renderer</span><span class="p">[</span><span class="s2">&quot;vendor&quot;</span><span class="p">])</span>   <span class="c1"># &quot;Google Inc. (NVIDIA)&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">renderer</span><span class="p">[</span><span class="s2">&quot;renderer&quot;</span><span class="p">])</span> <span class="c1"># &quot;ANGLE (NVIDIA, NVIDIA GeForce RTX 3080 ...)&quot;</span>
 </code></pre></div>
 <h2 id="profile-client-hints-support">Profile Client Hints Support<a class="headerlink" href="#profile-client-hints-support" title="Permanent link">&para;</a></h2>
 <table>
@@ -1177,60 +1149,60 @@
 </table>
 <h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
 <h3 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="c1"># Client hints</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">generate_sec_ch_ua</span><span class="p">,</span>              <span class="c1"># Generate Sec-CH-UA header value</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">generate_sec_ch_ua_full_version_list</span><span class="p">,</span>  <span class="c1"># Generate full version list</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">get_client_hints_headers</span><span class="p">,</span>        <span class="c1"># Extract hints from profile</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">build_client_hints_for_platform</span><span class="p">,</span> <span class="c1"># Build custom hints</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">parse_accept_ch</span><span class="p">,</span>                 <span class="c1"># Parse Accept-CH header</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">should_send_hint</span><span class="p">,</span>                <span class="c1"># Check if hint should be sent</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="c1"># Canvas/WebGL</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">get_canvas_webgl_fingerprint</span><span class="p">,</span>    <span class="c1"># Get fingerprint from profile</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">get_webgl_renderer</span><span class="p">,</span>              <span class="c1"># Get predefined renderer</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="n">WEBGL_RENDERERS</span><span class="p">,</span>                 <span class="c1"># Dict of renderer presets</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="c1"># Client hints</span>
+    <span class="n">generate_sec_ch_ua</span><span class="p">,</span>              <span class="c1"># Generate Sec-CH-UA header value</span>
+    <span class="n">generate_sec_ch_ua_full_version_list</span><span class="p">,</span>  <span class="c1"># Generate full version list</span>
+    <span class="n">get_client_hints_headers</span><span class="p">,</span>        <span class="c1"># Extract hints from profile</span>
+    <span class="n">build_client_hints_for_platform</span><span class="p">,</span> <span class="c1"># Build custom hints</span>
+    <span class="n">parse_accept_ch</span><span class="p">,</span>                 <span class="c1"># Parse Accept-CH header</span>
+    <span class="n">should_send_hint</span><span class="p">,</span>                <span class="c1"># Check if hint should be sent</span>
+
+    <span class="c1"># Canvas/WebGL</span>
+    <span class="n">get_canvas_webgl_fingerprint</span><span class="p">,</span>    <span class="c1"># Get fingerprint from profile</span>
+    <span class="n">get_webgl_renderer</span><span class="p">,</span>              <span class="c1"># Get predefined renderer</span>
+    <span class="n">WEBGL_RENDERERS</span><span class="p">,</span>                 <span class="c1"># Dict of renderer presets</span>
+<span class="p">)</span>
 </code></pre></div>
 <h3 id="generate_sec_ch_ua">generate_sec_ch_ua<a class="headerlink" href="#generate_sec_ch_ua" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">generate_sec_ch_ua</span><span class="p">(</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">browser</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>           <span class="c1"># Browser name (e.g., &quot;Google Chrome&quot;)</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>           <span class="c1"># Major version (e.g., &quot;120&quot;)</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">chromium_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Chromium version if different</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_sec_ch_ua</span><span class="p">(</span>
+    <span class="n">browser</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>           <span class="c1"># Browser name (e.g., &quot;Google Chrome&quot;)</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>           <span class="c1"># Major version (e.g., &quot;120&quot;)</span>
+    <span class="n">chromium_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Chromium version if different</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
 </code></pre></div>
 <h3 id="get_client_hints_headers">get_client_hints_headers<a class="headerlink" href="#get_client_hints_headers" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_client_hints_headers</span><span class="p">(</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">profile</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>                    <span class="c1"># Browser profile</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">include_high_entropy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Include high-entropy hints</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_client_hints_headers</span><span class="p">(</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>                    <span class="c1"># Browser profile</span>
+    <span class="n">include_high_entropy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Include high-entropy hints</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 </code></pre></div>
 <h3 id="get_canvas_webgl_fingerprint">get_canvas_webgl_fingerprint<a class="headerlink" href="#get_canvas_webgl_fingerprint" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_canvas_webgl_fingerprint</span><span class="p">(</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">profile</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>  <span class="c1"># Browser profile</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>  <span class="c1"># Returns {webgl_vendor, webgl_renderer, canvas_hash}</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_canvas_webgl_fingerprint</span><span class="p">(</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>  <span class="c1"># Browser profile</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>  <span class="c1"># Returns {webgl_vendor, webgl_renderer, canvas_hash}</span>
 </code></pre></div>
 <h2 id="example-full-impersonation">Example: Full Impersonation<a class="headerlink" href="#example-full-impersonation" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">get_profile</span><span class="p">,</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">get_client_hints_headers</span><span class="p">,</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">get_canvas_webgl_fingerprint</span><span class="p">,</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">)</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Create client with Chrome impersonation</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># View what&#39;s being sent</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TLS:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;tls&quot;</span><span class="p">][</span><span class="s2">&quot;ciphers&quot;</span><span class="p">]),</span> <span class="s2">&quot;chars cipher string&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;HTTP/2:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;http2&quot;</span><span class="p">][</span><span class="s2">&quot;settings&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Client Hints:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_client_hints_headers</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WebGL:&quot;</span><span class="p">,</span> <span class="n">get_canvas_webgl_fingerprint</span><span class="p">(</span><span class="n">profile</span><span class="p">)[</span><span class="s2">&quot;webgl_renderer&quot;</span><span class="p">])</span>
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="c1"># Make request with full impersonation</span>
-<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://example.com&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_profile</span><span class="p">,</span>
+    <span class="n">get_client_hints_headers</span><span class="p">,</span>
+    <span class="n">get_canvas_webgl_fingerprint</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Create client with Chrome impersonation</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span>
+
+<span class="c1"># View what&#39;s being sent</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TLS:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;tls&quot;</span><span class="p">][</span><span class="s2">&quot;ciphers&quot;</span><span class="p">]),</span> <span class="s2">&quot;chars cipher string&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;HTTP/2:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;http2&quot;</span><span class="p">][</span><span class="s2">&quot;settings&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Client Hints:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">get_client_hints_headers</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WebGL:&quot;</span><span class="p">,</span> <span class="n">get_canvas_webgl_fingerprint</span><span class="p">(</span><span class="n">profile</span><span class="p">)[</span><span class="s2">&quot;webgl_renderer&quot;</span><span class="p">])</span>
+
+<span class="c1"># Make request with full impersonation</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://example.com&quot;</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </code></pre></div>
 
 

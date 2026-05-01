@@ -912,34 +912,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../changelog.md" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Changelog
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1243,35 +1215,35 @@
 </ul>
 <h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
 <h3 id="sync-client">Sync Client<a class="headerlink" href="#sync-client" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>           <span class="c1"># 10 requests per second globally</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>  <span class="c1"># Allow burst of 20 requests</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">rate_limit_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Wait when rate limited (default)</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Requests will be automatically rate limited</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api.example.com/data&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Request </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
+    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>           <span class="c1"># 10 requests per second globally</span>
+    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>  <span class="c1"># Allow burst of 20 requests</span>
+    <span class="n">rate_limit_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Wait when rate limited (default)</span>
+<span class="p">)</span>
+
+<span class="c1"># Requests will be automatically rate limited</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api.example.com/data&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Request </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="async-client">Async Client<a class="headerlink" href="#async-client" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncClient</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">client</span> <span class="o">=</span> <span class="n">AsyncClient</span><span class="p">(</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">rate_limit</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>            <span class="c1"># 5 requests per second</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>  <span class="c1"># Allow burst of 10 requests</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="p">)</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="p">:</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api.example.com/data&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)]</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span><span class="si">}</span><span class="s2"> requests&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">AsyncClient</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">AsyncClient</span><span class="p">(</span>
+        <span class="n">rate_limit</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>            <span class="c1"># 5 requests per second</span>
+        <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>  <span class="c1"># Allow burst of 10 requests</span>
+    <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api.example.com/data&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)]</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span><span class="si">}</span><span class="s2"> requests&quot;</span><span class="p">)</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
@@ -1312,144 +1284,144 @@
 </table>
 <h2 id="per-host-rate-limiting">Per-Host Rate Limiting<a class="headerlink" href="#per-host-rate-limiting" title="Permanent link">&para;</a></h2>
 <p>Apply separate rate limits to each domain:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">rate_limit_per_host</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># 2 requests per second per host</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Each host has its own rate limit</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api1.example.com/data&quot;</span><span class="p">)</span>  <span class="c1"># Rate limited separately</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api2.example.com/data&quot;</span><span class="p">)</span>  <span class="c1"># Rate limited separately</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api1.example.com/other&quot;</span><span class="p">)</span> <span class="c1"># Shares limit with first request</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
+    <span class="n">rate_limit_per_host</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># 2 requests per second per host</span>
+<span class="p">)</span>
+
+<span class="c1"># Each host has its own rate limit</span>
+<span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api1.example.com/data&quot;</span><span class="p">)</span>  <span class="c1"># Rate limited separately</span>
+<span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api2.example.com/data&quot;</span><span class="p">)</span>  <span class="c1"># Rate limited separately</span>
+<span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api1.example.com/other&quot;</span><span class="p">)</span> <span class="c1"># Shares limit with first request</span>
 </code></pre></div>
 <h2 id="non-blocking-mode">Non-Blocking Mode<a class="headerlink" href="#non-blocking-mode" title="Permanent link">&para;</a></h2>
 <p>Raise an exception instead of waiting when rate limited:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">RateLimitExceeded</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">rate_limit_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Don&#39;t wait, raise exception</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://example.com&quot;</span><span class="p">)</span>  <span class="c1"># First request OK</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://example.com&quot;</span><span class="p">)</span>  <span class="c1"># Raises RateLimitExceeded</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="k">except</span> <span class="n">RateLimitExceeded</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rate limited! Retry after </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">retry_after</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">RateLimitExceeded</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
+    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">rate_limit_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Don&#39;t wait, raise exception</span>
+<span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://example.com&quot;</span><span class="p">)</span>  <span class="c1"># First request OK</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://example.com&quot;</span><span class="p">)</span>  <span class="c1"># Raises RateLimitExceeded</span>
+<span class="k">except</span> <span class="n">RateLimitExceeded</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rate limited! Retry after </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">retry_after</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="using-rate-limiters-directly">Using Rate Limiters Directly<a class="headerlink" href="#using-rate-limiters-directly" title="Permanent link">&para;</a></h2>
 <h3 id="token-bucket">Token Bucket<a class="headerlink" href="#token-bucket" title="Permanent link">&para;</a></h3>
 <p>The token bucket algorithm allows bursts up to capacity, then limits to the specified rate:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenBucket</span><span class="p">,</span> <span class="n">AsyncTokenBucket</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># Sync</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">limiter</span> <span class="o">=</span> <span class="n">TokenBucket</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>  <span class="c1"># Get a token (blocks if none available)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># With context manager</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">with</span> <span class="n">limiter</span><span class="p">:</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="c1"># Make your request here</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="k">pass</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="c1"># Async</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">async_limiter</span> <span class="o">=</span> <span class="n">AsyncTokenBucket</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">)</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="k">await</span> <span class="n">async_limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="k">async</span> <span class="k">with</span> <span class="n">async_limiter</span><span class="p">:</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="c1"># Make your async request here</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="k">pass</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">TokenBucket</span><span class="p">,</span> <span class="n">AsyncTokenBucket</span>
+
+<span class="c1"># Sync</span>
+<span class="n">limiter</span> <span class="o">=</span> <span class="n">TokenBucket</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">)</span>
+<span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>  <span class="c1"># Get a token (blocks if none available)</span>
+
+<span class="c1"># With context manager</span>
+<span class="k">with</span> <span class="n">limiter</span><span class="p">:</span>
+    <span class="c1"># Make your request here</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Async</span>
+<span class="n">async_limiter</span> <span class="o">=</span> <span class="n">AsyncTokenBucket</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">async_limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">async_limiter</span><span class="p">:</span>
+    <span class="c1"># Make your async request here</span>
+    <span class="k">pass</span>
 </code></pre></div>
 <h3 id="sliding-window-limiter">Sliding Window Limiter<a class="headerlink" href="#sliding-window-limiter" title="Permanent link">&para;</a></h3>
 <p>Strictly limit requests within a time window:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">SlidingWindowLimiter</span><span class="p">,</span> <span class="n">AsyncSlidingWindowLimiter</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Allow max 100 requests per minute</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">limiter</span> <span class="o">=</span> <span class="n">SlidingWindowLimiter</span><span class="p">(</span><span class="n">max_requests</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">window_seconds</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Async version</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">async_limiter</span> <span class="o">=</span> <span class="n">AsyncSlidingWindowLimiter</span><span class="p">(</span><span class="n">max_requests</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">window_seconds</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">await</span> <span class="n">async_limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">SlidingWindowLimiter</span><span class="p">,</span> <span class="n">AsyncSlidingWindowLimiter</span>
+
+<span class="c1"># Allow max 100 requests per minute</span>
+<span class="n">limiter</span> <span class="o">=</span> <span class="n">SlidingWindowLimiter</span><span class="p">(</span><span class="n">max_requests</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">window_seconds</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+
+<span class="c1"># Async version</span>
+<span class="n">async_limiter</span> <span class="o">=</span> <span class="n">AsyncSlidingWindowLimiter</span><span class="p">(</span><span class="n">max_requests</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">window_seconds</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">async_limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
 </code></pre></div>
 <h3 id="per-host-rate-limiter">Per-Host Rate Limiter<a class="headerlink" href="#per-host-rate-limiter" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">PerHostRateLimiter</span><span class="p">,</span> <span class="n">AsyncPerHostRateLimiter</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># Sync</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">limiter</span> <span class="o">=</span> <span class="n">PerHostRateLimiter</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="s2">&quot;api.example.com&quot;</span><span class="p">)</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="s2">&quot;other.example.com&quot;</span><span class="p">)</span>  <span class="c1"># Separate limit</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># Async</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">async_limiter</span> <span class="o">=</span> <span class="n">AsyncPerHostRateLimiter</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">await</span> <span class="n">async_limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="s2">&quot;api.example.com&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">PerHostRateLimiter</span><span class="p">,</span> <span class="n">AsyncPerHostRateLimiter</span>
+
+<span class="c1"># Sync</span>
+<span class="n">limiter</span> <span class="o">=</span> <span class="n">PerHostRateLimiter</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="s2">&quot;api.example.com&quot;</span><span class="p">)</span>
+<span class="n">limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="s2">&quot;other.example.com&quot;</span><span class="p">)</span>  <span class="c1"># Separate limit</span>
+
+<span class="c1"># Async</span>
+<span class="n">async_limiter</span> <span class="o">=</span> <span class="n">AsyncPerHostRateLimiter</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">async_limiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="s2">&quot;api.example.com&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="decorators">Decorators<a class="headerlink" href="#decorators" title="Permanent link">&para;</a></h2>
 <p>Apply rate limiting to any function:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limited</span><span class="p">,</span> <span class="n">arate_limited</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># Sync decorator</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nd">@rate_limited</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_api_call</span><span class="p">():</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="c1"># Your code here</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">pass</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1"># Async decorator</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="nd">@arate_limited</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_api_call</span><span class="p">():</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="c1"># Your async code here</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="k">pass</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="c1"># Non-blocking decorator</span>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="nd">@rate_limited</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">strict_api_call</span><span class="p">():</span>
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>    <span class="c1"># Raises RateLimitExceeded if rate exceeded</span>
-<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="k">pass</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">rate_limited</span><span class="p">,</span> <span class="n">arate_limited</span>
+
+<span class="c1"># Sync decorator</span>
+<span class="nd">@rate_limited</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">make_api_call</span><span class="p">():</span>
+    <span class="c1"># Your code here</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Async decorator</span>
+<span class="nd">@arate_limited</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">capacity</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">async_api_call</span><span class="p">():</span>
+    <span class="c1"># Your async code here</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Non-blocking decorator</span>
+<span class="nd">@rate_limited</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">strict_api_call</span><span class="p">():</span>
+    <span class="c1"># Raises RateLimitExceeded if rate exceeded</span>
+    <span class="k">pass</span>
 </code></pre></div>
 <h2 id="combining-with-retry">Combining with Retry<a class="headerlink" href="#combining-with-retry" title="Permanent link">&para;</a></h2>
 <p>Rate limiting works seamlessly with retry logic:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="c1"># Rate limiting</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="c1"># Retry on failures</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="n">retry_base_delay</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">)</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1"># Requests are rate limited, and failures are retried</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api.example.com/data&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
+    <span class="c1"># Rate limiting</span>
+    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span>
+    <span class="c1"># Retry on failures</span>
+    <span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">retry_base_delay</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Requests are rate limited, and failures are retried</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://api.example.com/data&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <h3 id="api-with-strict-rate-limits">API with Strict Rate Limits<a class="headerlink" href="#api-with-strict-rate-limits" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncClient</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># Twitter-like API: 300 requests per 15 minutes per endpoint</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">AsyncClient</span><span class="p">(</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span>           <span class="c1"># ~20 requests per minute</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span>  <span class="c1"># Allow some bursting</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">AsyncClient</span>
+
+<span class="c1"># Twitter-like API: 300 requests per 15 minutes per endpoint</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">AsyncClient</span><span class="p">(</span>
+    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">0.33</span><span class="p">,</span>           <span class="c1"># ~20 requests per minute</span>
+    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span>  <span class="c1"># Allow some bursting</span>
+<span class="p">)</span>
 </code></pre></div>
 <h3 id="web-scraping-with-politeness">Web Scraping with Politeness<a class="headerlink" href="#web-scraping-with-politeness" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># Be polite to servers</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">rate_limit_per_host</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># 1 request per second per host</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># No bursting</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="c1"># Be polite to servers</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
+    <span class="n">rate_limit_per_host</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># 1 request per second per host</span>
+    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># No bursting</span>
+<span class="p">)</span>
 </code></pre></div>
 <h3 id="high-throughput-with-burst">High-Throughput with Burst<a class="headerlink" href="#high-throughput-with-burst" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncClient</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1"># High throughput API with burst allowance</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">AsyncClient</span><span class="p">(</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>          <span class="c1"># 100 requests per second sustained</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">500.0</span><span class="p">,</span> <span class="c1"># Allow bursts of 500</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">AsyncClient</span>
+
+<span class="c1"># High throughput API with burst allowance</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">AsyncClient</span><span class="p">(</span>
+    <span class="n">rate_limit</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>          <span class="c1"># 100 requests per second sustained</span>
+    <span class="n">rate_limit_capacity</span><span class="o">=</span><span class="mf">500.0</span><span class="p">,</span> <span class="c1"># Allow bursts of 500</span>
+<span class="p">)</span>
 </code></pre></div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <ol>
