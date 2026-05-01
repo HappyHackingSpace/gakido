@@ -65,7 +65,7 @@ jobs:
 
       - name: Build wheels (Linux)
         if: steps.version.outputs.skip != 'true'
-        uses: pypa/cibuildwheel@v3.3.1
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD: "cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
@@ -110,7 +110,7 @@ jobs:
           ref: ${{ needs.release.outputs.new_tag || github.ref }}
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.3.1
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD: "cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
