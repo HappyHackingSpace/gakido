@@ -143,11 +143,10 @@ jobs:
         with:
           ref: ${{ needs.release.outputs.new_tag || github.ref }}
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.1
-        env:
-          CIBW_BUILD: "cp311-* cp312-* cp313-*"
-          CIBW_SKIP: "*-win32"
+      - name: Build pure Python wheels
+        run: |
+          pip install build
+          python -m build --wheel --outdir wheelhouse/
 
       - name: Upload to existing release
         uses: softprops/action-gh-release@v3
