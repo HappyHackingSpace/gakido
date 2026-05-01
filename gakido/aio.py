@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json as json_lib
 import ssl
 import urllib.parse
 from collections.abc import Iterable
@@ -114,6 +115,7 @@ class AsyncClient:
         url: str,
         headers: dict[str, str] | None = None,
         data: bytes | str | dict[str, str] | None = None,
+        json: object | None = None,
         files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
         proxy: str | None = None,
         force_http3: bool | None = None,
@@ -148,6 +150,10 @@ class AsyncClient:
             )
             final_headers["Content-Type"] = ctype
             final_headers["Content-Length"] = str(len(body))
+        elif json is not None:
+            body = json_lib.dumps(json).encode("utf-8")
+            final_headers.setdefault("Content-Type", "application/json")
+            final_headers.setdefault("Content-Length", str(len(body)))
         elif data is not None:
             if isinstance(data, bytes):
                 body = data
@@ -412,6 +418,7 @@ class AsyncClient:
         url: str,
         headers: dict[str, str] | None = None,
         data: bytes | str | dict[str, str] | None = None,
+        json: object | None = None,
         files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
         proxy: str | None = None,
         force_http3: bool | None = None,
@@ -424,6 +431,7 @@ class AsyncClient:
             url: Request URL
             headers: Additional headers
             data: Request body
+            json: JSON-serializable object to send as request body
             files: Multipart files
             proxy: Override proxy URL
             force_http3: Force HTTP/3 if available
@@ -440,7 +448,7 @@ class AsyncClient:
 
         if self.max_retries <= 0:
             # No retries, call directly
-            return await self._make_request(method, url, headers, data, files, proxy, force_http3)
+            return await self._make_request(method, url, headers, data, json, files, proxy, force_http3)
 
         # Apply retry decorator
         retry_decorator = aretry_with_backoff(
@@ -449,7 +457,7 @@ class AsyncClient:
             max_delay=self.retry_max_delay,
             jitter=self.retry_jitter,
         )
-        return await retry_decorator(self._make_request)(method, url, headers, data, files, proxy, force_http3)
+        return await retry_decorator(self._make_request)(method, url, headers, data, json, files, proxy, force_http3)
 
     async def _request_h2(
         self,
@@ -542,11 +550,12 @@ class AsyncClient:
         url: str,
         headers: dict[str, str] | None = None,
         data: bytes | str | dict[str, str] | None = None,
+        json: object | None = None,
         files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
         proxy: str | None = None,
     ) -> Response:
         return await self.request(
-            "POST", url, headers=headers, data=data, files=files, proxy=proxy
+            "POST", url, headers=headers, data=data, json=json, files=files, proxy=proxy
         )
 
     async def stream(

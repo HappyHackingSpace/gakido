@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json as json_lib
 import urllib.parse
 
 try:
@@ -108,6 +109,7 @@ class Client:
         url: str,
         headers: dict[str, str] | None = None,
         data: bytes | str | dict[str, str] | None = None,
+        json: object | None = None,
         files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
         proxy: str | None = None,
     ) -> Response:
@@ -127,6 +129,10 @@ class Client:
             )
             final_headers["Content-Type"] = ctype
             final_headers["Content-Length"] = str(len(body))
+        elif json is not None:
+            body = json_lib.dumps(json).encode("utf-8")
+            final_headers.setdefault("Content-Type", "application/json")
+            final_headers.setdefault("Content-Length", str(len(body)))
         elif data is not None:
             if isinstance(data, bytes):
                 body = data
@@ -222,6 +228,7 @@ class Client:
         url: str,
         headers: dict[str, str] | None = None,
         data: bytes | str | dict[str, str] | None = None,
+        json: object | None = None,
         files: dict[str, bytes | tuple[str, bytes, str | None]] | None = None,
         proxy: str | None = None,
     ) -> Response:
@@ -233,6 +240,7 @@ class Client:
             url: Request URL
             headers: Additional headers
             data: Request body
+            json: JSON-serializable object to send as request body
             files: Multipart files
             proxy: Override proxy URL
 
@@ -248,7 +256,7 @@ class Client:
 
         if self.max_retries <= 0:
             # No retries, call directly
-            return self._make_request(method, url, headers, data, files, proxy)
+            return self._make_request(method, url, headers, data, json, files, proxy)
 
         # Apply retry decorator
         retry_decorator = retry_with_backoff(
@@ -257,7 +265,7 @@ class Client:
             max_delay=self.retry_max_delay,
             jitter=self.retry_jitter,
         )
-        return retry_decorator(self._make_request)(method, url, headers, data, files, proxy)
+        return retry_decorator(self._make_request)(method, url, headers, data, json, files, proxy)
 
     def stream(
         self,
@@ -360,9 +368,10 @@ class Client:
         url: str,
         headers: dict[str, str] | None = None,
         data: bytes | str | dict[str, str] | None = None,
+        json: object | None = None,
         proxy: str | None = None,
     ) -> Response:
-        return self.request("POST", url, headers=headers, data=data, proxy=proxy)
+        return self.request("POST", url, headers=headers, data=data, json=json, proxy=proxy)
 
     def close(self) -> None:
         self.pool.close()
