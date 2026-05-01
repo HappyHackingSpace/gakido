@@ -124,11 +124,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish macOS wheels to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.14.0
-        with:
-          packages-dir: wheelhouse/
-          password: ${{ secrets.PYPI_TOKEN }}
-          skip-existing: true
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          pip install twine
+          twine upload --skip-existing wheelhouse/*.whl
 
   build-windows-wheels:
     name: Build Windows wheels
@@ -143,13 +144,13 @@ jobs:
           ref: ${{ needs.release.outputs.new_tag || github.ref }}
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.3.1
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD: "cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32"
 
       - name: Upload to existing release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release.outputs.new_tag }}
           files: wheelhouse/*.whl
@@ -157,8 +158,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Windows wheels to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0
-        with:
-          packages-dir: wheelhouse/
-          password: ${{ secrets.PYPI_TOKEN }}
-          skip-existing: true
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          pip install twine
+          twine upload --skip-existing wheelhouse/*.whl

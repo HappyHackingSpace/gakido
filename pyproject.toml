@@ -44,9 +44,6 @@ dev = [
 
 [tool.setuptools]
 packages = {find = {include = ["gakido*"]}}
-ext-modules = [
-    {name = "gakido.gakido_core", sources = ["gakido/core.c"]}
-]
 
 [tool.cibuildwheel]
 # Build for Python 3.11+
