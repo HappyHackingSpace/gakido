@@ -16,7 +16,7 @@ dependencies = [
     "brotli>=1.1.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.7.1",
-    "pygments<2.19",
+    "pygments<2.21",
 ]
 
 [project.optional-dependencies]
