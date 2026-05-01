@@ -129,3 +129,36 @@ jobs:
           packages-dir: wheelhouse/
           password: ${{ secrets.PYPI_TOKEN }}
           skip-existing: true
+
+  build-windows-wheels:
+    name: Build Windows wheels
+    needs: [release]
+    runs-on: windows-latest
+    if: needs.release.outputs.new_tag != ''
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release.outputs.new_tag || github.ref }}
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.3.1
+        env:
+          CIBW_BUILD: "cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "*-win32"
+
+      - name: Upload to existing release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release.outputs.new_tag }}
+          files: wheelhouse/*.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Windows wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.13.0
+        with:
+          packages-dir: wheelhouse/
+          password: ${{ secrets.PYPI_TOKEN }}
+          skip-existing: true
