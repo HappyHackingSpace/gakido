@@ -146,7 +146,9 @@ def build_client_hints_for_platform(
         "Sec-CH-UA": sec_ch_ua,
         "Sec-CH-UA-Mobile": "?1" if mobile else "?0",
         "Sec-CH-UA-Platform": f'"{platform}"',
-        "Sec-CH-UA-Platform-Version": f'"{platform_version}"' if platform_version else '""',
+        "Sec-CH-UA-Platform-Version": f'"{platform_version}"'
+        if platform_version
+        else '""',
         "Sec-CH-UA-Full-Version-List": sec_ch_ua_full,
         "Sec-CH-UA-Arch": f'"{arch}"' if arch else '""',
         "Sec-CH-UA-Bitness": f'"{bitness}"',

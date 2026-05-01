@@ -22,6 +22,8 @@ from gakido.pool import ConnectionPool
 from gakido.utils import parse_url
 from gakido.backoff import retry_with_backoff
 from gakido.rate_limit import TokenBucket, PerHostRateLimiter
+from gakido.cache import CacheController, FileCache
+
 
 class Client:
     """
@@ -42,6 +44,9 @@ class Client:
         rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
         rate_limit_per_host: Per-host rate limit (requests per second), None to disable
         rate_limit_blocking: If True, wait when rate limited; if False, raise RateLimitExceeded
+        cache: Enable HTTP response caching (bool or CacheBackend instance)
+        cache_dir: Directory for file-based cache (default: ~/.cache/gakido)
+        cache_ttl: Default cache TTL in seconds (default: 3600)
     """
 
     def __init__(
@@ -64,6 +69,9 @@ class Client:
         rate_limit_capacity: float | None = None,
         rate_limit_per_host: float | None = None,
         rate_limit_blocking: bool = True,
+        cache: bool | object = False,
+        cache_dir: str | None = None,
+        cache_ttl: int = 3600,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1:
@@ -102,6 +110,21 @@ class Client:
                 capacity=rate_limit_capacity,
                 blocking=rate_limit_blocking,
             )
+        # Cache configuration
+        self._cache: CacheController | None = None
+        self._cache_ttl = cache_ttl
+        if cache is True:
+            # Enable file-based cache with default or custom directory
+            cache_path = cache_dir or "~/.cache/gakido"
+            self._cache = CacheController(FileCache(cache_path, default_ttl=cache_ttl))
+        elif cache is not False:
+            # Assume it's a custom cache backend
+            from gakido.cache import CacheBackend
+
+            if isinstance(cache, CacheBackend):
+                self._cache = CacheController(cache)
+            else:
+                raise TypeError("cache must be bool or CacheBackend instance")
 
     def _make_request(
         self,
@@ -184,13 +207,11 @@ class Client:
         else:
             target_host, target_port = host, port
 
-        conn = self.pool.acquire(parsed.scheme, target_host, target_port, proxy_url=proxy_url)
+        conn = self.pool.acquire(
+            parsed.scheme, target_host, target_port, proxy_url=proxy_url
+        )
         try:
-            if (
-                self.use_native
-                and parsed.scheme == "http"
-                and not proxy_url
-            ):
+            if self.use_native and parsed.scheme == "http" and not proxy_url:
                 result = gakido_core.request(
                     method.upper(),
                     target_host,
@@ -233,7 +254,7 @@ class Client:
         proxy: str | None = None,
     ) -> Response:
         """
-        Make an HTTP request with optional retry logic.
+        Make an HTTP request with optional retry logic and caching.
 
         Args:
             method: HTTP method (GET, POST, etc.)
@@ -247,6 +268,18 @@ class Client:
         Returns:
             Response object
         """
+        # Check cache for GET/HEAD requests (only if no request body)
+        if (
+            self._cache
+            and method.upper() in ("GET", "HEAD")
+            and not data
+            and not json
+            and not files
+        ):
+            cached_response = self._cache.get_cached_response(method, url, headers)
+            if cached_response is not None:
+                return cached_response
+
         # Apply rate limiting
         if self._rate_limiter is not None:
             self._rate_limiter.acquire()
@@ -256,16 +289,26 @@ class Client:
 
         if self.max_retries <= 0:
             # No retries, call directly
-            return self._make_request(method, url, headers, data, json, files, proxy)
+            response = self._make_request(
+                method, url, headers, data, json, files, proxy
+            )
+        else:
+            # Apply retry decorator
+            retry_decorator = retry_with_backoff(
+                max_attempts=self.max_retries + 1,  # +1 for initial attempt
+                base_delay=self.retry_base_delay,
+                max_delay=self.retry_max_delay,
+                jitter=self.retry_jitter,
+            )
+            response = retry_decorator(self._make_request)(
+                method, url, headers, data, json, files, proxy
+            )
 
-        # Apply retry decorator
-        retry_decorator = retry_with_backoff(
-            max_attempts=self.max_retries + 1,  # +1 for initial attempt
-            base_delay=self.retry_base_delay,
-            max_delay=self.retry_max_delay,
-            jitter=self.retry_jitter,
-        )
-        return retry_decorator(self._make_request)(method, url, headers, data, json, files, proxy)
+        # Store in cache if enabled
+        if self._cache:
+            self._cache.cache_response(method, url, headers, response, self._cache_ttl)
+
+        return response
 
     def stream(
         self,
@@ -350,17 +393,29 @@ class Client:
             target_host, target_port = host, port
 
         from gakido.connection import Connection
+
         conn = Connection(
-            target_host, target_port, parsed.scheme, self.profile,
-            self.timeout, self.verify, proxy_url=proxy_url
+            target_host,
+            target_port,
+            parsed.scheme,
+            self.profile,
+            self.timeout,
+            self.verify,
+            proxy_url=proxy_url,
         )
 
         return conn.stream(
-            method.upper(), target_path, merged_headers, body,
-            auto_decompress=self.auto_decompress, chunk_size=chunk_size
+            method.upper(),
+            target_path,
+            merged_headers,
+            body,
+            auto_decompress=self.auto_decompress,
+            chunk_size=chunk_size,
         )
 
-    def get(self, url: str, headers: dict[str, str] | None = None, proxy: str | None = None) -> Response:
+    def get(
+        self, url: str, headers: dict[str, str] | None = None, proxy: str | None = None
+    ) -> Response:
         return self.request("GET", url, headers=headers, data=None, proxy=proxy)
 
     def post(
@@ -371,10 +426,17 @@ class Client:
         json: object | None = None,
         proxy: str | None = None,
     ) -> Response:
-        return self.request("POST", url, headers=headers, data=data, json=json, proxy=proxy)
+        return self.request(
+            "POST", url, headers=headers, data=data, json=json, proxy=proxy
+        )
 
     def close(self) -> None:
         self.pool.close()
+
+    def clear_cache(self) -> None:
+        """Clear all cached responses."""
+        if self._cache:
+            self._cache.clear()
 
     def __enter__(self) -> Client:
         return self

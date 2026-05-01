@@ -24,9 +24,11 @@ from gakido.utils import parse_url
 from gakido.backoff import aretry_with_backoff
 from gakido.http3 import is_http3_available, HTTP3Protocol
 from gakido.rate_limit import AsyncTokenBucket, AsyncPerHostRateLimiter
+from gakido.cache import CacheController, FileCache
 
 # Re-export for tests
-__all__ = ['AsyncClient', 'is_http3_available']
+__all__ = ["AsyncClient", "is_http3_available"]
+
 
 class AsyncClient:
     """
@@ -49,6 +51,9 @@ class AsyncClient:
         rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
         rate_limit_per_host: Per-host rate limit (requests per second), None to disable
         rate_limit_blocking: If True, wait when rate limited; if False, raise RateLimitExceeded
+        cache: Enable HTTP response caching (bool or CacheBackend instance)
+        cache_dir: Directory for file-based cache (default: ~/.cache/gakido)
+        cache_ttl: Default cache TTL in seconds (default: 3600)
     """
 
     def __init__(
@@ -71,6 +76,9 @@ class AsyncClient:
         rate_limit_capacity: float | None = None,
         rate_limit_per_host: float | None = None,
         rate_limit_blocking: bool = True,
+        cache: bool | object = False,
+        cache_dir: str | None = None,
+        cache_ttl: int = 3600,
     ) -> None:
         profile = get_profile(impersonate)
         if force_http1 and not http3:
@@ -108,6 +116,21 @@ class AsyncClient:
                 capacity=rate_limit_capacity,
                 blocking=rate_limit_blocking,
             )
+        # Cache configuration
+        self._cache: CacheController | None = None
+        self._cache_ttl = cache_ttl
+        if cache is True:
+            # Enable file-based cache with default or custom directory
+            cache_path = cache_dir or "~/.cache/gakido"
+            self._cache = CacheController(FileCache(cache_path, default_ttl=cache_ttl))
+        elif cache is not False:
+            # Assume it's a custom cache backend
+            from gakido.cache import CacheBackend
+
+            if isinstance(cache, CacheBackend):
+                self._cache = CacheController(cache)
+            else:
+                raise TypeError("cache must be bool or CacheBackend instance")
 
     async def _make_request(
         self,
@@ -189,7 +212,9 @@ class AsyncClient:
         # Try HTTP/3 first if enabled
         if use_http3:
             try:
-                return await self._request_h3(method, host, port, path, merged_headers, body)
+                return await self._request_h3(
+                    method, host, port, path, merged_headers, body
+                )
             except Exception:
                 if not self.http3_fallback:
                     raise
@@ -222,6 +247,7 @@ class AsyncClient:
                 timeout=self.timeout,
             )
             from .asyncio_socks5 import socks5_handshake_async
+
             await socks5_handshake_async(writer, reader, proxy_url, host, port)
             # Now perform TLS wrap if needed
             if parsed.scheme == "https":
@@ -253,7 +279,9 @@ class AsyncClient:
                 # After start_tls, reader/writer are already updated; we can get negotiated protocol
                 assert transport is not None  # for type checkers
                 ssl_obj = transport.get_extra_info("ssl_object")
-                negotiated_protocol = ssl_obj.selected_alpn_protocol() if ssl_obj else None
+                negotiated_protocol = (
+                    ssl_obj.selected_alpn_protocol() if ssl_obj else None
+                )
             else:
                 negotiated_protocol = None
         else:
@@ -424,7 +452,7 @@ class AsyncClient:
         force_http3: bool | None = None,
     ) -> Response:
         """
-        Make an async HTTP request with optional retry logic.
+        Make an async HTTP request with optional retry logic and caching.
 
         Args:
             method: HTTP method
@@ -439,6 +467,18 @@ class AsyncClient:
         Returns:
             Response object
         """
+        # Check cache for GET/HEAD requests (only if no request body)
+        if (
+            self._cache
+            and method.upper() in ("GET", "HEAD")
+            and not data
+            and not json
+            and not files
+        ):
+            cached_response = self._cache.get_cached_response(method, url, headers)
+            if cached_response is not None:
+                return cached_response
+
         # Apply rate limiting
         if self._rate_limiter is not None:
             await self._rate_limiter.acquire()
@@ -448,16 +488,26 @@ class AsyncClient:
 
         if self.max_retries <= 0:
             # No retries, call directly
-            return await self._make_request(method, url, headers, data, json, files, proxy, force_http3)
+            response = await self._make_request(
+                method, url, headers, data, json, files, proxy, force_http3
+            )
+        else:
+            # Apply retry decorator
+            retry_decorator = aretry_with_backoff(
+                max_attempts=self.max_retries + 1,  # +1 for initial attempt
+                base_delay=self.retry_base_delay,
+                max_delay=self.retry_max_delay,
+                jitter=self.retry_jitter,
+            )
+            response = await retry_decorator(self._make_request)(
+                method, url, headers, data, json, files, proxy, force_http3
+            )
 
-        # Apply retry decorator
-        retry_decorator = aretry_with_backoff(
-            max_attempts=self.max_retries + 1,  # +1 for initial attempt
-            base_delay=self.retry_base_delay,
-            max_delay=self.retry_max_delay,
-            jitter=self.retry_jitter,
-        )
-        return await retry_decorator(self._make_request)(method, url, headers, data, json, files, proxy, force_http3)
+        # Store in cache if enabled
+        if self._cache:
+            self._cache.cache_response(method, url, headers, response, self._cache_ttl)
+
+        return response
 
     async def _request_h2(
         self,
@@ -642,6 +692,7 @@ class AsyncClient:
                 timeout=self.timeout,
             )
             from .asyncio_socks5 import socks5_handshake_async
+
             await socks5_handshake_async(writer, reader, proxy_url, host, port)
             if parsed.scheme == "https":
                 ssl_ctx = ssl.create_default_context()
@@ -759,6 +810,11 @@ class AsyncClient:
                 pass
         self._h3_protocols.clear()
         self._h3_failed_hosts.clear()
+
+    def clear_cache(self) -> None:
+        """Clear all cached responses."""
+        if self._cache:
+            self._cache.clear()
 
     async def __aenter__(self) -> AsyncClient:
         return self

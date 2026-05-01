@@ -157,7 +157,9 @@ class StreamingResponse:
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
 
-    def iter_lines(self, chunk_size: int | None = None, decode: str = "utf-8") -> Iterator[str]:
+    def iter_lines(
+        self, chunk_size: int | None = None, decode: str = "utf-8"
+    ) -> Iterator[str]:
         """
         Iterate over response body line by line.
 
@@ -370,7 +372,9 @@ class AsyncStreamingResponse:
         if self._auto_decompress and self._content_encoding and buffer:
             yield decode_body(buffer, self._content_encoding)
 
-    async def aiter_lines(self, chunk_size: int | None = None, decode: str = "utf-8") -> AsyncIterator[str]:
+    async def aiter_lines(
+        self, chunk_size: int | None = None, decode: str = "utf-8"
+    ) -> AsyncIterator[str]:
         """
         Async iterate over response body line by line.
 

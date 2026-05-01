@@ -10,6 +10,45 @@ with Client(impersonate="chrome_120") as c:
     print(r.status_code, r.json())
 ```
 
+## Response Caching
+
+Enable HTTP response caching to improve performance for repeated requests:
+
+```python
+from gakido import Client
+
+# Enable file-based caching with default settings
+with Client(cache=True) as c:
+    # First request hits the server
+    r1 = c.get("https://api.example.com/data")
+
+    # Second request served from cache (instant)
+    r2 = c.get("https://api.example.com/data")
+```
+
+### Cache with Custom TTL
+
+```python
+from gakido import Client
+
+# Cache responses for 30 minutes
+with Client(cache=True, cache_ttl=1800) as c:
+    r = c.get("https://api.example.com/data")
+```
+
+### Memory Cache (Non-Persistent)
+
+```python
+from gakido import Client, MemoryCache
+
+# In-memory cache for short-lived scripts (faster than disk)
+cache = MemoryCache(default_ttl=300)
+with Client(cache=cache) as c:
+    r = c.get("https://api.example.com/data")
+```
+
+See [HTTP Response Caching](caching.md) for complete documentation.
+
 ### POST / multipart upload
 
 ```python

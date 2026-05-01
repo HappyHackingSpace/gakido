@@ -7,6 +7,7 @@ from collections.abc import Callable
 
 class RetryError(Exception):
     """Raised when the maximum number of retries is exhausted."""
+
     pass
 
 
@@ -26,6 +27,7 @@ def default_retryable_exceptions() -> set[type[BaseException]]:
 
 class RetryState:
     """State for a single retry attempt."""
+
     def __init__(self, attempt: int, max_attempts: int):
         self.attempt = attempt
         self.max_attempts = max_attempts
@@ -59,10 +61,10 @@ def calculate_backoff_delay(
     Returns:
         Delay in seconds.
     """
-    delay = base_delay * (exponential_base ** attempt)
+    delay = base_delay * (exponential_base**attempt)
     delay = min(delay, max_delay)
     if jitter:
-        delay *= (0.5 + random.random() * 0.5)  # 50% to 100% of full delay
+        delay *= 0.5 + random.random() * 0.5  # 50% to 100% of full delay
     return delay
 
 
@@ -108,11 +110,15 @@ def retry(
                     # If result has a status_code attribute (like Response), check it
                     if hasattr(result, "status_code"):
                         if result.status_code in retryable_status_codes:
-                            raise RetryError(f"Retryable status code: {result.status_code}")
+                            raise RetryError(
+                                f"Retryable status code: {result.status_code}"
+                            )
                     return result
                 except Exception as e:
                     # Filter by exception type
-                    if not any(isinstance(e, exc_type) for exc_type in retryable_exceptions):
+                    if not any(
+                        isinstance(e, exc_type) for exc_type in retryable_exceptions
+                    ):
                         # Special case: our own RetryError for status codes
                         if type(e).__name__ == "RetryError":
                             pass  # treat as retryable
@@ -121,7 +127,9 @@ def retry(
                     last_exception = e
 
                     if state.attempt >= max_attempts - 1:
-                        raise RetryError(f"Max retries ({max_attempts}) exhausted") from last_exception
+                        raise RetryError(
+                            f"Max retries ({max_attempts}) exhausted"
+                        ) from last_exception
 
                     # Calculate delay and sleep
                     delay = calculate_backoff_delay(
@@ -139,6 +147,7 @@ def retry(
                     state = state.next()
 
         return wrapper
+
     return decorator
 
 
@@ -173,11 +182,15 @@ def aretry(
                     # If result has a status_code attribute (like Response), check it
                     if hasattr(result, "status_code"):
                         if result.status_code in retryable_status_codes:
-                            raise RetryError(f"Retryable status code: {result.status_code}")
+                            raise RetryError(
+                                f"Retryable status code: {result.status_code}"
+                            )
                     return result
                 except Exception as e:
                     # Filter by exception type
-                    if not any(isinstance(e, exc_type) for exc_type in retryable_exceptions):
+                    if not any(
+                        isinstance(e, exc_type) for exc_type in retryable_exceptions
+                    ):
                         # Special case: our own RetryError for status codes
                         if type(e).__name__ == "RetryError":
                             pass  # treat as retryable
@@ -186,7 +199,9 @@ def aretry(
                     last_exception = e
 
                     if state.attempt >= max_attempts - 1:
-                        raise RetryError(f"Max retries ({max_attempts}) exhausted") from last_exception
+                        raise RetryError(
+                            f"Max retries ({max_attempts}) exhausted"
+                        ) from last_exception
 
                     # Calculate delay and sleep
                     delay = calculate_backoff_delay(
@@ -204,4 +219,5 @@ def aretry(
                     state = state.next()
 
         return wrapper
+
     return decorator
