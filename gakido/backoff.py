@@ -8,6 +8,7 @@ from collections.abc import Callable
 
 class RetryError(Exception):
     """Raised when the maximum number of retries is exhausted."""
+
     pass
 
 
@@ -21,11 +22,13 @@ def _default_retryable_exceptions() -> set[type[BaseException]]:
     return {ConnectionError, TimeoutError, OSError}
 
 
-def _calculate_delay(attempt: int, base: float, max_delay: float, jitter: bool) -> float:
+def _calculate_delay(
+    attempt: int, base: float, max_delay: float, jitter: bool
+) -> float:
     """Calculate exponential backoff delay with optional jitter."""
-    delay = min(base * (2 ** attempt), max_delay)
+    delay = min(base * (2**attempt), max_delay)
     if jitter:
-        delay *= (0.5 + random.random() * 0.5)  # 50-100% of delay
+        delay *= 0.5 + random.random() * 0.5  # 50-100% of delay
     return delay
 
 
@@ -65,7 +68,10 @@ def retry_with_backoff(
                 try:
                     result = func(*args, **kwargs)
                     # Check for retryable HTTP status codes
-                    if hasattr(result, "status_code") and result.status_code in retryable_status_codes:
+                    if (
+                        hasattr(result, "status_code")
+                        and result.status_code in retryable_status_codes
+                    ):
                         raise RetryError(f"Retryable status code: {result.status_code}")
                     return result
                 except RetryError:
@@ -73,7 +79,9 @@ def retry_with_backoff(
                     last_exc = RetryError("Retryable status code")
                 except Exception as e:
                     # Check if exception is retryable
-                    if not any(isinstance(e, exc_type) for exc_type in retryable_exceptions):
+                    if not any(
+                        isinstance(e, exc_type) for exc_type in retryable_exceptions
+                    ):
                         raise  # Non-retryable, re-raise immediately
                     last_exc = e
 
@@ -88,6 +96,7 @@ def retry_with_backoff(
             raise RetryError(f"Max retries ({max_attempts}) exhausted") from last_exc
 
         return wrapper
+
     return decorator
 
 
@@ -116,7 +125,10 @@ def aretry_with_backoff(
                 try:
                     result = await func(*args, **kwargs)
                     # Check for retryable HTTP status codes
-                    if hasattr(result, "status_code") and result.status_code in retryable_status_codes:
+                    if (
+                        hasattr(result, "status_code")
+                        and result.status_code in retryable_status_codes
+                    ):
                         raise RetryError(f"Retryable status code: {result.status_code}")
                     return result
                 except RetryError:
@@ -124,7 +136,9 @@ def aretry_with_backoff(
                     last_exc = RetryError("Retryable status code")
                 except Exception as e:
                     # Check if exception is retryable
-                    if not any(isinstance(e, exc_type) for exc_type in retryable_exceptions):
+                    if not any(
+                        isinstance(e, exc_type) for exc_type in retryable_exceptions
+                    ):
                         raise  # Non-retryable, re-raise immediately
                     last_exc = e
 
@@ -139,4 +153,5 @@ def aretry_with_backoff(
             raise RetryError(f"Max retries ({max_attempts}) exhausted") from last_exc
 
         return awrapper
+
     return decorator

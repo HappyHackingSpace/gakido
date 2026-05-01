@@ -396,7 +396,9 @@ def rate_limited(
         def wrapper(*args, **kwargs) -> T:
             limiter.acquire()
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -422,5 +424,7 @@ def arate_limited(
         async def wrapper(*args, **kwargs) -> R:
             await limiter.acquire()
             return await func(*args, **kwargs)
+
         return wrapper
+
     return decorator

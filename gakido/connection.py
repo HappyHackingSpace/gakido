@@ -44,7 +44,9 @@ class Connection:
         raw = self._open_tcp()
 
         # Perform SOCKS5 handshake if applicable
-        if self.proxy_url and self.proxy_url.lower().startswith(("socks5://", "socks5h://")):
+        if self.proxy_url and self.proxy_url.lower().startswith(
+            ("socks5://", "socks5h://")
+        ):
             socks5_handshake(raw, self.proxy_url, self.host, self.port)
 
         if self.scheme == "https":
@@ -160,7 +162,9 @@ class Connection:
             raise ConnectionError(f"Send failed: {exc}") from exc
 
         if self.negotiated_protocol == "h2":
-            raise NotImplementedError("Streaming not supported for HTTP/2 in sync client")
+            raise NotImplementedError(
+                "Streaming not supported for HTTP/2 in sync client"
+            )
 
         return self._read_streaming_response(auto_decompress, chunk_size)
 
@@ -346,8 +350,11 @@ class Connection:
 
     def _open_tcp(self) -> socket.socket:
         # If using SOCKS5 proxy, connect to the proxy instead of the target
-        if self.proxy_url and self.proxy_url.lower().startswith(("socks5://", "socks5h://")):
+        if self.proxy_url and self.proxy_url.lower().startswith(
+            ("socks5://", "socks5h://")
+        ):
             from .socks5 import _parse_socks5_url
+
             proxy_host, proxy_port, _, _ = _parse_socks5_url(self.proxy_url)
             target_host, target_port = proxy_host, proxy_port
         else:

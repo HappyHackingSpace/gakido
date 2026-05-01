@@ -19,7 +19,9 @@ def _parse_socks5_url(url: str) -> tuple[str, int, str | None, str | None]:
     return host, port, username, password
 
 
-def _socks5_greeting(sock: socket.socket, username: str | None, password: str | None) -> None:
+def _socks5_greeting(
+    sock: socket.socket, username: str | None, password: str | None
+) -> None:
     """Send SOCKS5 greeting and choose auth method."""
     if username is not None:
         # Offer username/password auth (0x02) and no auth (0x00)
@@ -36,19 +38,30 @@ def _socks5_greeting(sock: socket.socket, username: str | None, password: str | 
         return
     elif method == 0x02:
         if username is None:
-            raise ConnectionError("Server requested username/password auth but none provided")
+            raise ConnectionError(
+                "Server requested username/password auth but none provided"
+            )
         _socks5_username_password_auth(sock, username, password or "")
     elif method == 0xFF:
         raise ConnectionError("SOCKS5 server rejected all auth methods")
     else:
-        raise ConnectionError(f"SOCKS5 server selected unsupported auth method: {method}")
+        raise ConnectionError(
+            f"SOCKS5 server selected unsupported auth method: {method}"
+        )
 
 
-def _socks5_username_password_auth(sock: socket.socket, username: str, password: str) -> None:
+def _socks5_username_password_auth(
+    sock: socket.socket, username: str, password: str
+) -> None:
     """Perform SOCKS5 username/password authentication (RFC 1929)."""
     user_bytes = username.encode("utf-8")
     pass_bytes = password.encode("utf-8")
-    request = bytes([0x01, len(user_bytes)]) + user_bytes + bytes([len(pass_bytes)]) + pass_bytes
+    request = (
+        bytes([0x01, len(user_bytes)])
+        + user_bytes
+        + bytes([len(pass_bytes)])
+        + pass_bytes
+    )
     sock.sendall(request)
     response = sock.recv(2)
     if len(response) != 2 or response[0] != 0x01:
@@ -77,7 +90,12 @@ def _socks5_connect(
         # Resolve to IP and use IPv4/IPv6 address type
         try:
             # getaddrinfo returns IPv4/IPv6; we prefer IPv4 for simplicity
-            infos = socket.getaddrinfo(target_host, target_port, family=socket.AF_INET, proto=socket.IPPROTO_TCP)
+            infos = socket.getaddrinfo(
+                target_host,
+                target_port,
+                family=socket.AF_INET,
+                proto=socket.IPPROTO_TCP,
+            )
         except socket.gaierror as exc:
             raise ConnectionError(f"Failed to resolve {target_host}: {exc}") from exc
         if not infos:

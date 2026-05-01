@@ -5,7 +5,9 @@ import struct
 import urllib.parse
 
 
-async def _socks5_greeting(writer, reader, username: str | None, password: str | None) -> None:
+async def _socks5_greeting(
+    writer, reader, username: str | None, password: str | None
+) -> None:
     """Send SOCKS5 greeting and choose auth method."""
     if username is not None:
         writer.write(b"\x05\x02\x00\x02")
@@ -20,19 +22,30 @@ async def _socks5_greeting(writer, reader, username: str | None, password: str |
         return
     elif method == 0x02:
         if username is None:
-            raise ConnectionError("Server requested username/password auth but none provided")
+            raise ConnectionError(
+                "Server requested username/password auth but none provided"
+            )
         await _socks5_username_password_auth(writer, reader, username, password or "")
     elif method == 0xFF:
         raise ConnectionError("SOCKS5 server rejected all auth methods")
     else:
-        raise ConnectionError(f"SOCKS5 server selected unsupported auth method: {method}")
+        raise ConnectionError(
+            f"SOCKS5 server selected unsupported auth method: {method}"
+        )
 
 
-async def _socks5_username_password_auth(writer, reader, username: str, password: str) -> None:
+async def _socks5_username_password_auth(
+    writer, reader, username: str, password: str
+) -> None:
     """Perform SOCKS5 username/password authentication (RFC 1929)."""
     user_bytes = username.encode("utf-8")
     pass_bytes = password.encode("utf-8")
-    request = bytes([0x01, len(user_bytes)]) + user_bytes + bytes([len(pass_bytes)]) + pass_bytes
+    request = (
+        bytes([0x01, len(user_bytes)])
+        + user_bytes
+        + bytes([len(pass_bytes)])
+        + pass_bytes
+    )
     writer.write(request)
     await writer.drain()
     response = await reader.readexactly(2)
@@ -55,7 +68,12 @@ async def _socks5_connect(
     if not resolve_hostname:
         # Resolve to IP and use IPv4/IPv6 address type
         try:
-            infos = socket.getaddrinfo(target_host, target_port, family=socket.AF_INET, proto=socket.IPPROTO_TCP)
+            infos = socket.getaddrinfo(
+                target_host,
+                target_port,
+                family=socket.AF_INET,
+                proto=socket.IPPROTO_TCP,
+            )
         except socket.gaierror as exc:
             raise ConnectionError(f"Failed to resolve {target_host}: {exc}") from exc
         if not infos:
@@ -142,4 +160,6 @@ async def socks5_handshake_async(
     await _socks5_greeting(writer, reader, username, password)
     # Connect request
     resolve_hostname = proxy_url.startswith("socks5h://")
-    await _socks5_connect(writer, reader, target_host, target_port, resolve_hostname=resolve_hostname)
+    await _socks5_connect(
+        writer, reader, target_host, target_port, resolve_hostname=resolve_hostname
+    )

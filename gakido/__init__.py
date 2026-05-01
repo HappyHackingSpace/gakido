@@ -21,6 +21,12 @@ from gakido.rate_limit import (
     rate_limited,
     arate_limited,
 )
+from gakido.cache import (
+    CacheBackend,
+    MemoryCache,
+    FileCache,
+    CacheController,
+)
 
 __all__ = [
     "Client",
@@ -42,4 +48,8 @@ __all__ = [
     "AsyncPerHostRateLimiter",
     "rate_limited",
     "arate_limited",
+    "CacheBackend",
+    "MemoryCache",
+    "FileCache",
+    "CacheController",
 ]
