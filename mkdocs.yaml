@@ -37,7 +37,7 @@ theme:
 
 markdown_extensions:
   - pymdownx.highlight:
-      anchor_linenums: true
+      anchor_linenums: false
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.tabbed:
@@ -68,7 +68,6 @@ nav:
   - API Reference: api.md
   - Development:
     - Contributing: contributing.md
-    - Changelog: changelog.md
 
 extra:
   social:
