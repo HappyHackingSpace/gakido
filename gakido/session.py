@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 
 from .client import Client
 from .aio import AsyncClient
@@ -9,18 +10,34 @@ from .models import Response
 
 class Session:
     """
-    Simple session that persists cookies per host across requests.
+    Simple session that persists cookies per host across requests
+    with optional file persistence.
 
     Args:
         auto_referer: Automatically set Referer header based on previous request URL (default: True)
+        cookie_file: Optional path to JSON file for persistent cookie storage.
+                     Cookies are loaded on creation and can be saved with save_cookies().
         **client_kwargs: Arguments passed to the underlying Client
+
+    Example:
+        # With persistent cookies
+        with Session(cookie_file="~/.gakido/cookies.json") as session:
+            r = session.get("https://example.com/login")
+            # Cookies automatically saved and loaded
+
+        # Manual save/load
+        session = Session()
+        r = session.get("https://example.com/login")
+        session.save_cookies("cookies.json")
+        session.load_cookies("cookies.json")
     """
 
-    def __init__(self, auto_referer: bool = True, **client_kwargs) -> None:
+    def __init__(self, auto_referer: bool = True, cookie_file: str | Path | None = None, **client_kwargs) -> None:
         self.client = Client(**client_kwargs)
-        self.cookies = CookieJar()
+        self.cookies = CookieJar(cookie_file=cookie_file)
         self.auto_referer = auto_referer
         self._last_url: str | None = None
+        self._cookie_file: str | Path | None = cookie_file
 
     def request(
         self, method: str, url: str, headers: dict[str, str] | None = None, **kwargs
@@ -60,6 +77,28 @@ class Session:
     ) -> Response:
         return self.request("POST", url, headers=headers, data=data, **kwargs)
 
+    def save_cookies(self, cookie_file: str | Path | None = None) -> None:
+        """Save cookies to JSON file.
+
+        Args:
+            cookie_file: Path to save cookies. Uses the file from constructor
+                        if not specified.
+        """
+        self.cookies.save_cookies(cookie_file)
+
+    def load_cookies(self, cookie_file: str | Path | None = None) -> None:
+        """Load cookies from JSON file.
+
+        Args:
+            cookie_file: Path to load cookies from. Uses the file from constructor
+                        if not specified.
+        """
+        self.cookies.load_cookies(cookie_file)
+
+    def clear_cookies(self) -> None:
+        """Clear all cookies from memory and persistent storage."""
+        self.cookies.clear_cookies()
+
     def close(self) -> None:
         self.client.close()
 
@@ -72,18 +111,28 @@ class Session:
 
 class AsyncSession:
     """
-    Async session that persists cookies per host across requests.
+    Async session that persists cookies per host across requests
+    with optional file persistence.
 
     Args:
         auto_referer: Automatically set Referer header based on previous request URL (default: True)
+        cookie_file: Optional path to JSON file for persistent cookie storage.
+                     Cookies are loaded on creation and can be saved with save_cookies().
         **client_kwargs: Arguments passed to the underlying AsyncClient
+
+    Example:
+        # With persistent cookies
+        async with AsyncSession(cookie_file="~/.gakido/cookies.json") as session:
+            r = await session.get("https://example.com/login")
+            # Cookies automatically saved and loaded
     """
 
-    def __init__(self, auto_referer: bool = True, **client_kwargs) -> None:
+    def __init__(self, auto_referer: bool = True, cookie_file: str | Path | None = None, **client_kwargs) -> None:
         self.client = AsyncClient(**client_kwargs)
-        self.cookies = CookieJar()
+        self.cookies = CookieJar(cookie_file=cookie_file)
         self.auto_referer = auto_referer
         self._last_url: str | None = None
+        self._cookie_file: str | Path | None = cookie_file
 
     async def request(
         self, method: str, url: str, headers: dict[str, str] | None = None, **kwargs
@@ -121,6 +170,28 @@ class AsyncSession:
         **kwargs,
     ) -> Response:
         return await self.request("POST", url, headers=headers, data=data, **kwargs)
+
+    def save_cookies(self, cookie_file: str | Path | None = None) -> None:
+        """Save cookies to JSON file.
+
+        Args:
+            cookie_file: Path to save cookies. Uses the file from constructor
+                        if not specified.
+        """
+        self.cookies.save_cookies(cookie_file)
+
+    def load_cookies(self, cookie_file: str | Path | None = None) -> None:
+        """Load cookies from JSON file.
+
+        Args:
+            cookie_file: Path to load cookies from. Uses the file from constructor
+                        if not specified.
+        """
+        self.cookies.load_cookies(cookie_file)
+
+    def clear_cookies(self) -> None:
+        """Clear all cookies from memory and persistent storage."""
+        self.cookies.clear_cookies()
 
     async def close(self) -> None:
         await self.client.close()
