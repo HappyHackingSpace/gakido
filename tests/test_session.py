@@ -44,8 +44,10 @@ class TestSession:
         mock_client_class.return_value = mock_client
 
         session = Session()
-        # Pre-set a cookie
-        session.cookies.store["example.com"] = {"session": "abc123"}
+        # Pre-set a cookie with metadata format
+        session.cookies.store["example.com"] = {
+            "session": {"value": "abc123", "path": "/", "expires": None}
+        }
 
         session.request("GET", "https://example.com/path")
 
@@ -156,8 +158,10 @@ class TestSession:
         mock_client_class.return_value = mock_client
 
         session = Session()
-        # Pre-set a cookie in jar
-        session.cookies.store["example.com"] = {"session": "from_jar"}
+        # Pre-set a cookie in jar with metadata format
+        session.cookies.store["example.com"] = {
+            "session": {"value": "from_jar", "path": "/", "expires": None}
+        }
 
         # But provide our own Cookie header
         session.request("GET", "https://example.com/path", headers={"Cookie": "user_cookie=value"})

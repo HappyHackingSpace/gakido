@@ -10,6 +10,25 @@ with Client(impersonate="chrome_120") as c:
     print(r.status_code, r.json())
 ```
 
+## Cookie Persistence
+
+Use `Session` for automatic cookie handling across requests with optional file persistence:
+
+```python
+from gakido import Session
+
+# Persistent cookies across program restarts
+with Session(cookie_file="~/.gakido/cookies.json") as session:
+    # Login
+    r = session.post("https://httpbin.org/post", json={"user": "john"})
+
+    # Subsequent requests include cookies
+    r = session.get("https://httpbin.org/cookies")
+    print(r.json())
+```
+
+See [Cookie Persistence](cookies.md) for complete documentation.
+
 ## Response Caching
 
 Enable HTTP response caching to improve performance for repeated requests:
