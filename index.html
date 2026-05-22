@@ -268,6 +268,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="cookies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Cookie Persistence
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="caching/" class="md-tabs__link">
         
   
@@ -552,6 +571,33 @@
   
   
     <li class="md-nav__item">
+      <a href="cookies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookie Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="caching/" class="md-nav__link">
         
   
@@ -702,10 +748,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -723,8 +769,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -861,7 +907,7 @@
 <h1 id="gakido">Gakido<a class="headerlink" href="#gakido" title="Permanent link">&para;</a></h1>
 <p>High-performance CPython HTTP client with browser impersonation, HTTP/2, optional native fast-path, async support, and WebSockets.</p>
 <h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://example.com&quot;</span><span class="p">)</span>
@@ -874,6 +920,7 @@
 <li>JA3/Akamai-like overrides via <code>tls_configuration_options</code></li>
 <li>HTTP/1.1 and HTTP/2 (ALPN) plus optional native HTTP fast-path</li>
 <li>Async client</li>
+<li><a href="cookies/">Cookie persistence</a> with JSON file storage</li>
 <li><a href="caching/">HTTP response caching</a> with Cache-Control, ETag, Last-Modified support</li>
 <li><a href="streaming/">Streaming responses</a> for large downloads</li>
 <li>Multipart uploads</li>

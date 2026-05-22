@@ -264,6 +264,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../cookies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Cookie Persistence
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="../caching/" class="md-tabs__link">
         
   
@@ -479,6 +498,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../cookies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookie Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../caching/" class="md-nav__link">
         
   
@@ -629,10 +675,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -650,8 +696,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1143,7 +1189,7 @@
 <h1 id="browser-profiles">Browser Profiles<a class="headerlink" href="#browser-profiles" title="Permanent link">&para;</a></h1>
 <p>Gakido includes <strong>24 base browser profiles</strong> with <strong>72 aliases</strong> for a total of <strong>96 available profile names</strong>.</p>
 <h2 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="c1"># Use any profile by name</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">)</span>
@@ -1593,7 +1639,7 @@ edge140, edge144, edge144_windows → edge_144
 </table>
 <hr />
 <h2 id="accessing-profile-data">Accessing Profile Data<a class="headerlink" href="#accessing-profile-data" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">PROFILES</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">PROFILES</span>
 
 <span class="c1"># Get a specific profile</span>
 <span class="n">profile</span> <span class="o">=</span> <span class="n">get_profile</span><span class="p">(</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">)</span>

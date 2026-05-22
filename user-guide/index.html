@@ -18,7 +18,7 @@
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../caching/">
+        <link rel="next" href="../cookies/">
       
       
         
@@ -258,6 +258,25 @@
     
   
   User Guide
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../cookies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Cookie Persistence
 
       </a>
     </li>
@@ -529,6 +548,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cookie-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cookie Persistence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#response-caching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -770,6 +800,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../cookies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookie Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../caching/" class="md-nav__link">
         
   
@@ -920,10 +977,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -941,8 +998,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1018,6 +1075,17 @@
     <span class="md-ellipsis">
       
         Sync client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cookie-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cookie Persistence
       
     </span>
   </a>
@@ -1294,15 +1362,29 @@
 
 <h1 id="user-guide">User Guide<a class="headerlink" href="#user-guide" title="Permanent link">&para;</a></h1>
 <h2 id="sync-client">Sync client<a class="headerlink" href="#sync-client" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/get&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Accept-Encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;identity&quot;</span><span class="p">})</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 </code></pre></div>
+<h2 id="cookie-persistence">Cookie Persistence<a class="headerlink" href="#cookie-persistence" title="Permanent link">&para;</a></h2>
+<p>Use <code>Session</code> for automatic cookie handling across requests with optional file persistence:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+
+<span class="c1"># Persistent cookies across program restarts</span>
+<span class="k">with</span> <span class="n">Session</span><span class="p">(</span><span class="n">cookie_file</span><span class="o">=</span><span class="s2">&quot;~/.gakido/cookies.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+    <span class="c1"># Login</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/post&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">})</span>
+
+    <span class="c1"># Subsequent requests include cookies</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/cookies&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</code></pre></div>
+<p>See <a href="../cookies/">Cookie Persistence</a> for complete documentation.</p>
 <h2 id="response-caching">Response Caching<a class="headerlink" href="#response-caching" title="Permanent link">&para;</a></h2>
 <p>Enable HTTP response caching to improve performance for repeated requests:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="c1"># Enable file-based caching with default settings</span>
 <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
@@ -1313,14 +1395,14 @@
     <span class="n">r2</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="cache-with-custom-ttl">Cache with Custom TTL<a class="headerlink" href="#cache-with-custom-ttl" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="c1"># Cache responses for 30 minutes</span>
 <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="o">=</span><span class="mi">1800</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="memory-cache-non-persistent">Memory Cache (Non-Persistent)<a class="headerlink" href="#memory-cache-non-persistent" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">MemoryCache</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">MemoryCache</span>
 
 <span class="c1"># In-memory cache for short-lived scripts (faster than disk)</span>
 <span class="n">cache</span> <span class="o">=</span> <span class="n">MemoryCache</span><span class="p">(</span><span class="n">default_ttl</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
@@ -1336,10 +1418,10 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="async-client">Async client<a class="headerlink" href="#async-client" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">gakido.aio</span> <span class="kn">import</span> <span class="n">AsyncClient</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gakido.aio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncClient</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncClient</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
         <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://httpbin.org/get&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
@@ -1347,7 +1429,7 @@
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="profiles-impersonation">Profiles &amp; impersonation<a class="headerlink" href="#profiles-impersonation" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;firefox_133&quot;</span><span class="p">)</span>
 <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://tls.browserleaks.com/json&quot;</span><span class="p">)</span>
@@ -1355,8 +1437,8 @@
 </code></pre></div>
 <h2 id="client-hints-fingerprints">Client Hints &amp; Fingerprints<a class="headerlink" href="#client-hints-fingerprints" title="Permanent link">&para;</a></h2>
 <p>Chrome and Edge profiles automatically include Sec-CH-UA client hints for better impersonation:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
-<span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">get_client_hints_headers</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_profile</span><span class="p">,</span> <span class="n">get_client_hints_headers</span>
 
 <span class="c1"># Client hints are sent automatically</span>
 <span class="k">with</span> <span class="n">Client</span><span class="p">(</span><span class="n">impersonate</span><span class="o">=</span><span class="s2">&quot;chrome_120&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
@@ -1370,13 +1452,13 @@
 <span class="c1"># {&#39;Sec-CH-UA&#39;: &#39;&quot;Not_A Brand&quot;;v=&quot;8&quot;, ...&#39;, &#39;Sec-CH-UA-Platform&#39;: &#39;&quot;macOS&quot;&#39;, ...}</span>
 
 <span class="c1"># Access Canvas/WebGL fingerprint</span>
-<span class="kn">from</span> <span class="nn">gakido.impersonation</span> <span class="kn">import</span> <span class="n">get_canvas_webgl_fingerprint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gakido.impersonation</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_canvas_webgl_fingerprint</span>
 <span class="n">fp</span> <span class="o">=</span> <span class="n">get_canvas_webgl_fingerprint</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">fp</span><span class="p">[</span><span class="s2">&quot;webgl_renderer&quot;</span><span class="p">])</span>  <span class="c1"># &quot;ANGLE (Apple, ANGLE Metal Renderer: ...)&quot;</span>
 </code></pre></div>
 <p>See <a href="../client-hints/">Client Hints &amp; Browser Fingerprints</a> for full documentation.</p>
 <h2 id="tls-overrides-ja3akamai-style">TLS overrides (JA3/Akamai style)<a class="headerlink" href="#tls-overrides-ja3akamai-style" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">ExtraFingerprints</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">ExtraFingerprints</span>
 
 <span class="n">ja3_str</span> <span class="o">=</span> <span class="s2">&quot;771,4866-4867-4865-49196,0-11-10,29,0&quot;</span>
 <span class="n">extra_fp</span> <span class="o">=</span> <span class="n">ExtraFingerprints</span><span class="p">(</span><span class="n">alpn</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;http/1.1&quot;</span><span class="p">])</span>
@@ -1392,7 +1474,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="websocket">WebSocket<a class="headerlink" href="#websocket" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.websocket</span> <span class="kn">import</span> <span class="n">WebSocket</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.websocket</span><span class="w"> </span><span class="kn">import</span> <span class="n">WebSocket</span>
 
 <span class="n">ws</span> <span class="o">=</span> <span class="n">WebSocket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;echo.websocket.events&quot;</span><span class="p">,</span> <span class="mi">443</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">[],</span> <span class="n">tls</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">ws</span><span class="o">.</span><span class="n">send_text</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
@@ -1403,7 +1485,7 @@
 <h2 id="compression">Compression<a class="headerlink" href="#compression" title="Permanent link">&para;</a></h2>
 <p>Gakido automatically handles response compression using profile-based content negotiation.</p>
 <h3 id="default-behavior-auto_decompresstrue">Default Behavior (auto_decompress=True)<a class="headerlink" href="#default-behavior-auto_decompresstrue" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="c1"># Uses profile&#39;s Accept-Encoding: &quot;gzip, deflate, br&quot;</span>
 <span class="c1"># Automatically decompresses responses</span>
@@ -1412,7 +1494,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>  <span class="c1"># Already decompressed</span>
 </code></pre></div>
 <h3 id="disable-compression">Disable Compression<a class="headerlink" href="#disable-compression" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="c1"># Sends Accept-Encoding: identity</span>
 <span class="c1"># Returns raw, uncompressed responses</span>
@@ -1421,7 +1503,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># Raw bytes</span>
 </code></pre></div>
 <h3 id="custom-accept-encoding">Custom Accept-Encoding<a class="headerlink" href="#custom-accept-encoding" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="c1"># Override Accept-Encoding per request</span>
 <span class="k">with</span> <span class="n">Client</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
@@ -1439,10 +1521,10 @@
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>gakido<span class="o">[</span>h3<span class="o">]</span>
 </code></pre></div>
 <h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">AsyncClient</span><span class="p">,</span> <span class="n">is_http3_available</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncClient</span><span class="p">,</span> <span class="n">is_http3_available</span>
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="c1"># Check if HTTP/3 is available</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_http3_available</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Install HTTP/3 support: pip install gakido[h3]&quot;</span><span class="p">)</span>

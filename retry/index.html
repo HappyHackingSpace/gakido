@@ -268,6 +268,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../cookies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Cookie Persistence
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="../caching/" class="md-tabs__link">
         
   
@@ -466,6 +485,33 @@
     
   
     User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookie Persistence
   
 
     
@@ -865,10 +911,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -886,8 +932,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1194,7 +1240,7 @@
 </ul>
 <h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
 <h3 id="sync-client">Sync Client<a class="headerlink" href="#sync-client" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
     <span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>           <span class="c1"># Up to 3 retry attempts (4 total attempts)</span>
@@ -1210,7 +1256,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed after retries: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="async-client">Async Client<a class="headerlink" href="#async-client" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido</span> <span class="kn">import</span> <span class="n">AsyncClient</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncClient</span>
 
 <span class="n">async_client</span> <span class="o">=</span> <span class="n">AsyncClient</span><span class="p">(</span>
     <span class="n">max_retries</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -1279,17 +1325,17 @@
 - <code>OSError</code> - Operating system level errors</p>
 <h2 id="using-retry-decorators-directly">Using Retry Decorators Directly<a class="headerlink" href="#using-retry-decorators-directly" title="Permanent link">&para;</a></h2>
 <p>You can also use the retry decorators directly on your own functions:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">gakido.backoff</span> <span class="kn">import</span> <span class="n">retry_with_backoff</span><span class="p">,</span> <span class="n">aretry_with_backoff</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">gakido.backoff</span><span class="w"> </span><span class="kn">import</span> <span class="n">retry_with_backoff</span><span class="p">,</span> <span class="n">aretry_with_backoff</span>
 
 <span class="c1"># Sync decorator</span>
 <span class="nd">@retry_with_backoff</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">base_delay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">jitter</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">flaky_operation</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">flaky_operation</span><span class="p">():</span>
     <span class="c1"># Your code here that might fail</span>
     <span class="k">pass</span>
 
 <span class="c1"># Async decorator</span>
 <span class="nd">@aretry_with_backoff</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">base_delay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">jitter</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">async_flaky_operation</span><span class="p">():</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_flaky_operation</span><span class="p">():</span>
     <span class="c1"># Your async code here that might fail</span>
     <span class="k">pass</span>
 </code></pre></div>

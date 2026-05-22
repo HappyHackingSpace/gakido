@@ -264,6 +264,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../cookies/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Cookie Persistence
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="../caching/" class="md-tabs__link">
         
   
@@ -479,6 +498,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../cookies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookie Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../caching/" class="md-nav__link">
         
   
@@ -629,10 +675,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -650,8 +696,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1329,8 +1375,8 @@ Overall success rate: 100.0%
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="programmatic-usage">Programmatic Usage<a class="headerlink" href="#programmatic-usage" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">examples.antibot_benchmark</span> <span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">AsyncAntibotBenchmark</span>
-<span class="kn">import</span> <span class="nn">asyncio</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">examples.antibot_benchmark</span><span class="w"> </span><span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">AsyncAntibotBenchmark</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 
 <span class="c1"># Sync benchmark</span>
 <span class="n">benchmark</span> <span class="o">=</span> <span class="n">AntibotBenchmark</span><span class="p">(</span>
@@ -1349,7 +1395,7 @@ Overall success rate: 100.0%
 <span class="n">benchmark</span><span class="o">.</span><span class="n">save_report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="s2">&quot;results.json&quot;</span><span class="p">)</span>
 
 <span class="c1"># Async benchmark</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">run_async</span><span class="p">():</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_async</span><span class="p">():</span>
     <span class="n">benchmark</span> <span class="o">=</span> <span class="n">AsyncAntibotBenchmark</span><span class="p">(</span>
         <span class="n">profiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chrome_144&quot;</span><span class="p">,</span> <span class="s2">&quot;firefox_147&quot;</span><span class="p">],</span>
         <span class="n">timeout</span><span class="o">=</span><span class="mf">15.0</span><span class="p">,</span>
@@ -1360,7 +1406,7 @@ Overall success rate: 100.0%
 </code></pre></div>
 <h2 id="adding-custom-endpoints">Adding Custom Endpoints<a class="headerlink" href="#adding-custom-endpoints" title="Permanent link">&para;</a></h2>
 <p>You can extend the benchmark by adding custom endpoints:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">examples.antibot_benchmark</span> <span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">BOT_DETECTION_ENDPOINTS</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">examples.antibot_benchmark</span><span class="w"> </span><span class="kn">import</span> <span class="n">AntibotBenchmark</span><span class="p">,</span> <span class="n">BOT_DETECTION_ENDPOINTS</span>
 
 <span class="c1"># Add custom endpoint</span>
 <span class="n">BOT_DETECTION_ENDPOINTS</span><span class="p">[</span><span class="s2">&quot;my_endpoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
