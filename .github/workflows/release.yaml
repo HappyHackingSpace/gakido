@@ -15,7 +15,7 @@ jobs:
     outputs:
       new_tag: ${{ steps.version.outputs.new_tag }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -105,7 +105,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.release.outputs.new_tag || github.ref }}
 
@@ -139,7 +139,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.release.outputs.new_tag || github.ref }}
 
