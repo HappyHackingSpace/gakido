@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gakido"
-version = "0.1.5"
+version = "0.2.0"
 description = "High-performance CPython HTTP client with browser impersonation."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -45,11 +45,9 @@ dev = [
 [tool.setuptools]
 packages = {find = {include = ["gakido*"]}}
 
-[tool.cibuildwheel]
-# Build for Python 3.11+
-build = "cp311-* cp312-* cp313-*"
-# Skip 32-bit builds and musl
-skip = "*-win32 *-manylinux_i686 *-musllinux_*"
+[tool.setuptools.package-data]
+# Bundle the native TLS backend shared library when it has been built.
+gakido = ["_native/*.so", "_native/*.dylib", "_native/*.dll"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -59,8 +57,6 @@ addopts = "-v --tb=short --cov=gakido --cov-report=term-missing --cov-fail-under
 [tool.coverage.run]
 source = ["gakido"]
 omit = [
-    "gakido/core.c",
-    "gakido/gakido_core*",
     "examples/*",
 ]
 
