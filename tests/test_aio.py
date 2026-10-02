@@ -607,7 +607,7 @@ class TestAsyncClientHTTPS:
         ])
         mock_reader.read = AsyncMock(return_value=b"")
 
-        client = AsyncClient()
+        client = AsyncClient(tls_backend="stdlib")
         await client.request("GET", "https://example.com")
 
         mock_ssl_ctx.assert_called()
@@ -641,7 +641,7 @@ class TestAsyncClientHTTPS:
         ])
         mock_reader.read = AsyncMock(return_value=b"")
 
-        client = AsyncClient(verify=False)
+        client = AsyncClient(verify=False, tls_backend="stdlib")
         await client.request("GET", "https://example.com")
 
         assert mock_ctx.check_hostname is False

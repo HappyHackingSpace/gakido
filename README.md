@@ -4,6 +4,7 @@ High-performance CPython HTTP client focused on browser impersonation, anti-bot 
 
 ### Features
 - Browser profiles (Chrome/Firefox/Safari/Edge/Tor aliases)
+- **Native TLS backend (Go + uTLS)** for byte-accurate browser JA3/JA4 ClientHello and HTTP/2 fingerprints — the pure-Python `ssl` path cannot reproduce these
 - JA3/Akamai-style TLS overrides (`tls_configuration_options`, `ExtraFingerprints`)
 - HTTP/1.1, HTTP/2, and **HTTP/3 (QUIC)** support
 - HTTP/3 optimized for Cloudflare and CDN targets
@@ -76,6 +77,45 @@ c = Client(
 r = c.get("https://tls.browserleaks.com/json")
 print(r.json().get("ja3_hash"))
 ```
+
+### Native TLS backend (browser-accurate JA3/JA4)
+
+Python's stdlib `ssl` cannot reproduce a browser's TLS ClientHello, so on the
+pure-Python path JA3/JA4 look like Python-OpenSSL and are easily flagged. The
+optional native backend (Go + [uTLS](https://github.com/refraction-networking/utls),
+via [tls-client](https://github.com/bogdanfinn/tls-client)) produces a
+byte-accurate ClientHello **and** HTTP/2 fingerprint for the impersonated
+profile.
+
+Build the shared library once (requires Go):
+
+```bash
+make -C native build        # outputs gakido/_native/libgakido_tls.{dylib,so,dll}
+```
+
+Then it is used automatically:
+
+```python
+from gakido import Client
+
+# tls_backend="auto" (default): native when built, else pure-Python fallback.
+c = Client(impersonate="chrome_120")              # auto
+c = Client(impersonate="chrome_120", tls_backend="native")   # require native
+c = Client(impersonate="chrome_120", tls_backend="stdlib")   # force pure-Python
+
+r = c.get("https://tls.peet.ws/api/all")
+print(r.json()["tls"]["ja4"])                     # matches real Chrome
+```
+
+Verified for `chrome_120` against `tls.peet.ws`:
+
+| | gakido (native) | real Chrome 120 |
+| --- | --- | --- |
+| JA4 | `t13d1516h2_8daaf6152771_02713d6af862` | `t13d1516h2_8daaf6152771_02713d6af862` |
+| Akamai | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` |
+
+The backend is optional: when the library is not built, `tls_backend="auto"`
+transparently falls back to the pure-Python path. Prebuilt wheels are planned.
 
 ### WebSocket
 ```python

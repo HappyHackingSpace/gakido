@@ -101,7 +101,7 @@ class TestClientRequest:
         mock_pool.return_value.acquire.return_value = mock_conn
 
         # Use https to bypass native code path, or use_native=False
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         resp = client.request("GET", "https://example.com/path")
 
         assert resp.status_code == 200
@@ -120,7 +120,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("POST", "https://example.com", data={"key": "value"})
 
         # Verify body was form-encoded
@@ -142,7 +142,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("POST", "https://example.com", data=b"raw bytes")
 
         mock_conn.request.assert_called()
@@ -161,7 +161,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("POST", "https://example.com", data="string data")
 
         mock_conn.request.assert_called()
@@ -176,7 +176,7 @@ class TestClientRequest:
         }
         mock_pool.return_value.acquire.return_value = MagicMock()
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         with pytest.raises(TypeError, match="Unsupported data type"):
             client.request("POST", "https://example.com", data=12345)
 
@@ -196,7 +196,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("POST", "https://example.com", files={"file": b"content"})
 
         mock_build_multipart.assert_called()
@@ -215,7 +215,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("POST", "https://example.com")
 
         call_args = mock_conn.request.call_args[0]
@@ -235,7 +235,7 @@ class TestClientRequest:
         mock_conn.request.side_effect = Exception("connection error")
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         with pytest.raises(Exception, match="connection error"):
             client.request("GET", "https://example.com")
 
@@ -255,7 +255,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("GET", "https://example.com")
 
         mock_pool.return_value.release.assert_called_once_with(mock_conn)
@@ -328,7 +328,7 @@ class TestClientMethods:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.get("https://example.com")
 
         mock_conn.request.assert_called()
@@ -349,7 +349,7 @@ class TestClientMethods:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.post("https://example.com", data={"key": "value"})
 
         mock_conn.request.assert_called()
@@ -419,7 +419,7 @@ class TestClientProxy:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("GET", "http://example.com/path", proxy="http://proxy:8080")
 
         call_args = mock_conn.request.call_args[0]
@@ -440,7 +440,7 @@ class TestClientProxy:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("GET", "http://example.com", proxy="socks5://user:pass@proxy:1080")
 
         # Verify pool was acquired with proxy_url
@@ -461,7 +461,7 @@ class TestClientProxy:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, proxies=["http://proxy1:8080", "http://proxy2:8080"])
+        client = Client(use_native=False, tls_backend="stdlib", proxies=["http://proxy1:8080", "http://proxy2:8080"])
         client.request("GET", "http://example.com")
 
         # Verify pool was acquired with proxy host/port
@@ -487,7 +487,7 @@ class TestClientHeaders:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("GET", "https://example.com")
 
         call_args = mock_conn.request.call_args[0]
@@ -509,7 +509,7 @@ class TestClientHeaders:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False)
+        client = Client(use_native=False, tls_backend="stdlib")
         client.request("GET", "https://example.com", headers={"X-Custom": "value"})
 
         call_args = mock_conn.request.call_args[0]

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json as json_lib
 import ssl
 import urllib.parse
@@ -10,6 +11,7 @@ import h2.config
 import h2.connection
 import h2.events
 
+from gakido.client import _resolve_tls_backend
 from gakido.compression import decode_body, get_accept_encoding
 from gakido.errors import ProtocolError
 from gakido.headers import canonicalize_headers
@@ -46,6 +48,11 @@ class AsyncClient:
         tls_configuration_options: Custom TLS options
         force_http1: Force HTTP/1.1 only (default: False, so ALPN negotiates h2
             like a real browser; set True to restrict to HTTP/1.1)
+        tls_backend: TLS backend for HTTPS requests. "auto" (default) uses the
+            native Go + uTLS backend for a browser-accurate JA3/JA4 ClientHello
+            when its shared library is built, otherwise falls back to the
+            pure-Python path; "native" requires it; "stdlib" never uses it.
+            Does not apply to HTTP/3 requests.
         http3: Enable HTTP/3 for compatible targets (default: False)
         http3_fallback: Fall back to HTTP/1.1 or HTTP/2 if HTTP/3 fails (default: True)
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
@@ -67,6 +74,7 @@ class AsyncClient:
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
         force_http1: bool = False,
+        tls_backend: str = "auto",
         http3: bool = False,
         http3_fallback: bool = True,
         auto_decompress: bool = True,
@@ -90,6 +98,9 @@ class AsyncClient:
         self.profile = apply_ja3_overrides(profile, ja3)
         self.timeout = timeout
         self.verify = verify
+        self.force_http1 = force_http1
+        self.tls_backend = tls_backend
+        self._native_tls = _resolve_tls_backend(tls_backend)
         self.proxy_pool = list(proxy_pool) if proxy_pool else []
         self.auto_decompress = auto_decompress
         # Retry configuration
@@ -241,6 +252,12 @@ class AsyncClient:
         else:
             connect_host = host
             connect_port = port
+
+        # Native TLS backend (Go + uTLS): run the synchronous request in a
+        # thread executor so the event loop is not blocked. It owns its own
+        # TLS/HTTP2/proxy, so route HTTPS to it and skip the asyncio path.
+        if self._native_tls is not None and parsed.scheme == "https":
+            return await self._native_request(method, url, merged_headers, body, proxy_url)
 
         # For SOCKS5, we must connect without TLS first, perform handshake, then upgrade if needed
         if proxy_url and proxy_url.lower().startswith(("socks5://", "socks5h://")):
@@ -400,6 +417,45 @@ class AsyncClient:
             body_bytes = decode_body(body_bytes, content_encoding)
 
         return Response(status_code, reason, version, headers_list, body_bytes)
+
+    async def _native_request(
+        self,
+        method: str,
+        url: str,
+        merged_headers: list[tuple[str, str]],
+        body: bytes | None,
+        proxy_url: str | None,
+    ) -> Response:
+        """Run the native TLS backend off-loop via a thread executor."""
+        spec = {
+            "method": method.upper(),
+            "url": url,
+            "headers": [[name, value] for name, value in merged_headers],
+            "header_order": [name for name, _ in merged_headers],
+            "body_b64": base64.b64encode(body).decode("ascii") if body else "",
+            "profile": self.profile.get("tls_client_profile", "chrome_120"),
+            "proxy": proxy_url or "",
+            "timeout_seconds": int(self.timeout) if self.timeout else 30,
+            "insecure_skip_verify": not self.verify,
+            "force_http1": self.force_http1,
+            "follow_redirects": False,
+        }
+        loop = asyncio.get_running_loop()
+        result = await loop.run_in_executor(None, self._native_tls.request, spec)
+
+        raw_headers = [(name, value) for name, value in result.get("headers", [])]
+        raw_body = result["body"]
+        if self.auto_decompress:
+            content_encoding = ""
+            for name, value in raw_headers:
+                if name.lower() == "content-encoding":
+                    content_encoding = value
+                    break
+            raw_body = decode_body(raw_body, content_encoding)
+
+        proto = result.get("proto", "")
+        version = "2" if "2" in proto else "1.1"
+        return Response(result.get("status", 0), "", version, raw_headers, raw_body)
 
     async def _request_h3(
         self,

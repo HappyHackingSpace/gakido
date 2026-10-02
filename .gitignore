@@ -214,3 +214,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# gakido native TLS backend (Go + uTLS) build artifacts
+gakido/_native/*.dylib
+gakido/_native/*.so
+gakido/_native/*.dll
+gakido/_native/*.h
