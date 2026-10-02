@@ -1243,6 +1243,42 @@ ALIAS_MAP = {
     "vivaldi7_windows": "vivaldi_7",
 }
 
+# Normalize the HTTP/2 fingerprint of the Chromium-based profiles to match a
+# real Chrome client (verified against tls.peet.ws). This is applied centrally
+# so every Chrome/Edge/Opera/Brave/Vivaldi base profile (and their aliases) stay
+# consistent. Firefox/Safari/Tor differ and are intentionally left untouched
+# until each is measured, rather than guessed.
+#
+#   - window_update_increment: Chrome grows the connection-level flow-control
+#     window with a WINDOW_UPDATE of 15663105 on stream 0, right after SETTINGS.
+#   - pseudo_header_order: Chrome sends :method,:authority,:scheme,:path
+#     (m,a,s,p). The default m,p,a,s is Firefox's order and made Chrome profiles
+#     look like Firefox.
+#   - MAX_CONCURRENT_STREAMS: real Chrome does NOT advertise this setting, so it
+#     is dropped from the SETTINGS frame.
+_CHROMIUM_H2_WINDOW_UPDATE = 15663105
+_CHROMIUM_PSEUDO_ORDER = [":method", ":authority", ":scheme", ":path"]
+for _name in (
+    "chrome_120",
+    "chrome_120_macos_libressl",
+    "chrome_120_android",
+    "chrome_131_windows",
+    "chrome_136_linux",
+    "chrome_144",
+    "edge_101",
+    "edge_131",
+    "edge_144",
+    "opera_115",
+    "brave_131",
+    "vivaldi_7",
+):
+    if _name not in PROFILES:
+        continue
+    _h2 = PROFILES[_name].setdefault("http2", {})
+    _h2["window_update_increment"] = _CHROMIUM_H2_WINDOW_UPDATE
+    _h2["pseudo_header_order"] = list(_CHROMIUM_PSEUDO_ORDER)
+    _h2.get("settings", {}).pop("MAX_CONCURRENT_STREAMS", None)
+
 # Materialize aliases into PROFILES for lookup.
 for alias, target in list(ALIAS_MAP.items()):
     if alias not in PROFILES and target in PROFILES:

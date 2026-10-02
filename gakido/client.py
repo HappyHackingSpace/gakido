@@ -38,7 +38,8 @@ class Client:
         proxies: List of proxy URLs
         ja3: Custom JA3 fingerprint overrides
         tls_configuration_options: Custom TLS options
-        force_http1: Force HTTP/1.1 only (default: True)
+        force_http1: Force HTTP/1.1 only (default: False, so ALPN negotiates h2
+            like a real browser; set True to restrict to HTTP/1.1)
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
         rate_limit: Global rate limit (requests per second), None to disable
         rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
@@ -59,7 +60,7 @@ class Client:
         proxies: list[str] | None = None,
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
-        force_http1: bool = True,
+        force_http1: bool = False,
         auto_decompress: bool = True,
         max_retries: int = 0,
         retry_base_delay: float = 1.0,

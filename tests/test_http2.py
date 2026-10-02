@@ -328,3 +328,121 @@ class TestHTTP2ConnectionFlowControl:
         h2.request("GET", "example.com", "/", [])
 
         mock_h2_conn.acknowledge_received_data.assert_called_with(13, 1)
+
+
+class TestHTTP2ProfileFingerprint:
+    """Phase 1: HTTP/2 SETTINGS / pseudo-header order driven by the profile."""
+
+    def test_order_pseudo_headers_respects_profile(self):
+        from gakido.http2 import order_pseudo_headers
+
+        profile = {
+            "http2": {
+                "pseudo_header_order": [":method", ":path", ":authority", ":scheme"]
+            }
+        }
+        ordered = order_pseudo_headers(profile, "GET", "example.com", "/x")
+        assert [k for k, _ in ordered] == [
+            ":method",
+            ":path",
+            ":authority",
+            ":scheme",
+        ]
+        assert dict(ordered)[":path"] == "/x"
+        assert dict(ordered)[":authority"] == "example.com"
+
+    def test_order_pseudo_headers_fallback_and_completeness(self):
+        from gakido.http2 import order_pseudo_headers
+
+        # Partial/empty order must still yield all four pseudo-headers.
+        ordered = order_pseudo_headers({"http2": {}}, "POST", "h", "/")
+        assert {k for k, _ in ordered} == {
+            ":method",
+            ":authority",
+            ":scheme",
+            ":path",
+        }
+
+    @staticmethod
+    def _parse_frames(data: bytes):
+        """Yield (frame_type, stream_id, payload) from raw HTTP/2 bytes."""
+        preface = b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
+        off = len(preface) if data.startswith(preface) else 0
+        while off + 9 <= len(data):
+            length = int.from_bytes(data[off : off + 3], "big")
+            ftype = data[off + 3]
+            stream_id = int.from_bytes(data[off + 5 : off + 9], "big") & 0x7FFFFFFF
+            payload = data[off + 9 : off + 9 + length]
+            yield ftype, stream_id, payload
+            off += 9 + length
+
+    def test_apply_profile_settings_hits_initial_frame(self):
+        import h2.config
+        import h2.connection
+
+        from gakido.http2 import apply_profile_settings
+
+        conn = h2.connection.H2Connection(
+            config=h2.config.H2Configuration(client_side=True)
+        )
+        profile = {
+            "http2": {
+                "settings": {
+                    "HEADER_TABLE_SIZE": 65536,
+                    "ENABLE_PUSH": 0,
+                    "INITIAL_WINDOW_SIZE": 6291456,
+                    "MAX_HEADER_LIST_SIZE": 262144,
+                }
+            }
+        }
+        apply_profile_settings(conn, profile)
+        conn.initiate_connection()
+        data = conn.data_to_send()
+
+        settings = {}
+        for ftype, _sid, payload in self._parse_frames(data):
+            if ftype == 0x4 and payload:  # SETTINGS, non-ACK
+                for i in range(0, len(payload), 6):
+                    ident = int.from_bytes(payload[i : i + 2], "big")
+                    val = int.from_bytes(payload[i + 2 : i + 6], "big")
+                    settings[ident] = val
+        # The browser-relevant SETTINGS values ride in the initial frame.
+        assert settings[0x1] == 65536  # HEADER_TABLE_SIZE
+        assert settings[0x2] == 0  # ENABLE_PUSH
+        assert settings[0x4] == 6291456  # INITIAL_WINDOW_SIZE
+        assert settings[0x6] == 262144  # MAX_HEADER_LIST_SIZE
+
+    def test_connection_applies_settings_and_window_update(self):
+        mock_sock = MagicMock()
+        profile = {
+            "http2": {
+                "settings": {"INITIAL_WINDOW_SIZE": 6291456, "ENABLE_PUSH": 0},
+                "window_update_increment": 15663105,
+                "pseudo_header_order": [":method", ":path", ":authority", ":scheme"],
+            }
+        }
+        hc = HTTP2Connection(mock_sock, profile)
+
+        sent = b"".join(call.args[0] for call in mock_sock.sendall.call_args_list)
+        settings = {}
+        window_increment = None
+        for ftype, sid, payload in self._parse_frames(sent):
+            if ftype == 0x4 and payload:  # SETTINGS
+                for i in range(0, len(payload), 6):
+                    ident = int.from_bytes(payload[i : i + 2], "big")
+                    settings[ident] = int.from_bytes(payload[i + 2 : i + 6], "big")
+            elif ftype == 0x8 and sid == 0:  # WINDOW_UPDATE on the connection
+                window_increment = int.from_bytes(payload[0:4], "big") & 0x7FFFFFFF
+        assert settings.get(0x4) == 6291456
+        assert settings.get(0x2) == 0
+        assert window_increment == 15663105
+
+        # Pseudo-header order comes from the profile.
+        hdrs = hc._build_request_headers("GET", "example.com", "/p", [("accept", "*/*")])
+        assert [k for k, _ in hdrs[:4]] == [
+            ":method",
+            ":path",
+            ":authority",
+            ":scheme",
+        ]
+        assert hdrs[-1] == ("accept", "*/*")

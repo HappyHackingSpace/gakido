@@ -37,6 +37,7 @@ class Connection:
         self.proxy_url = proxy_url
         self.sock: socket.socket | ssl.SSLSocket | None = None
         self.negotiated_protocol: str | None = None
+        self._h2conn: HTTP2Connection | None = None
         self.created_at = time.time()
         self.closed = True
 
@@ -80,10 +81,17 @@ class Connection:
             curves = tls.get("curves")
             if curves:
                 try:
-                    # Use the first curve; ordering is limited in stdlib.
+                    # Only the first curve can be set: stdlib ssl exposes
+                    # set_ecdh_curve (single value) but no set_groups, so the
+                    # full supported_groups list/order cannot be reproduced.
                     context.set_ecdh_curve(curves[0])
                 except Exception:
                     pass
+            # NOTE: profile["tls"]["sig_algs"] is intentionally not applied here.
+            # Python's ssl module exposes no set_sigalgs, and cannot control
+            # extension order, GREASE, supported_groups or key_share either.
+            # A browser-accurate ClientHello (JA3/JA4) therefore requires the
+            # native TLS backend (Go + uTLS); the stdlib path cannot produce it.
             try:
                 wrapped = context.wrap_socket(raw, server_hostname=self.host)
             except ssl.SSLError:
@@ -117,18 +125,28 @@ class Connection:
         if self.closed or self.sock is None:
             self.connect()
 
-        request_bytes = self._build_request(method, path, headers, body)
-        try:
-            assert self.sock is not None
-            self.sock.sendall(request_bytes)
-        except OSError as exc:
-            self.close()
-            raise ConnectionError(f"Send failed: {exc}") from exc
-
         if self.negotiated_protocol == "h2":
-            h2conn = HTTP2Connection(self.sock)  # type: ignore[arg-type]
-            response = h2conn.request(method.upper(), self.host, path, headers, body)
+            # HTTP/2 framing is handled entirely by HTTP2Connection; do NOT send
+            # the HTTP/1.1-formatted request bytes over the h2 socket. Reuse a
+            # single HTTP2Connection so the connection preface and SETTINGS are
+            # sent exactly once across pooled requests.
+            if self._h2conn is None:
+                self._h2conn = HTTP2Connection(self.sock, self.profile)  # type: ignore[arg-type]
+            try:
+                response = self._h2conn.request(
+                    method.upper(), self.host, path, headers, body
+                )
+            except OSError as exc:
+                self.close()
+                raise ConnectionError(f"Send failed: {exc}") from exc
         else:
+            request_bytes = self._build_request(method, path, headers, body)
+            try:
+                assert self.sock is not None
+                self.sock.sendall(request_bytes)
+            except OSError as exc:
+                self.close()
+                raise ConnectionError(f"Send failed: {exc}") from exc
             response = self._read_response()
         # Respect Connection: close
         if response.headers.get("connection", "").lower() == "close":
@@ -341,6 +359,7 @@ class Connection:
         )
 
     def close(self) -> None:
+        self._h2conn = None
         if self.sock:
             try:
                 self.sock.close()
