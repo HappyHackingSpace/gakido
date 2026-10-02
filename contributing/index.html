@@ -864,7 +864,9 @@
 <li>Build docs: <code>make docs</code> (or <code>make docs-serve</code>).</li>
 <li>Tests: <code>make test</code>.</li>
 <li>Lint/format: <code>make lint</code> (ruff + ty).</li>
-<li>Native extension: built from <code>gakido/core.c</code> as <code>gakido_core</code> via <code>uv pip install -e .</code>.</li>
+<li>Native TLS backend (optional): <code>make native</code> builds the Go + uTLS shared
+  library into <code>gakido/_native/</code> (requires a Go toolchain). <code>make native-test</code>
+  runs its Go tests.</li>
 </ul>
 
 
