@@ -53,7 +53,7 @@ jobs:
           name: wheel-linux
           path: wheelhouse/*.whl
 
-  # macOS wheels (arm64 on macos-14, x86_64 on macos-13), each with the native
+  # macOS wheels (arm64 on macos-14, x86_64), each with the native
   # library built natively for that architecture.
   build_wheels_macos:
     name: Build macOS wheel (${{ matrix.os }})
@@ -61,7 +61,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, macos-13]
+        os: [macos-14]
     env:
       MACOSX_DEPLOYMENT_TARGET: "11.0"
     steps:
