@@ -80,7 +80,7 @@ def test_client_retry_on_exception(mock_get_profile, mock_pool):
     mock_conn.closed = False
     mock_pool.return_value.acquire.return_value = mock_conn
 
-    client = Client(max_retries=3, retry_base_delay=0.01, retry_jitter=False, use_native=False)
+    client = Client(max_retries=3, retry_base_delay=0.01, retry_jitter=False, tls_backend="stdlib")
     start = time.time()
     response = client.get("http://example.com")
     elapsed = time.time() - start
@@ -106,7 +106,7 @@ def test_client_retry_exhausted(mock_get_profile, mock_pool):
     mock_conn.closed = False
     mock_pool.return_value.acquire.return_value = mock_conn
 
-    client = Client(max_retries=2, retry_base_delay=0.01, retry_jitter=False, use_native=False)
+    client = Client(max_retries=2, retry_base_delay=0.01, retry_jitter=False, tls_backend="stdlib")
 
     with pytest.raises(RetryError):
         client.get("http://example.com")
@@ -135,7 +135,7 @@ def test_client_retry_on_status_code(mock_get_profile, mock_pool):
     mock_conn.closed = False
     mock_pool.return_value.acquire.return_value = mock_conn
 
-    client = Client(max_retries=3, retry_base_delay=0.01, retry_jitter=False, use_native=False)
+    client = Client(max_retries=3, retry_base_delay=0.01, retry_jitter=False, tls_backend="stdlib")
     response = client.get("http://example.com")
 
     # Should have retried twice
@@ -158,7 +158,7 @@ def test_client_no_retry_on_non_retryable_status(mock_get_profile, mock_pool):
     mock_conn.closed = False
     mock_pool.return_value.acquire.return_value = mock_conn
 
-    client = Client(max_retries=3, use_native=False)
+    client = Client(max_retries=3, tls_backend="stdlib")
     response = client.get("http://example.com")
 
     # Should not have retried

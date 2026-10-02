@@ -4,11 +4,6 @@ import base64
 import json as json_lib
 import urllib.parse
 
-try:
-    from gakido import gakido_core
-except ImportError:
-    gakido_core = None
-
 from gakido import native_tls
 from gakido.compression import decode_body, get_accept_encoding
 from gakido.headers import canonicalize_headers
@@ -61,7 +56,6 @@ class Client:
         timeout: Request timeout in seconds
         verify: Whether to verify SSL certificates
         max_per_host: Maximum connections per host
-        use_native: Use native C extension for HTTP (faster)
         proxies: List of proxy URLs
         ja3: Custom JA3 fingerprint overrides
         tls_configuration_options: Custom TLS options
@@ -88,7 +82,6 @@ class Client:
         timeout: float = 10.0,
         verify: bool = True,
         max_per_host: int = 4,
-        use_native: bool = True,
         proxies: list[str] | None = None,
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
@@ -122,7 +115,6 @@ class Client:
         self.timeout = timeout
         self.verify = verify
         self.force_http1 = force_http1
-        self.use_native = use_native and gakido_core is not None
         # Native TLS backend (Go + uTLS) for browser-accurate JA3/JA4 on HTTPS.
         # "auto" uses it when the shared library is built, else falls back to the
         # stdlib path; "native" requires it; "stdlib" never uses it.
@@ -257,30 +249,7 @@ class Client:
             parsed.scheme, target_host, target_port, proxy_url=proxy_url
         )
         try:
-            if self.use_native and parsed.scheme == "http" and not proxy_url:
-                result = gakido_core.request(
-                    method.upper(),
-                    target_host,
-                    target_port,
-                    target_path,
-                    merged_headers,
-                    body or b"",
-                    self.timeout,
-                )
-                status_code, reason, version, raw_headers, raw_body = result
-                # Decompress if auto_decompress is enabled
-                if self.auto_decompress:
-                    content_encoding = ""
-                    for name, value in raw_headers:
-                        if name.lower() == "content-encoding":
-                            content_encoding = value
-                            break
-                    raw_body = decode_body(raw_body, content_encoding)
-                response = Response(status_code, reason, version, raw_headers, raw_body)
-            else:
-                response = conn.request(
-                    method.upper(), target_path, merged_headers, body
-                )
+            response = conn.request(method.upper(), target_path, merged_headers, body)
         except Exception:
             conn.close()
             raise

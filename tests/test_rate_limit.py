@@ -337,7 +337,7 @@ class TestClientRateLimiting:
         client = Client(
             rate_limit=10.0,
             rate_limit_capacity=1.0,
-            use_native=False,
+            tls_backend="stdlib",
         )
 
         # First request should be immediate
@@ -369,7 +369,7 @@ class TestClientRateLimiting:
             rate_limit=10.0,
             rate_limit_capacity=1.0,
             rate_limit_blocking=False,
-            use_native=False,
+            tls_backend="stdlib",
         )
 
         client.get("http://example.com")
