@@ -12,7 +12,6 @@ High-performance CPython HTTP client focused on browser impersonation, anti-bot 
 - Sync + async clients, connection pooling
 - Multipart uploads
 - Minimal WebSocket client
-- Optional native HTTP fast-path (`gakido_core`, HTTP only)
 - **96 browser profiles** (24 base + 72 aliases) for Chrome, Firefox, Safari, Edge, Opera, Brave, Vivaldi, Tor
 - [Antibot benchmark](docs/antibot-benchmark.md) for testing impersonation against detection systems
 
@@ -210,4 +209,4 @@ asyncio.run(main())
 - `http3=True` enables HTTP/3 (QUIC) for compatible targets (requires `pip install gakido[h3]`).
 - `auto_decompress=True` by default: uses profile's Accept-Encoding (gzip, deflate, br) and auto-decompresses responses.
 - Set `auto_decompress=False` to disable compression and receive raw responses.
-- Native core (`gakido_core`) is HTTP-only; HTTPS still uses the Python path.
+- The native TLS backend (`tls_backend="auto"`) handles HTTPS; plaintext `http://` uses the pure-Python connection path.

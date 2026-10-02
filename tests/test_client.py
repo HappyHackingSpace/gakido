@@ -1,7 +1,7 @@
 """Tests for gakido.client module."""
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch, MagicMock
 from gakido.client import Client
 from gakido.models import Response
 
@@ -62,15 +62,6 @@ class TestClientInit:
         client = Client(ja3={"alpn": ["h2"]})
         assert client.profile["tls"]["alpn"] == ["h2"]
 
-    @patch('gakido.client.gakido_core', None)
-    @patch('gakido.client.ConnectionPool')
-    @patch('gakido.client.get_profile')
-    def test_use_native_false_when_no_core(self, mock_get_profile, mock_pool):
-        """Test use_native is False when gakido_core is None."""
-        mock_get_profile.return_value = {"headers": {"default": []}}
-        client = Client(use_native=True)
-        assert client.use_native is False
-
     @patch('gakido.client.ConnectionPool')
     @patch('gakido.client.get_profile')
     def test_max_per_host_passed_to_pool(self, mock_get_profile, mock_pool):
@@ -100,8 +91,8 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        # Use https to bypass native code path, or use_native=False
-        client = Client(use_native=False, tls_backend="stdlib")
+        # Force the pure-Python connection path (no native TLS backend).
+        client = Client(tls_backend="stdlib")
         resp = client.request("GET", "https://example.com/path")
 
         assert resp.status_code == 200
@@ -120,7 +111,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("POST", "https://example.com", data={"key": "value"})
 
         # Verify body was form-encoded
@@ -142,7 +133,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("POST", "https://example.com", data=b"raw bytes")
 
         mock_conn.request.assert_called()
@@ -161,7 +152,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("POST", "https://example.com", data="string data")
 
         mock_conn.request.assert_called()
@@ -176,7 +167,7 @@ class TestClientRequest:
         }
         mock_pool.return_value.acquire.return_value = MagicMock()
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         with pytest.raises(TypeError, match="Unsupported data type"):
             client.request("POST", "https://example.com", data=12345)
 
@@ -196,7 +187,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("POST", "https://example.com", files={"file": b"content"})
 
         mock_build_multipart.assert_called()
@@ -215,7 +206,7 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("POST", "https://example.com")
 
         call_args = mock_conn.request.call_args[0]
@@ -235,7 +226,7 @@ class TestClientRequest:
         mock_conn.request.side_effect = Exception("connection error")
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         with pytest.raises(Exception, match="connection error"):
             client.request("GET", "https://example.com")
 
@@ -255,60 +246,32 @@ class TestClientRequest:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("GET", "https://example.com")
 
         mock_pool.return_value.release.assert_called_once_with(mock_conn)
 
 
-class TestClientNativePath:
-    """Tests for Client native code path."""
+class TestClientHTTPPath:
+    """Plaintext http:// goes through the pure-Python connection pool."""
 
-    @patch('gakido.client.gakido_core')
     @patch('gakido.client.ConnectionPool')
     @patch('gakido.client.get_profile')
-    def test_native_path_http(self, mock_get_profile, mock_pool, mock_core):
-        """Test native path is used for HTTP."""
+    def test_http_uses_connection_path(self, mock_get_profile, mock_pool):
         mock_get_profile.return_value = {
             "headers": {"default": [], "order": []},
             "tls": {},
         }
-        mock_core.request.return_value = (200, "OK", "1.1", [], b"body")
         mock_conn = MagicMock()
+        mock_conn.request.return_value = Response(200, "OK", "1.1", [], b"body")
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=True)
+        client = Client()
         response = client.request("GET", "http://example.com/path")
 
-        mock_core.request.assert_called_once()
+        mock_conn.request.assert_called_once()
         assert response.status_code == 200
-
-    @patch('gakido.client.decode_body')
-    @patch('gakido.client.gakido_core')
-    @patch('gakido.client.ConnectionPool')
-    @patch('gakido.client.get_profile')
-    def test_native_path_decompresses(self, mock_get_profile, mock_pool, mock_core, mock_decode):
-        """Test native path decompresses response."""
-        mock_get_profile.return_value = {
-            "headers": {"default": [], "order": []},
-            "tls": {},
-        }
-        mock_core.request.return_value = (
-            200, "OK", "1.1",
-            [("content-encoding", "gzip")],
-            b"compressed"
-        )
-        mock_decode.return_value = b"decompressed"
-        mock_conn = MagicMock()
-        mock_conn.closed = False
-        mock_pool.return_value.acquire.return_value = mock_conn
-
-        client = Client(use_native=True, auto_decompress=True)
-        response = client.request("GET", "http://example.com")
-
-        mock_decode.assert_called_with(b"compressed", "gzip")
-        assert response.content == b"decompressed"
 
 
 class TestClientMethods:
@@ -328,7 +291,7 @@ class TestClientMethods:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.get("https://example.com")
 
         mock_conn.request.assert_called()
@@ -349,7 +312,7 @@ class TestClientMethods:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.post("https://example.com", data={"key": "value"})
 
         mock_conn.request.assert_called()
@@ -419,7 +382,7 @@ class TestClientProxy:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("GET", "http://example.com/path", proxy="http://proxy:8080")
 
         call_args = mock_conn.request.call_args[0]
@@ -440,7 +403,7 @@ class TestClientProxy:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("GET", "http://example.com", proxy="socks5://user:pass@proxy:1080")
 
         # Verify pool was acquired with proxy_url
@@ -461,7 +424,7 @@ class TestClientProxy:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib", proxies=["http://proxy1:8080", "http://proxy2:8080"])
+        client = Client(tls_backend="stdlib", proxies=["http://proxy1:8080", "http://proxy2:8080"])
         client.request("GET", "http://example.com")
 
         # Verify pool was acquired with proxy host/port
@@ -487,7 +450,7 @@ class TestClientHeaders:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("GET", "https://example.com")
 
         call_args = mock_conn.request.call_args[0]
@@ -509,7 +472,7 @@ class TestClientHeaders:
         mock_conn.closed = False
         mock_pool.return_value.acquire.return_value = mock_conn
 
-        client = Client(use_native=False, tls_backend="stdlib")
+        client = Client(tls_backend="stdlib")
         client.request("GET", "https://example.com", headers={"X-Custom": "value"})
 
         call_args = mock_conn.request.call_args[0]
