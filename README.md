@@ -86,7 +86,10 @@ via [tls-client](https://github.com/bogdanfinn/tls-client)) produces a
 byte-accurate ClientHello **and** HTTP/2 fingerprint for the impersonated
 profile.
 
-Build the shared library once (requires Go):
+The Linux (x86_64) and macOS (arm64/x86_64) wheels on PyPI ship the native
+library prebuilt, so `pip install gakido` enables it automatically there. On
+other platforms (e.g. Windows), or from the source distribution, build it once
+yourself (requires Go):
 
 ```bash
 make -C native build        # outputs gakido/_native/libgakido_tls.{dylib,so,dll}
@@ -113,8 +116,8 @@ Verified for `chrome_120` against `tls.peet.ws`:
 | JA4 | `t13d1516h2_8daaf6152771_02713d6af862` | `t13d1516h2_8daaf6152771_02713d6af862` |
 | Akamai | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` |
 
-The backend is optional: when the library is not built, `tls_backend="auto"`
-transparently falls back to the pure-Python path. Prebuilt wheels are planned.
+The backend is optional: when the library is neither bundled nor built,
+`tls_backend="auto"` transparently falls back to the pure-Python path.
 
 ### WebSocket
 ```python
