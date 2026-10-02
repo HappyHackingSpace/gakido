@@ -12,8 +12,6 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    outputs:
-      new_tag: ${{ steps.version.outputs.new_tag }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -57,26 +55,13 @@ jobs:
 
       - name: Install build tools
         if: steps.version.outputs.skip != 'true'
-        run: pip install build cibuildwheel
+        run: pip install build
 
-      - name: Build sdist
+      - name: Build sdist and wheel
         if: steps.version.outputs.skip != 'true'
-        run: python -m build --sdist
-
-      - name: Build wheels (Linux)
-        if: steps.version.outputs.skip != 'true'
-        uses: pypa/cibuildwheel@v4.2.0
-        env:
-          CIBW_BUILD: "cp311-* cp312-* cp313-*"
-          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
-
-      - name: Collect artifacts
-        if: steps.version.outputs.skip != 'true'
-        run: |
-          mkdir -p final_dist
-          cp dist/*.tar.gz final_dist/ 2>/dev/null || true
-          cp wheelhouse/*.whl final_dist/ 2>/dev/null || true
-          ls -la final_dist/
+        # gakido is pure Python, so a single source distribution and one
+        # py3-none-any wheel cover every platform and Python version.
+        run: python -m build --outdir final_dist
 
       - name: Create GitHub Release
         if: steps.version.outputs.skip != 'true'
@@ -96,70 +81,3 @@ jobs:
           packages-dir: final_dist/
           password: ${{ secrets.PYPI_TOKEN }}
           skip-existing: true
-
-  build-macos-wheels:
-    name: Build macOS wheels
-    needs: [release]
-    runs-on: macos-latest
-    if: needs.release.outputs.new_tag != ''
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.release.outputs.new_tag || github.ref }}
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v4.2.0
-        env:
-          CIBW_BUILD: "cp311-* cp312-* cp313-*"
-          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
-
-      - name: Upload to existing release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ needs.release.outputs.new_tag }}
-          files: wheelhouse/*.whl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish macOS wheels to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          pip install twine
-          twine upload --skip-existing wheelhouse/*.whl
-
-  build-windows-wheels:
-    name: Build Windows wheels
-    needs: [release]
-    runs-on: windows-latest
-    if: needs.release.outputs.new_tag != ''
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ needs.release.outputs.new_tag || github.ref }}
-
-      - name: Build pure Python wheels
-        run: |
-          pip install build
-          python -m build --wheel --outdir wheelhouse/
-
-      - name: Upload to existing release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ needs.release.outputs.new_tag }}
-          files: wheelhouse/*.whl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish Windows wheels to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          pip install twine
-          twine upload --skip-existing wheelhouse/*.whl
