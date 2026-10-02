@@ -601,7 +601,46 @@ class TestConnectionH2:
         response = conn.request("GET", "/", [("Host", "example.com")])
 
         assert response.http_version == "2"
-        mock_h2_conn.assert_called_once_with(mock_wrapped)
+        # HTTP2Connection now receives the profile so SETTINGS/pseudo-header
+        # order are driven by the impersonated browser.
+        mock_h2_conn.assert_called_once_with(mock_wrapped, conn.profile)
+        # The HTTP/1.1-formatted request bytes must NOT be written to the h2
+        # socket (doing so would corrupt the h2 stream).
+        mock_wrapped.sendall.assert_not_called()
+
+    @patch('gakido.connection.HTTP2Connection')
+    @patch('gakido.connection.ssl.create_default_context')
+    @patch('gakido.connection.socket.create_connection')
+    def test_h2_connection_reused_across_requests(
+        self, mock_create_conn, mock_ssl_ctx, mock_h2_conn
+    ):
+        """A single HTTP2Connection is reused so the preface is sent once."""
+        mock_sock = MagicMock()
+        mock_wrapped = MagicMock()
+        mock_wrapped.selected_alpn_protocol.return_value = "h2"
+        mock_create_conn.return_value = mock_sock
+        mock_ctx = MagicMock()
+        mock_ctx.wrap_socket.return_value = mock_wrapped
+        mock_ssl_ctx.return_value = mock_ctx
+
+        mock_h2_conn.return_value.request.return_value = Response(
+            200, "OK", "2", [], b"body"
+        )
+
+        conn = Connection(
+            host="example.com",
+            port=443,
+            scheme="https",
+            profile={"tls": {"alpn": ["h2", "http/1.1"]}},
+        )
+        conn.connect()
+
+        conn.request("GET", "/a", [("Host", "example.com")])
+        conn.request("GET", "/b", [("Host", "example.com")])
+
+        # Constructed once, used twice.
+        assert mock_h2_conn.call_count == 1
+        assert mock_h2_conn.return_value.request.call_count == 2
 
 
 class TestConnectionReadHelpers:

@@ -6,6 +6,7 @@ import ssl
 import urllib.parse
 from collections.abc import Iterable
 
+import h2.config
 import h2.connection
 import h2.events
 
@@ -43,7 +44,8 @@ class AsyncClient:
         proxy_pool: List of proxy URLs for rotation
         ja3: Custom JA3 fingerprint overrides
         tls_configuration_options: Custom TLS options
-        force_http1: Force HTTP/1.1 only (default: True)
+        force_http1: Force HTTP/1.1 only (default: False, so ALPN negotiates h2
+            like a real browser; set True to restrict to HTTP/1.1)
         http3: Enable HTTP/3 for compatible targets (default: False)
         http3_fallback: Fall back to HTTP/1.1 or HTTP/2 if HTTP/3 fails (default: True)
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
@@ -64,7 +66,7 @@ class AsyncClient:
         proxy_pool: Iterable[str] | None = None,
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
-        force_http1: bool = True,
+        force_http1: bool = False,
         http3: bool = False,
         http3_fallback: bool = True,
         auto_decompress: bool = True,
@@ -519,18 +521,30 @@ class AsyncClient:
         headers: Iterable[tuple[str, str]],
         body: bytes | None,
     ) -> Response:
-        h2conn = h2.connection.H2Connection()
+        from .http2 import (
+            apply_profile_settings,
+            order_pseudo_headers,
+            profile_window_increment,
+        )
+
+        h2conn = h2.connection.H2Connection(
+            config=h2.config.H2Configuration(client_side=True)
+        )
+        # Drive SETTINGS / WINDOW_UPDATE / pseudo-header order from the profile so
+        # the HTTP/2 ("Akamai") fingerprint matches the impersonated browser.
+        apply_profile_settings(h2conn, self.profile)
         h2conn.initiate_connection()
+        increment = profile_window_increment(self.profile)
+        if increment:
+            try:
+                h2conn.increment_flow_control_window(increment)
+            except (ValueError, TypeError):
+                pass
         writer.write(h2conn.data_to_send())
         await writer.drain()
 
         stream_id = h2conn.get_next_available_stream_id()
-        pseudo_headers = [
-            (":method", method),
-            (":authority", authority),
-            (":scheme", "https"),
-            (":path", path),
-        ]
+        pseudo_headers = order_pseudo_headers(self.profile, method, authority, path)
         h2conn.send_headers(
             stream_id, pseudo_headers + list(headers), end_stream=body is None
         )

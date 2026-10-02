@@ -35,7 +35,7 @@ uv add gakido[dev]         # development dependencies
 ```python
 from gakido import Client
 
-c = Client(impersonate="chrome_120")  # force_http1 defaults to True
+c = Client(impersonate="chrome_120")  # force_http1 defaults to False (ALPN negotiates h2)
 r = c.get("https://example.com")
 print(r.status_code, r.text[:200])
 ```
@@ -166,7 +166,7 @@ asyncio.run(main())
 ```
 
 ### Notes
-- `force_http1=True` by default for compatibility; set `force_http1=False` to allow ALPN h2.
+- `force_http1=False` by default, so ALPN negotiates HTTP/2 like a real browser; set `force_http1=True` to restrict to HTTP/1.1. The HTTP/2 SETTINGS, connection-level WINDOW_UPDATE and pseudo-header order are driven by the impersonated profile to match the browser's "Akamai" fingerprint.
 - `http3=True` enables HTTP/3 (QUIC) for compatible targets (requires `pip install gakido[h3]`).
 - `auto_decompress=True` by default: uses profile's Accept-Encoding (gzip, deflate, br) and auto-decompresses responses.
 - Set `auto_decompress=False` to disable compression and receive raw responses.
