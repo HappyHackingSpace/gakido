@@ -1279,6 +1279,40 @@ for _name in (
     _h2["pseudo_header_order"] = list(_CHROMIUM_PSEUDO_ORDER)
     _h2.get("settings", {}).pop("MAX_CONCURRENT_STREAMS", None)
 
+# Map each base profile to the nearest tls-client (Go + uTLS) client profile,
+# used by the native TLS backend to reproduce a byte-accurate ClientHello.
+# tls-client ships a fixed catalogue of browser presets, so each gakido profile
+# points at the closest available one; aliases inherit via the shared dict.
+_TLS_CLIENT_PROFILE_MAP = {
+    "chrome_120": "chrome_120",
+    "chrome_120_macos_libressl": "chrome_120",
+    "chrome_120_android": "chrome_120",
+    "chrome_131_windows": "chrome_131",
+    "chrome_136_linux": "chrome_131",
+    "chrome_144": "chrome_131",
+    "edge_101": "chrome_103",
+    "edge_131": "chrome_131",
+    "edge_144": "chrome_131",
+    "brave_131": "chrome_131",
+    "vivaldi_7": "chrome_131",
+    "opera_115": "opera_91",
+    "firefox_120": "firefox_120",
+    "firefox_133": "firefox_133",
+    "firefox_135_android": "firefox_133",
+    "firefox_147": "firefox_133",
+    "firefox_147_macos": "firefox_133",
+    "tor_145": "firefox_117",
+    "safari_170": "safari_16_0",
+    "safari_184_macos": "safari_16_0",
+    "safari_170_ios": "safari_ios_17_0",
+    "safari_187_ios": "safari_ios_18_0",
+    "safari_26_ios": "safari_ios_18_0",
+    "safari_184_ipad": "safari_ipad_15_6",
+}
+for _name, _tls_client in _TLS_CLIENT_PROFILE_MAP.items():
+    if _name in PROFILES:
+        PROFILES[_name]["tls_client_profile"] = _tls_client
+
 # Materialize aliases into PROFILES for lookup.
 for alias, target in list(ALIAS_MAP.items()):
     if alias not in PROFILES and target in PROFILES:

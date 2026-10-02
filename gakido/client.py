@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json as json_lib
 import urllib.parse
 
@@ -8,6 +9,7 @@ try:
 except ImportError:
     gakido_core = None
 
+from gakido import native_tls
 from gakido.compression import decode_body, get_accept_encoding
 from gakido.headers import canonicalize_headers
 from gakido.multipart import build_multipart
@@ -25,6 +27,31 @@ from gakido.rate_limit import TokenBucket, PerHostRateLimiter
 from gakido.cache import CacheController, FileCache
 
 
+def _resolve_tls_backend(tls_backend: str):
+    """
+    Decide whether to use the native TLS backend for this client.
+
+    Returns the native_tls module when it should be used, or None to use the
+    pure-Python path. Raises ValueError for an unknown mode and RuntimeError
+    when "native" is required but the shared library is not built.
+    """
+    if tls_backend == "stdlib":
+        return None
+    if tls_backend not in ("auto", "native"):
+        raise ValueError(
+            f"tls_backend must be 'auto', 'native' or 'stdlib', got {tls_backend!r}"
+        )
+    if native_tls.is_available():
+        return native_tls
+    if tls_backend == "native":
+        raise RuntimeError(
+            "tls_backend='native' requires the native TLS library; build it with "
+            "`make -C native build` (needs Go). Use tls_backend='auto' to fall "
+            "back to the pure-Python path when it is not built."
+        )
+    return None
+
+
 class Client:
     """
     Minimal synchronous client optimized for deterministic header/TLS behavior.
@@ -40,6 +67,11 @@ class Client:
         tls_configuration_options: Custom TLS options
         force_http1: Force HTTP/1.1 only (default: False, so ALPN negotiates h2
             like a real browser; set True to restrict to HTTP/1.1)
+        tls_backend: TLS backend for HTTPS requests. "auto" (default) uses the
+            native Go + uTLS backend for a browser-accurate JA3/JA4 ClientHello
+            when its shared library is built, otherwise falls back to the
+            pure-Python stdlib path; "native" requires the native backend;
+            "stdlib" always uses the pure-Python path.
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
         rate_limit: Global rate limit (requests per second), None to disable
         rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
@@ -61,6 +93,7 @@ class Client:
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
         force_http1: bool = False,
+        tls_backend: str = "auto",
         auto_decompress: bool = True,
         max_retries: int = 0,
         retry_base_delay: float = 1.0,
@@ -88,7 +121,13 @@ class Client:
         )
         self.timeout = timeout
         self.verify = verify
+        self.force_http1 = force_http1
         self.use_native = use_native and gakido_core is not None
+        # Native TLS backend (Go + uTLS) for browser-accurate JA3/JA4 on HTTPS.
+        # "auto" uses it when the shared library is built, else falls back to the
+        # stdlib path; "native" requires it; "stdlib" never uses it.
+        self.tls_backend = tls_backend
+        self._native_tls = _resolve_tls_backend(tls_backend)
         self.proxies = proxies or []
         self.auto_decompress = auto_decompress
         # Retry configuration
@@ -208,6 +247,12 @@ class Client:
         else:
             target_host, target_port = host, port
 
+        # The native TLS backend (Go + uTLS) manages its own TCP/TLS/HTTP2 and
+        # reproduces a byte-accurate browser ClientHello, so route HTTPS through
+        # it and bypass the pure-Python connection pool entirely.
+        if self._native_tls is not None and parsed.scheme == "https":
+            return self._native_request(method, url, merged_headers, body, proxy_url)
+
         conn = self.pool.acquire(
             parsed.scheme, target_host, target_port, proxy_url=proxy_url
         )
@@ -243,6 +288,44 @@ class Client:
         if not conn.closed:
             self.pool.release(conn)
         return response
+
+    def _native_request(
+        self,
+        method: str,
+        url: str,
+        merged_headers: list[tuple[str, str]],
+        body: bytes | None,
+        proxy_url: str | None,
+    ) -> Response:
+        """Perform an HTTPS request through the native TLS backend."""
+        spec = {
+            "method": method.upper(),
+            "url": url,
+            "headers": [[name, value] for name, value in merged_headers],
+            "header_order": [name for name, _ in merged_headers],
+            "body_b64": base64.b64encode(body).decode("ascii") if body else "",
+            "profile": self.profile.get("tls_client_profile", "chrome_120"),
+            "proxy": proxy_url or "",
+            "timeout_seconds": int(self.timeout) if self.timeout else 30,
+            "insecure_skip_verify": not self.verify,
+            "force_http1": self.force_http1,
+            "follow_redirects": False,
+        }
+        result = self._native_tls.request(spec)
+
+        raw_headers = [(name, value) for name, value in result.get("headers", [])]
+        raw_body = result["body"]
+        if self.auto_decompress:
+            content_encoding = ""
+            for name, value in raw_headers:
+                if name.lower() == "content-encoding":
+                    content_encoding = value
+                    break
+            raw_body = decode_body(raw_body, content_encoding)
+
+        proto = result.get("proto", "")
+        version = "2" if "2" in proto else "1.1"
+        return Response(result.get("status", 0), "", version, raw_headers, raw_body)
 
     def request(
         self,
