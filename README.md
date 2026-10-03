@@ -116,6 +116,10 @@ Verified for `chrome_120` against `tls.peet.ws`:
 | JA4 | `t13d1516h2_8daaf6152771_02713d6af862` | `t13d1516h2_8daaf6152771_02713d6af862` |
 | Akamai | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` |
 
+For Chromium profiles the TLS extension order is randomized per connection, as
+Chrome does — so the JA3 hash varies between requests while the (order-insensitive)
+JA4 stays constant. Firefox/Safari keep their fixed extension order.
+
 The backend is optional: when the library is neither bundled nor built,
 `tls_backend="auto"` transparently falls back to the pure-Python path.
 

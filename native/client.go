@@ -27,6 +27,11 @@ type RequestSpec struct {
 	InsecureSkipVerify bool       `json:"insecure_skip_verify"`
 	ForceHTTP1         bool       `json:"force_http1"`
 	FollowRedirects    bool       `json:"follow_redirects"`
+	// PermuteExtensions randomizes the TLS ClientHello extension order per
+	// connection, the way Chromium browsers do (so the JA3 hash varies while
+	// JA4, which sorts extensions, stays stable). Only set for Chromium
+	// profiles; Firefox/Safari send a fixed extension order.
+	PermuteExtensions bool `json:"permute_extensions"`
 }
 
 // ResponseSpec is the JSON contract the native backend returns to Python.
@@ -86,6 +91,9 @@ func handleRequest(specJSON string) (result string) {
 	}
 	if spec.ForceHTTP1 {
 		opts = append(opts, tls_client.WithForceHttp1())
+	}
+	if spec.PermuteExtensions {
+		opts = append(opts, tls_client.WithRandomTLSExtensionOrder())
 	}
 	if spec.Proxy != "" {
 		opts = append(opts, tls_client.WithProxyUrl(spec.Proxy))
