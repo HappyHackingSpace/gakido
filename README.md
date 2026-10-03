@@ -124,6 +124,10 @@ Full methodology and HTTP/2 (Akamai) results: [benchmark](docs/antibot-benchmark
 > **not** solve JavaScript challenges (Cloudflare managed challenge, Turnstile) —
 > those need a real browser.
 
+For Chromium profiles the TLS extension order is randomized per connection, as
+Chrome does — so the JA3 hash varies between requests while the (order-insensitive)
+JA4 stays constant. Firefox/Safari keep their fixed extension order.
+
 The backend is optional: when the library is neither bundled nor built,
 `tls_backend="auto"` transparently falls back to the pure-Python path.
 

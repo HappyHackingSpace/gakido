@@ -439,6 +439,7 @@ class AsyncClient:
             "insecure_skip_verify": not self.verify,
             "force_http1": self.force_http1,
             "follow_redirects": False,
+            "permute_extensions": self.profile.get("tls_permute_extensions", False),
         }
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(None, self._native_tls.request, spec)

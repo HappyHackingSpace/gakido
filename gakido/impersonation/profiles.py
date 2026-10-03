@@ -1278,6 +1278,10 @@ for _name in (
     _h2["window_update_increment"] = _CHROMIUM_H2_WINDOW_UPDATE
     _h2["pseudo_header_order"] = list(_CHROMIUM_PSEUDO_ORDER)
     _h2.get("settings", {}).pop("MAX_CONCURRENT_STREAMS", None)
+    # Chromium randomizes the TLS extension order per connection; the native
+    # backend replicates this so the JA3 hash varies like a real browser's
+    # (JA4 stays stable since it sorts). Firefox/Safari keep a fixed order.
+    PROFILES[_name]["tls_permute_extensions"] = True
 
 # Map each base profile to the nearest tls-client (Go + uTLS) client profile,
 # used by the native TLS backend to reproduce a byte-accurate ClientHello.

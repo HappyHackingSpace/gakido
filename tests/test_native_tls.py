@@ -80,6 +80,18 @@ class TestNativeRequestIntegration:
         assert spec["profile"] == get_profile("chrome_120")["tls_client_profile"]
         assert spec["proxy"] == ""
         assert spec["body_b64"] == ""
+        # chrome is Chromium -> extension order is permuted per connection.
+        assert spec["permute_extensions"] is True
+
+    def test_permute_extensions_off_for_firefox(self):
+        client = Client(impersonate="firefox_133", tls_backend="stdlib")
+        fake = _FakeBackend()
+        client._native_tls = fake
+        client._native_request(
+            "GET", "https://example.com", [("Host", "example.com")], None, None
+        )
+        # Firefox sends a fixed extension order.
+        assert fake.spec["permute_extensions"] is False
 
     def test_body_is_base64_encoded(self):
         client = self._client()
@@ -123,6 +135,19 @@ class TestProfileMapping:
     )
     def test_profiles_carry_tls_client_profile(self, name, expected):
         assert get_profile(name)["tls_client_profile"] == expected
+
+    @pytest.mark.parametrize(
+        "name", ["chrome_120", "chrome144", "edge144", "opera115", "brave131", "vivaldi7"]
+    )
+    def test_chromium_permutes_extensions(self, name):
+        assert get_profile(name).get("tls_permute_extensions") is True
+
+    @pytest.mark.parametrize(
+        "name", ["firefox_120", "firefox133", "safari172_ios", "tor145"]
+    )
+    def test_non_chromium_does_not_permute(self, name):
+        # Fixed extension order -> flag absent (falsy).
+        assert not get_profile(name).get("tls_permute_extensions")
 
 
 @pytest.mark.skipif(
