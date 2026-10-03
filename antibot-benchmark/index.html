@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://happyhackingspace.github.io/Gakido/antibot-benchmark/">
       
       
+        <link rel="prev" href="../rate-limiting/">
+      
+      
+        <link rel="next" href="../api/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Antibot Systems Benchmark - Gakido</title>
+        <title>Antibot Benchmark - Gakido</title>
       
     
     
@@ -110,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Antibot Systems Benchmark
+              Antibot Benchmark
             
           </span>
         </div>
@@ -347,6 +351,27 @@
     
   
   Rate Limiting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Antibot Benchmark
 
       </a>
     </li>
@@ -630,6 +655,335 @@
       
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antibot Benchmark
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antibot Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Test Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-tls-fingerprint-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. TLS Fingerprint Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-http-header-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. HTTP Header Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-bot-detection-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Bot Detection Services
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cloudflare-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Cloudflare Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-profiles-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Profiles Tested
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sample-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON Output Format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#programmatic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programmatic Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-custom-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding Custom Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interpreting-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interpreting Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interpreting Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-affects-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Affects Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-fingerprint-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results: fingerprint comparison
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results: fingerprint comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-this-does-and-does-not-mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this does and does not mean
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
   
   
     <li class="md-nav__item">
@@ -675,10 +1029,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
             
   
   
@@ -696,8 +1050,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -984,6 +1338,34 @@
     <span class="md-ellipsis">
       
         Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-fingerprint-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results: fingerprint comparison
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results: fingerprint comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-this-does-and-does-not-mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this does and does not mean
       
     </span>
   </a>
@@ -1466,6 +1848,62 @@ Overall success rate: 100.0%
 <li>Use <strong>platform-specific profiles</strong> (e.g., <code>chrome_131_windows</code> for Windows targets)</li>
 <li>Rotate profiles to avoid fingerprint-based blocking</li>
 </ul>
+<h2 id="results-fingerprint-comparison">Results: fingerprint comparison<a class="headerlink" href="#results-fingerprint-comparison" title="Permanent link">&para;</a></h2>
+<p>A direct comparison against <a href="https://tls.peet.ws/api/all">tls.peet.ws</a> with the
+<code>chrome_120</code> profile. Every client sends the <strong>same</strong> Chrome <code>User-Agent</code>, so
+the only variable is the TLS / HTTP/2 fingerprint.</p>
+<table>
+<thead>
+<tr>
+<th>Client</th>
+<th>JA4 (TLS)</th>
+<th>HTTP/2 (Akamai)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requests</code></td>
+<td><code>t13d1812h1_85036bcba153_…</code></td>
+<td>— (HTTP/1.1)</td>
+</tr>
+<tr>
+<td><code>httpx</code></td>
+<td><code>t13d1812h1_85036bcba153_…</code></td>
+<td>— (HTTP/1.1)</td>
+</tr>
+<tr>
+<td>gakido (<code>tls_backend="stdlib"</code>)</td>
+<td><code>t13d3112h2_e8f1e7e78f70_…</code></td>
+<td><code>1:65536;2:0;4:6291456;5:16384;8:0;6:262144\|15663105\|0\|m,a,s,p</code></td>
+</tr>
+<tr>
+<td><strong>gakido (native)</strong></td>
+<td><strong><code>t13d1516h2_8daaf6152771_02713d6af862</code></strong></td>
+<td><strong><code>1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p</code></strong></td>
+</tr>
+<tr>
+<td><strong>real Chrome 120</strong></td>
+<td><code>t13d1516h2_8daaf6152771_02713d6af862</code></td>
+<td><code>1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>requests</code> / <code>httpx</code> present an OpenSSL fingerprint over HTTP/1.1 — nothing
+  like a browser.</li>
+<li>gakido's pure-Python path gets the HTTP/2 fingerprint almost right (the extra
+  <code>5:16384;8:0</code> is forced by the <code>h2</code> library) but TLS is still OpenSSL.</li>
+<li>gakido's <strong>native</strong> backend matches real Chrome on both JA4 and the Akamai
+  HTTP/2 fingerprint, byte for byte. For Chromium profiles the extension order
+  is randomized per connection, so the JA3 hash also varies the way Chrome's does.</li>
+</ul>
+<h3 id="what-this-does-and-does-not-mean">What this does and does not mean<a class="headerlink" href="#what-this-does-and-does-not-mean" title="Permanent link">&para;</a></h3>
+<p>Matching the fingerprint defeats anti-bot systems that block on the <strong>TLS / HTTP
+fingerprint</strong> itself — a large and common class. It does <strong>not</strong> solve
+JavaScript challenges such as Cloudflare's managed challenge or Turnstile: those
+require executing JavaScript and cannot be passed by any raw HTTP client
+(gakido, curl_cffi, or otherwise) without a real/headless browser. Treat gakido
+as the transport-fingerprint layer, not a challenge solver.</p>
 
 
 
