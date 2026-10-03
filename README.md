@@ -109,12 +109,20 @@ r = c.get("https://tls.peet.ws/api/all")
 print(r.json()["tls"]["ja4"])                     # matches real Chrome
 ```
 
-Verified for `chrome_120` against `tls.peet.ws`:
+Same request, same `User-Agent` — only the TLS/HTTP2 fingerprint differs
+(`tls.peet.ws`, `chrome_120`):
 
-| | gakido (native) | real Chrome 120 |
+| Client | JA4 (TLS) | Looks like Chrome? |
 | --- | --- | --- |
-| JA4 | `t13d1516h2_8daaf6152771_02713d6af862` | `t13d1516h2_8daaf6152771_02713d6af862` |
-| Akamai | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` |
+| `requests` / `httpx` | `t13d1812h1_…` | ✗ OpenSSL, HTTP/1.1 |
+| gakido `tls_backend="stdlib"` | `t13d3112h2_…` | ✗ HTTP/2 ok, TLS still OpenSSL |
+| **gakido (native)** | **`t13d1516h2_8daaf6152771_02713d6af862`** | ✓ identical to real Chrome 120 |
+
+Full methodology and HTTP/2 (Akamai) results: [benchmark](docs/antibot-benchmark.md).
+
+> Matching the fingerprint defeats TLS/HTTP-fingerprint–based blocking. It does
+> **not** solve JavaScript challenges (Cloudflare managed challenge, Turnstile) —
+> those need a real browser.
 
 The backend is optional: when the library is neither bundled nor built,
 `tls_backend="auto"` transparently falls back to the pure-Python path.

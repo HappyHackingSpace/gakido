@@ -67,6 +67,7 @@ nav:
   - Streaming: streaming.md
   - Retry: retry.md
   - Rate Limiting: rate-limiting.md
+  - Antibot Benchmark: antibot-benchmark.md
   - API Reference: api.md
   - Development:
     - Contributing: contributing.md

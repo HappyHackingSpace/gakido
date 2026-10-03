@@ -289,3 +289,34 @@ report = benchmark.run()
 - Enable **client hints** for Chromium-based detection
 - Use **platform-specific profiles** (e.g., `chrome_131_windows` for Windows targets)
 - Rotate profiles to avoid fingerprint-based blocking
+
+## Results: fingerprint comparison
+
+A direct comparison against [tls.peet.ws](https://tls.peet.ws/api/all) with the
+`chrome_120` profile. Every client sends the **same** Chrome `User-Agent`, so
+the only variable is the TLS / HTTP/2 fingerprint.
+
+| Client | JA4 (TLS) | HTTP/2 (Akamai) |
+|--------|-----------|-----------------|
+| `requests` | `t13d1812h1_85036bcba153_…` | — (HTTP/1.1) |
+| `httpx` | `t13d1812h1_85036bcba153_…` | — (HTTP/1.1) |
+| gakido (`tls_backend="stdlib"`) | `t13d3112h2_e8f1e7e78f70_…` | `1:65536;2:0;4:6291456;5:16384;8:0;6:262144\|15663105\|0\|m,a,s,p` |
+| **gakido (native)** | **`t13d1516h2_8daaf6152771_02713d6af862`** | **`1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p`** |
+| **real Chrome 120** | `t13d1516h2_8daaf6152771_02713d6af862` | `1:65536;2:0;4:6291456;6:262144\|15663105\|0\|m,a,s,p` |
+
+- `requests` / `httpx` present an OpenSSL fingerprint over HTTP/1.1 — nothing
+  like a browser.
+- gakido's pure-Python path gets the HTTP/2 fingerprint almost right (the extra
+  `5:16384;8:0` is forced by the `h2` library) but TLS is still OpenSSL.
+- gakido's **native** backend matches real Chrome on both JA4 and the Akamai
+  HTTP/2 fingerprint, byte for byte. For Chromium profiles the extension order
+  is randomized per connection, so the JA3 hash also varies the way Chrome's does.
+
+### What this does and does not mean
+
+Matching the fingerprint defeats anti-bot systems that block on the **TLS / HTTP
+fingerprint** itself — a large and common class. It does **not** solve
+JavaScript challenges such as Cloudflare's managed challenge or Turnstile: those
+require executing JavaScript and cannot be passed by any raw HTTP client
+(gakido, curl_cffi, or otherwise) without a real/headless browser. Treat gakido
+as the transport-fingerprint layer, not a challenge solver.
