@@ -98,7 +98,7 @@ jobs:
           fetch-depth: 0
 
       - name: Collect artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: final_dist
           merge-multiple: true
