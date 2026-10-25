@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pypa/cibuildwheel@v4.2.0
+      - uses: pypa/cibuildwheel@v4.3.4
         env:
           CIBW_BUILD: "cp311-*"
           CIBW_ARCHS_LINUX: "x86_64"
@@ -141,7 +141,7 @@ jobs:
 
       - name: Publish to PyPI
         if: steps.version.outputs.skip != 'true'
-        uses: pypa/gh-action-pypi-publish@v1.14.2
+        uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           packages-dir: final_dist/
           password: ${{ secrets.PYPI_TOKEN }}
