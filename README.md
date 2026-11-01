@@ -131,6 +131,27 @@ JA4 stays constant. Firefox/Safari keep their fixed extension order.
 The backend is optional: when the library is neither bundled nor built,
 `tls_backend="auto"` transparently falls back to the pure-Python path.
 
+### Fingerprint self-test
+
+Verify what servers actually see, per impersonation profile:
+
+```
+$ python -m gakido.fingerprint chrome_120
+Profile: chrome_120  (echo: https://tls.peet.ws/api/all)
+  HTTP:          h2
+  JA3:           cd08e31494f9531f560d64c695473da9
+  JA4:           t13d1516h2_8daaf6152771_02713d6af862  (matches reference)
+  HTTP/2 Akamai: 1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p  (matches reference)
+```
+
+`--all` tests every base profile, `--json` emits machine-readable output, and
+`--echo-url` points at a different echo service (e.g. a self-hosted one).
+Observed values are compared against stored reference prints where one has been
+measured (currently `chrome_120`); profiles without a reference are printed as
+observed, without a pass/fail judgment. A non-zero exit code signals a request
+failure or a reference mismatch, so the command doubles as a CI regression
+check for fingerprint drift after a uTLS bump.
+
 ### WebSocket
 ```python
 from gakido.websocket import WebSocket
