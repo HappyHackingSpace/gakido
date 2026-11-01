@@ -163,3 +163,112 @@ class TestConnectionPool:
         pool = ConnectionPool(profile={}, verify=False)
         conn = pool.acquire("https", "example.com", 443)
         assert conn.verify is False
+
+
+class TestConnectionPoolHealthCheck:
+    """Tests for pool connection health checking."""
+
+    def test_health_check_disabled_by_default(self):
+        """Test health_check defaults to False and is_healthy is not called."""
+        pool = ConnectionPool(profile={})
+        assert pool.health_check is False
+
+        conn = pool.acquire("https", "example.com", 443)
+        conn.closed = False
+        pool.release(conn)
+
+        with patch.object(conn, 'is_healthy') as mock_healthy:
+            reused = pool.acquire("https", "example.com", 443)
+            mock_healthy.assert_not_called()
+        assert reused is conn
+
+    def test_healthy_connection_reused(self):
+        """Test a healthy pooled connection is handed out again."""
+        pool = ConnectionPool(profile={}, health_check=True)
+        conn = pool.acquire("https", "example.com", 443)
+        conn.closed = False
+        pool.release(conn)
+
+        with patch.object(conn, 'is_healthy', return_value=True):
+            reused = pool.acquire("https", "example.com", 443)
+        assert reused is conn
+
+    def test_unhealthy_connection_closed_and_replaced(self):
+        """Test an unhealthy pooled connection is closed and replaced."""
+        pool = ConnectionPool(profile={}, health_check=True)
+        conn = pool.acquire("https", "example.com", 443)
+        conn.closed = False
+        pool.release(conn)
+
+        with patch.object(conn, 'is_healthy', return_value=False), \
+             patch.object(conn, 'close') as mock_close:
+            fresh = pool.acquire("https", "example.com", 443)
+            mock_close.assert_called_once()
+        assert fresh is not conn
+
+    def test_unhealthy_connections_skipped_until_healthy(self):
+        """Test unhealthy connections are drained until a healthy one is found."""
+        pool = ConnectionPool(profile={}, health_check=True, max_per_host=4)
+
+        bad = pool.acquire("https", "example.com", 443)
+        good = pool.acquire("https", "example.com", 443)
+        for conn in (good, bad):
+            conn.closed = False
+            pool.release(conn)
+
+        # LIFO: `bad` (released last) is popped first and discarded.
+        with patch.object(bad, 'is_healthy', return_value=False), \
+             patch.object(good, 'is_healthy', return_value=True):
+            reused = pool.acquire("https", "example.com", 443)
+        assert reused is good
+
+
+class TestConnectionPoolIdleTimeout:
+    """Tests for pool idle timeout handling."""
+
+    def test_idle_timeout_disabled_by_default(self):
+        """Test idle_timeout defaults to None."""
+        pool = ConnectionPool(profile={})
+        assert pool.idle_timeout is None
+
+    def test_invalid_idle_timeout_raises(self):
+        """Test idle_timeout <= 0 raises ValueError."""
+        with pytest.raises(ValueError, match="idle_timeout"):
+            ConnectionPool(profile={}, idle_timeout=0)
+        with pytest.raises(ValueError, match="idle_timeout"):
+            ConnectionPool(profile={}, idle_timeout=-1)
+
+    def test_fresh_connection_reused_within_timeout(self):
+        """Test a recently used connection is reused."""
+        pool = ConnectionPool(profile={}, idle_timeout=60)
+        conn = pool.acquire("https", "example.com", 443)
+        conn.closed = False
+        pool.release(conn)
+
+        reused = pool.acquire("https", "example.com", 443)
+        assert reused is conn
+
+    def test_expired_connection_closed_and_replaced(self):
+        """Test a connection idle past the timeout is closed and replaced."""
+        pool = ConnectionPool(profile={}, idle_timeout=60)
+        conn = pool.acquire("https", "example.com", 443)
+        conn.closed = False
+        pool.release(conn)
+        conn.last_used -= 120  # Simulate 2 minutes of idleness
+
+        with patch.object(conn, 'close') as mock_close:
+            fresh = pool.acquire("https", "example.com", 443)
+            mock_close.assert_called_once()
+        assert fresh is not conn
+
+    def test_release_refreshes_last_used(self):
+        """Test release() stamps the connection's last_used time."""
+        import time
+
+        pool = ConnectionPool(profile={})
+        conn = pool.acquire("https", "example.com", 443)
+        conn.closed = False
+        conn.last_used = 0.0
+
+        pool.release(conn)
+        assert conn.last_used == pytest.approx(time.time(), abs=5)
