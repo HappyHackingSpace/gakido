@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import select
 import socket
 import ssl
 import time
@@ -39,6 +40,7 @@ class Connection:
         self.negotiated_protocol: str | None = None
         self._h2conn: HTTP2Connection | None = None
         self.created_at = time.time()
+        self.last_used = self.created_at
         self.closed = True
 
     def connect(self) -> None:
@@ -151,6 +153,7 @@ class Connection:
         # Respect Connection: close
         if response.headers.get("connection", "").lower() == "close":
             self.close()
+        self.last_used = time.time()
         return response
 
     def stream(
@@ -357,6 +360,28 @@ class Connection:
             auto_decompress=auto_decompress,
             chunk_size=chunk_size,
         )
+
+    def is_healthy(self) -> bool:
+        """
+        Check whether an idle keep-alive connection is still usable,
+        without blocking and without consuming any data.
+
+        An idle connection should have nothing to read; a readable socket
+        means the server closed it (EOF) or sent unsolicited data, so it is
+        reported unhealthy and should be discarded.
+        """
+        if self.closed or self.sock is None:
+            return False
+        try:
+            # TLS records already decrypted and buffered by the SSL layer
+            # also count as unexpected data on an idle connection.
+            if isinstance(self.sock, ssl.SSLSocket) and self.sock.pending():
+                return False
+            readable, _, _ = select.select([self.sock], [], [], 0)
+            return not readable
+        except (OSError, ValueError):
+            # Bad file descriptor or an otherwise unusable socket.
+            return False
 
     def close(self) -> None:
         self._h2conn = None
