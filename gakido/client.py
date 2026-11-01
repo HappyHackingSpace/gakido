@@ -56,6 +56,11 @@ class Client:
         timeout: Request timeout in seconds
         verify: Whether to verify SSL certificates
         max_per_host: Maximum connections per host
+        connection_health_check: Verify pooled connections are still usable
+            before reusing them; stale connections are closed and replaced
+            (default: False)
+        connection_idle_timeout: Close pooled connections idle for more than
+            this many seconds; None disables the check (default: None)
         proxies: List of proxy URLs
         ja3: Custom JA3 fingerprint overrides
         tls_configuration_options: Custom TLS options
@@ -82,6 +87,8 @@ class Client:
         timeout: float = 10.0,
         verify: bool = True,
         max_per_host: int = 4,
+        connection_health_check: bool = False,
+        connection_idle_timeout: float | None = None,
         proxies: list[str] | None = None,
         ja3: dict | None = None,
         tls_configuration_options: dict | None = None,
@@ -111,6 +118,8 @@ class Client:
             timeout=timeout,
             verify=verify,
             max_per_host=max_per_host,
+            health_check=connection_health_check,
+            idle_timeout=connection_idle_timeout,
         )
         self.timeout = timeout
         self.verify = verify

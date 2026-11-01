@@ -709,3 +709,82 @@ class TestConnectionReadHelpers:
 
         result = conn._readline()
         assert result == b"Hello World\r\n"
+
+
+class TestConnectionIsHealthy:
+    """Tests for Connection.is_healthy method."""
+
+    @staticmethod
+    def _make_conn():
+        return Connection(host="example.com", port=80, scheme="http", profile={})
+
+    def test_closed_connection_unhealthy(self):
+        """Test a never-connected (closed) connection is unhealthy."""
+        conn = self._make_conn()
+        assert conn.is_healthy() is False
+
+    def test_idle_open_socket_healthy(self):
+        """Test an open socket with nothing to read is healthy."""
+        client_sock, server_sock = socket.socketpair()
+        try:
+            conn = self._make_conn()
+            conn.sock = client_sock
+            conn.closed = False
+
+            assert conn.is_healthy() is True
+        finally:
+            client_sock.close()
+            server_sock.close()
+
+    def test_peer_closed_socket_unhealthy(self):
+        """Test a socket whose peer hung up (EOF readable) is unhealthy."""
+        client_sock, server_sock = socket.socketpair()
+        try:
+            conn = self._make_conn()
+            conn.sock = client_sock
+            conn.closed = False
+            server_sock.close()
+
+            assert conn.is_healthy() is False
+        finally:
+            client_sock.close()
+
+    def test_unsolicited_data_unhealthy(self):
+        """Test a socket with pending unsolicited data is unhealthy."""
+        client_sock, server_sock = socket.socketpair()
+        try:
+            conn = self._make_conn()
+            conn.sock = client_sock
+            conn.closed = False
+            server_sock.sendall(b"unexpected")
+
+            assert conn.is_healthy() is False
+        finally:
+            client_sock.close()
+            server_sock.close()
+
+    def test_ssl_pending_data_unhealthy(self):
+        """Test an SSL socket with buffered decrypted data is unhealthy."""
+        conn = self._make_conn()
+        mock_sock = MagicMock(spec=ssl.SSLSocket)
+        mock_sock.pending.return_value = 5
+        conn.sock = mock_sock
+        conn.closed = False
+
+        assert conn.is_healthy() is False
+
+    def test_bad_file_descriptor_unhealthy(self):
+        """Test a socket raising OSError is unhealthy."""
+        client_sock, server_sock = socket.socketpair()
+        conn = self._make_conn()
+        conn.sock = client_sock
+        conn.closed = False
+        client_sock.close()
+        server_sock.close()
+
+        assert conn.is_healthy() is False
+
+    def test_last_used_initialized(self):
+        """Test last_used starts at creation time."""
+        conn = self._make_conn()
+        assert conn.last_used == conn.created_at
