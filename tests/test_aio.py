@@ -7,7 +7,11 @@ import ssl
 
 from gakido.aio import AsyncClient
 from gakido.models import Response
-from gakido.errors import ProtocolError
+from gakido.errors import (
+    CircularRedirectError,
+    ProtocolError,
+    TooManyRedirectsError,
+)
 
 
 class TestAsyncClientInit:
@@ -728,3 +732,92 @@ class TestAsyncClientDecompression:
 
         mock_decode.assert_called_with(b"compressed", "gzip")
         assert response.content == b"decompressed"
+
+
+class TestAsyncClientRedirects:
+    """Tests for AsyncClient redirect following."""
+
+    @staticmethod
+    def _redirect(status_code, location):
+        return Response(status_code, "", "1.1", [("Location", location)], b"")
+
+    @patch('gakido.aio.get_profile')
+    async def test_redirects_not_followed_by_default(self, mock_get_profile):
+        """Test redirects are returned as-is when follow_redirects is off."""
+        mock_get_profile.return_value = {"headers": {"default": [], "order": []}}
+        client = AsyncClient()
+        client._make_request = AsyncMock(return_value=self._redirect(301, "/next"))
+
+        resp = await client.request("GET", "http://example.com/start")
+
+        assert resp.status_code == 301
+        client._make_request.assert_awaited_once()
+
+    @patch('gakido.aio.get_profile')
+    async def test_redirect_followed_to_final_response(self, mock_get_profile):
+        """Test redirect chain is followed to the final response."""
+        mock_get_profile.return_value = {"headers": {"default": [], "order": []}}
+        client = AsyncClient(follow_redirects=True)
+        client._make_request = AsyncMock(side_effect=[
+            self._redirect(301, "/hop"),
+            self._redirect(302, "http://example.com/final"),
+            Response(200, "OK", "1.1", [], b"done"),
+        ])
+
+        resp = await client.request("GET", "http://example.com/start")
+
+        assert resp.status_code == 200
+        assert resp.content == b"done"
+        assert client._make_request.await_count == 3
+        # Final hop requests the resolved URL.
+        final_call = client._make_request.await_args[0]
+        assert final_call[1] == "http://example.com/final"
+
+    @patch('gakido.aio.get_profile')
+    async def test_too_many_redirects_raises(self, mock_get_profile):
+        """Test exceeding max_redirects raises TooManyRedirectsError."""
+        mock_get_profile.return_value = {"headers": {"default": [], "order": []}}
+        client = AsyncClient(follow_redirects=True, max_redirects=2)
+        client._make_request = AsyncMock(side_effect=[
+            self._redirect(302, f"/hop{i}") for i in range(10)
+        ])
+
+        with pytest.raises(TooManyRedirectsError):
+            await client.request("GET", "http://example.com/start")
+
+    @patch('gakido.aio.get_profile')
+    async def test_circular_redirect_raises(self, mock_get_profile):
+        """Test a redirect loop raises CircularRedirectError."""
+        mock_get_profile.return_value = {"headers": {"default": [], "order": []}}
+        client = AsyncClient(follow_redirects=True)
+        client._make_request = AsyncMock(side_effect=[
+            self._redirect(302, "http://example.com/b"),
+            self._redirect(302, "http://example.com/a"),
+            self._redirect(302, "http://example.com/b"),
+        ])
+
+        with pytest.raises(CircularRedirectError):
+            await client.request("GET", "http://example.com/a")
+
+    @patch('gakido.aio.get_profile')
+    async def test_post_downgraded_to_get_on_303(self, mock_get_profile):
+        """Test 303 switches POST to GET and drops the body."""
+        mock_get_profile.return_value = {"headers": {"default": [], "order": []}}
+        client = AsyncClient(follow_redirects=True)
+        client._make_request = AsyncMock(side_effect=[
+            self._redirect(303, "/done"),
+            Response(200, "OK", "1.1", [], b""),
+        ])
+
+        await client.request("POST", "http://example.com/form", data=b"payload")
+
+        final_call = client._make_request.await_args[0]
+        assert final_call[0] == "GET"
+        assert final_call[3] is None  # data dropped
+
+    @patch('gakido.aio.get_profile')
+    async def test_negative_max_redirects_raises(self, mock_get_profile):
+        """Test max_redirects < 0 raises ValueError."""
+        mock_get_profile.return_value = {"headers": {"default": []}}
+        with pytest.raises(ValueError, match="max_redirects"):
+            AsyncClient(max_redirects=-1)

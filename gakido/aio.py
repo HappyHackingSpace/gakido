@@ -22,6 +22,12 @@ from gakido.impersonation import (
     apply_tls_configuration_options,
 )
 from gakido.models import Response
+from gakido.redirects import (
+    RedirectTracker,
+    is_redirect,
+    prepare_redirect,
+    strip_sensitive_headers,
+)
 from gakido.streaming import AsyncStreamingResponse
 from gakido.utils import parse_url
 from gakido.backoff import aretry_with_backoff
@@ -56,6 +62,9 @@ class AsyncClient:
         http3: Enable HTTP/3 for compatible targets (default: False)
         http3_fallback: Fall back to HTTP/1.1 or HTTP/2 if HTTP/3 fails (default: True)
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
+        follow_redirects: Follow 3xx redirects automatically (default: False)
+        max_redirects: Maximum redirect hops before TooManyRedirectsError is
+            raised (default: 10); circular redirects raise CircularRedirectError
         rate_limit: Global rate limit (requests per second), None to disable
         rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
         rate_limit_per_host: Per-host rate limit (requests per second), None to disable
@@ -78,6 +87,8 @@ class AsyncClient:
         http3: bool = False,
         http3_fallback: bool = True,
         auto_decompress: bool = True,
+        follow_redirects: bool = False,
+        max_redirects: int = 10,
         max_retries: int = 0,
         retry_base_delay: float = 1.0,
         retry_max_delay: float = 60.0,
@@ -103,6 +114,11 @@ class AsyncClient:
         self._native_tls = _resolve_tls_backend(tls_backend)
         self.proxy_pool = list(proxy_pool) if proxy_pool else []
         self.auto_decompress = auto_decompress
+        # Redirect configuration
+        if max_redirects < 0:
+            raise ValueError("max_redirects must be >= 0")
+        self.follow_redirects = follow_redirects
+        self.max_redirects = max_redirects
         # Retry configuration
         self.max_retries = max_retries
         self.retry_base_delay = retry_base_delay
@@ -511,7 +527,8 @@ class AsyncClient:
         force_http3: bool | None = None,
     ) -> Response:
         """
-        Make an async HTTP request with optional retry logic and caching.
+        Make an async HTTP request with optional redirect following, retry
+        logic and caching.
 
         Args:
             method: HTTP method
@@ -545,28 +562,59 @@ class AsyncClient:
             parsed, host, _, _ = parse_url(url)
             await self._per_host_limiter.acquire(host)
 
-        if self.max_retries <= 0:
-            # No retries, call directly
-            response = await self._make_request(
-                method, url, headers, data, json, files, proxy, force_http3
-            )
-        else:
-            # Apply retry decorator
-            retry_decorator = aretry_with_backoff(
-                max_attempts=self.max_retries + 1,  # +1 for initial attempt
-                base_delay=self.retry_base_delay,
-                max_delay=self.retry_max_delay,
-                jitter=self.retry_jitter,
-            )
-            response = await retry_decorator(self._make_request)(
-                method, url, headers, data, json, files, proxy, force_http3
-            )
+        response = await self._send_with_retries(
+            method, url, headers, data, json, files, proxy, force_http3
+        )
+
+        # Follow redirects with a hop limit and circular redirect detection.
+        if self.follow_redirects:
+            tracker = RedirectTracker(method, url, self.max_redirects)
+            while is_redirect(response):
+                next_method, next_url, keep_body = prepare_redirect(
+                    method, url, response
+                )
+                tracker.follow(next_method, next_url, response)
+                headers = strip_sensitive_headers(headers, url, next_url)
+                if not keep_body:
+                    data = json = files = None
+                method, url = next_method, next_url
+                response = await self._send_with_retries(
+                    method, url, headers, data, json, files, proxy, force_http3
+                )
 
         # Store in cache if enabled
         if self._cache:
             self._cache.cache_response(method, url, headers, response, self._cache_ttl)
 
         return response
+
+    async def _send_with_retries(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None,
+        data: bytes | str | dict[str, str] | None,
+        json: object | None,
+        files: dict[str, bytes | tuple[str, bytes, str | None]] | None,
+        proxy: str | None,
+        force_http3: bool | None,
+    ) -> Response:
+        """Send a single request, applying the configured retry policy."""
+        if self.max_retries <= 0:
+            # No retries, call directly
+            return await self._make_request(
+                method, url, headers, data, json, files, proxy, force_http3
+            )
+        # Apply retry decorator
+        retry_decorator = aretry_with_backoff(
+            max_attempts=self.max_retries + 1,  # +1 for initial attempt
+            base_delay=self.retry_base_delay,
+            max_delay=self.retry_max_delay,
+            jitter=self.retry_jitter,
+        )
+        return await retry_decorator(self._make_request)(
+            method, url, headers, data, json, files, proxy, force_http3
+        )
 
     async def _request_h2(
         self,
