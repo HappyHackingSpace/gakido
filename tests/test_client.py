@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from gakido.client import Client
+from gakido.errors import CircularRedirectError, TooManyRedirectsError
 from gakido.models import Response
 
 
@@ -431,6 +432,186 @@ class TestClientProxy:
         call_args = mock_pool.return_value.acquire.call_args[0]
         assert call_args[1] == "proxy1"  # host
         assert call_args[2] == 8080  # port
+
+
+class TestClientRedirects:
+    """Tests for Client redirect following."""
+
+    @staticmethod
+    def _make_client(mock_pool, responses):
+        mock_conn = MagicMock()
+        mock_conn.request.side_effect = responses
+        mock_conn.closed = False
+        mock_pool.return_value.acquire.return_value = mock_conn
+        return mock_conn
+
+    @staticmethod
+    def _redirect(status_code, location):
+        return Response(status_code, "", "1.1", [("Location", location)], b"")
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_redirects_not_followed_by_default(self, mock_get_profile, mock_pool):
+        """Test redirects are returned as-is when follow_redirects is off."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        self._make_client(mock_pool, [self._redirect(301, "/next")])
+
+        client = Client(tls_backend="stdlib")
+        resp = client.request("GET", "http://example.com/start")
+
+        assert resp.status_code == 301
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_redirect_followed_to_final_response(self, mock_get_profile, mock_pool):
+        """Test redirect chain is followed to the final response."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        mock_conn = self._make_client(
+            mock_pool,
+            [
+                self._redirect(301, "/hop"),
+                self._redirect(302, "/final"),
+                Response(200, "OK", "1.1", [], b"done"),
+            ],
+        )
+
+        client = Client(tls_backend="stdlib", follow_redirects=True)
+        resp = client.request("GET", "http://example.com/start")
+
+        assert resp.status_code == 200
+        assert resp.content == b"done"
+        assert mock_conn.request.call_count == 3
+        # The final hop requests the resolved relative Location.
+        assert mock_conn.request.call_args[0][1] == "/final"
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_too_many_redirects_raises(self, mock_get_profile, mock_pool):
+        """Test exceeding max_redirects raises TooManyRedirectsError."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        self._make_client(
+            mock_pool,
+            [self._redirect(302, f"/hop{i}") for i in range(10)],
+        )
+
+        client = Client(tls_backend="stdlib", follow_redirects=True, max_redirects=2)
+        with pytest.raises(TooManyRedirectsError):
+            client.request("GET", "http://example.com/start")
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_circular_redirect_raises(self, mock_get_profile, mock_pool):
+        """Test a redirect loop raises CircularRedirectError."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        self._make_client(
+            mock_pool,
+            [
+                self._redirect(302, "http://example.com/b"),
+                self._redirect(302, "http://example.com/a"),
+                self._redirect(302, "http://example.com/b"),
+            ],
+        )
+
+        client = Client(tls_backend="stdlib", follow_redirects=True)
+        with pytest.raises(CircularRedirectError):
+            client.request("GET", "http://example.com/a")
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_post_downgraded_to_get_on_301(self, mock_get_profile, mock_pool):
+        """Test POST body is dropped and method becomes GET on 301."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        mock_conn = self._make_client(
+            mock_pool,
+            [
+                self._redirect(301, "/moved"),
+                Response(200, "OK", "1.1", [], b""),
+            ],
+        )
+
+        client = Client(tls_backend="stdlib", follow_redirects=True)
+        client.request("POST", "http://example.com/form", data={"key": "value"})
+
+        final_call = mock_conn.request.call_args[0]
+        assert final_call[0] == "GET"
+        assert final_call[3] is None  # body dropped
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_307_preserves_method_and_body(self, mock_get_profile, mock_pool):
+        """Test 307 keeps the POST method and body."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        mock_conn = self._make_client(
+            mock_pool,
+            [
+                self._redirect(307, "/retry"),
+                Response(200, "OK", "1.1", [], b""),
+            ],
+        )
+
+        client = Client(tls_backend="stdlib", follow_redirects=True)
+        client.request("POST", "http://example.com/form", data=b"payload")
+
+        final_call = mock_conn.request.call_args[0]
+        assert final_call[0] == "POST"
+        assert final_call[3] == b"payload"
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_cross_host_redirect_strips_authorization(
+        self, mock_get_profile, mock_pool
+    ):
+        """Test Authorization header is dropped on cross-host redirects."""
+        mock_get_profile.return_value = {
+            "headers": {"default": [], "order": []},
+            "tls": {},
+        }
+        mock_conn = self._make_client(
+            mock_pool,
+            [
+                self._redirect(302, "http://other.com/else"),
+                Response(200, "OK", "1.1", [], b""),
+            ],
+        )
+
+        client = Client(tls_backend="stdlib", follow_redirects=True)
+        client.request(
+            "GET",
+            "http://example.com/start",
+            headers={"Authorization": "Bearer secret", "X-Custom": "1"},
+        )
+
+        final_headers = {
+            name.lower(): value for name, value in mock_conn.request.call_args[0][2]
+        }
+        assert "authorization" not in final_headers
+        assert final_headers.get("x-custom") == "1"
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_negative_max_redirects_raises(self, mock_get_profile, mock_pool):
+        """Test max_redirects < 0 raises ValueError."""
+        mock_get_profile.return_value = {"headers": {"default": []}, "tls": {}}
+        with pytest.raises(ValueError, match="max_redirects"):
+            Client(max_redirects=-1)
 
 
 class TestClientHeaders:

@@ -14,6 +14,12 @@ from gakido.impersonation import (
     apply_tls_configuration_options,
 )
 from gakido.models import Response
+from gakido.redirects import (
+    RedirectTracker,
+    is_redirect,
+    prepare_redirect,
+    strip_sensitive_headers,
+)
 from gakido.streaming import StreamingResponse
 from gakido.pool import ConnectionPool
 from gakido.utils import parse_url
@@ -67,6 +73,9 @@ class Client:
             pure-Python stdlib path; "native" requires the native backend;
             "stdlib" always uses the pure-Python path.
         auto_decompress: Automatically decompress gzip/deflate/br responses (default: True)
+        follow_redirects: Follow 3xx redirects automatically (default: False)
+        max_redirects: Maximum redirect hops before TooManyRedirectsError is
+            raised (default: 10); circular redirects raise CircularRedirectError
         rate_limit: Global rate limit (requests per second), None to disable
         rate_limit_capacity: Burst capacity for rate limiter (defaults to rate_limit)
         rate_limit_per_host: Per-host rate limit (requests per second), None to disable
@@ -88,6 +97,8 @@ class Client:
         force_http1: bool = False,
         tls_backend: str = "auto",
         auto_decompress: bool = True,
+        follow_redirects: bool = False,
+        max_redirects: int = 10,
         max_retries: int = 0,
         retry_base_delay: float = 1.0,
         retry_max_delay: float = 60.0,
@@ -122,6 +133,11 @@ class Client:
         self._native_tls = _resolve_tls_backend(tls_backend)
         self.proxies = proxies or []
         self.auto_decompress = auto_decompress
+        # Redirect configuration
+        if max_redirects < 0:
+            raise ValueError("max_redirects must be >= 0")
+        self.follow_redirects = follow_redirects
+        self.max_redirects = max_redirects
         # Retry configuration
         self.max_retries = max_retries
         self.retry_base_delay = retry_base_delay
@@ -297,6 +313,31 @@ class Client:
         version = "2" if "2" in proto else "1.1"
         return Response(result.get("status", 0), "", version, raw_headers, raw_body)
 
+    def _send_with_retries(
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str] | None,
+        data: bytes | str | dict[str, str] | None,
+        json: object | None,
+        files: dict[str, bytes | tuple[str, bytes, str | None]] | None,
+        proxy: str | None,
+    ) -> Response:
+        """Send a single request, applying the configured retry policy."""
+        if self.max_retries <= 0:
+            # No retries, call directly
+            return self._make_request(method, url, headers, data, json, files, proxy)
+        # Apply retry decorator
+        retry_decorator = retry_with_backoff(
+            max_attempts=self.max_retries + 1,  # +1 for initial attempt
+            base_delay=self.retry_base_delay,
+            max_delay=self.retry_max_delay,
+            jitter=self.retry_jitter,
+        )
+        return retry_decorator(self._make_request)(
+            method, url, headers, data, json, files, proxy
+        )
+
     def request(
         self,
         method: str,
@@ -308,7 +349,8 @@ class Client:
         proxy: str | None = None,
     ) -> Response:
         """
-        Make an HTTP request with optional retry logic and caching.
+        Make an HTTP request with optional redirect following, retry logic
+        and caching.
 
         Args:
             method: HTTP method (GET, POST, etc.)
@@ -341,22 +383,25 @@ class Client:
             parsed, host, _, _ = parse_url(url)
             self._per_host_limiter.acquire(host)
 
-        if self.max_retries <= 0:
-            # No retries, call directly
-            response = self._make_request(
-                method, url, headers, data, json, files, proxy
-            )
-        else:
-            # Apply retry decorator
-            retry_decorator = retry_with_backoff(
-                max_attempts=self.max_retries + 1,  # +1 for initial attempt
-                base_delay=self.retry_base_delay,
-                max_delay=self.retry_max_delay,
-                jitter=self.retry_jitter,
-            )
-            response = retry_decorator(self._make_request)(
-                method, url, headers, data, json, files, proxy
-            )
+        response = self._send_with_retries(
+            method, url, headers, data, json, files, proxy
+        )
+
+        # Follow redirects with a hop limit and circular redirect detection.
+        if self.follow_redirects:
+            tracker = RedirectTracker(method, url, self.max_redirects)
+            while is_redirect(response):
+                next_method, next_url, keep_body = prepare_redirect(
+                    method, url, response
+                )
+                tracker.follow(next_method, next_url, response)
+                headers = strip_sensitive_headers(headers, url, next_url)
+                if not keep_body:
+                    data = json = files = None
+                method, url = next_method, next_url
+                response = self._send_with_retries(
+                    method, url, headers, data, json, files, proxy
+                )
 
         # Store in cache if enabled
         if self._cache:
