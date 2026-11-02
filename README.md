@@ -225,3 +225,7 @@ asyncio.run(main())
 - `auto_decompress=True` by default: uses profile's Accept-Encoding (gzip, deflate, br) and auto-decompresses responses.
 - Set `auto_decompress=False` to disable compression and receive raw responses.
 - The native TLS backend (`tls_backend="auto"`) handles HTTPS; plaintext `http://` uses the pure-Python connection path.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=HappyHackingSpace/gakido&type=Date)](https://star-history.com/#HappyHackingSpace/gakido&Date)
