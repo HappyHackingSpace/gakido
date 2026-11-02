@@ -479,3 +479,34 @@ class TestClientHeaders:
         headers = call_args[2]
         header_dict = {name: value for name, value in headers}
         assert "X-Custom" in header_dict or "x-custom" in header_dict.keys()
+
+
+class TestClientPoolHealthOptions:
+    """Tests for connection health check options passed to the pool."""
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_defaults_passed_to_pool(self, mock_get_profile, mock_pool):
+        """Test health check is off and idle timeout unset by default."""
+        mock_get_profile.return_value = {"headers": {"default": []}}
+        Client()
+
+        call_kwargs = mock_pool.call_args[1]
+        assert call_kwargs["health_check"] is False
+        assert call_kwargs["idle_timeout"] is None
+
+    @patch('gakido.client.ConnectionPool')
+    @patch('gakido.client.get_profile')
+    def test_health_options_passed_to_pool(self, mock_get_profile, mock_pool):
+        """Test connection_health_check/connection_idle_timeout reach the pool."""
+        mock_get_profile.return_value = {"headers": {"default": []}}
+        Client(
+            max_per_host=4,
+            connection_health_check=True,
+            connection_idle_timeout=60,
+        )
+
+        call_kwargs = mock_pool.call_args[1]
+        assert call_kwargs["max_per_host"] == 4
+        assert call_kwargs["health_check"] is True
+        assert call_kwargs["idle_timeout"] == 60
